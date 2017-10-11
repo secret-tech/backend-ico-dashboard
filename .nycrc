@@ -1,0 +1,29 @@
+{
+  "lines": 80,
+  "statements": 80,
+  "functions": 80,
+  "branches": 80,
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "coverage",
+    "*.ts",
+    "src/*.ts"
+  ],
+  "reporter": [
+    "html",
+    "text",
+    "text-summary"
+  ],
+  "require": [
+    "ts-node/register"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "cache": false,
+  "all": false,
+  "check-coverage": true
+}
