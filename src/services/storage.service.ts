@@ -12,6 +12,8 @@ export interface StorageService {
   flushdb: () => Promise<{}>;
   set: (key: string, value: string) => Promise<string>;
   get: (key: string) => Promise<string>;
+  getUser: (email: string) => Promise<any>;
+  getToken: (token: string) => Promise<any>;
   expire: (key: string, time: number) => Promise<any>;
   del: (key: string) => Promise<any>;
 }
@@ -56,6 +58,38 @@ export class RedisService implements StorageService {
 
   getKey(key: string): string {
     return prefix + key;
+  }
+
+  /**
+   * Return user's data
+   *
+   * @param  email
+   * @return promise
+   */
+  async getUser(email: string): Promise<any> {
+    const userStr = await this.get(`user:${ email }`);
+
+    if (!userStr) {
+      throw Error('User is not found');
+    }
+
+    return JSON.parse(userStr);
+  }
+
+  /**
+   * Return user's data
+   *
+   * @param  token
+   * @return promise
+   */
+  async getToken(token: string): Promise<any> {
+    const tokenStr = await this.get(`token:${ token }`);
+
+    if (!tokenStr) {
+      throw Error('Token is not found');
+    }
+
+    return JSON.parse(tokenStr);
   }
 }
 

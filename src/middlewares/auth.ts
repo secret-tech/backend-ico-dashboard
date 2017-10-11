@@ -31,7 +31,7 @@ export class Auth {
 
     const token = parts[1];
 
-    const tokenVerificationData = JSON.parse(await this.storageService.get(`token: ${ token }`));
+    const tokenVerificationData = JSON.parse(await this.storageService.get(`token:${ token }`));
 
     if (!tokenVerificationData.isVerified) {
       return res.status(401).json({

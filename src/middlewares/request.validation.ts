@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import { Response, Request, NextFunction } from 'express';
+import {func} from "joi";
 
 const options = {
   allowUnknown: true
@@ -28,6 +29,40 @@ export function activateUser(req: Request, res: Response, next: NextFunction) {
     email: Joi.string().email().required(),
     verificationId: Joi.string().required(),
     code: Joi.string().required()
+  });
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}
+
+export function initiateLogin(req: Request, res: Response, next: NextFunction) {
+  const schema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  });
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}
+
+export function verifyLogin(req: Request, res: Response, next: NextFunction) {
+  const schema = Joi.object().keys({
+    accessToken: Joi.string().required(),
+    verification: Joi.object().keys({
+      id: Joi.string().required(),
+      code: Joi.string().required(),
+      method: Joi.string().required(),
+    })
   });
 
   const result = Joi.validate(req.body, schema, options);

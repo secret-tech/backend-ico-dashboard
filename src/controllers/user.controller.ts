@@ -28,9 +28,7 @@ export class UserController {
     'CreateUserValidation'
   )
   async create(req: Request, res: Response): Promise<void> {
-    const result = await this.userService.create(req.body);
-
-    res.json(result);
+    res.json(await this.userService.create(req.body));
   }
 
   /**
@@ -41,6 +39,7 @@ export class UserController {
    */
   @httpPost(
     '/activate',
+    'ActivateUserValidation'
   )
   async activate(req: Request, res: Response): Promise<void> {
     res.json(await this.userService.activate(req.body));
@@ -54,7 +53,8 @@ export class UserController {
    * @param  next express next middleware function
    */
   @httpPost(
-    '/initiateLogin',
+    '/login/initiate',
+    'InitiateLoginValidation'
   )
   async initiateLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -65,18 +65,19 @@ export class UserController {
   }
 
   /**
-   * Validate user login
+   * Verify user login
    *
    * @param  req  express req object
    * @param  res  express res object
    * @param  next express next middleware function
    */
   @httpPost(
-    '/initiateLogin',
+    '/login/verify',
+    'VerifyLoginValidation'
   )
   async validateLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      res.status(200).send(await this.userService.validateLogin(req.body));
+      res.status(200).send(await this.userService.verifyLogin(req.body));
     } catch (e) {
       next(e);
     }

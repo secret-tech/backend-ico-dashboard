@@ -1,308 +1,143 @@
 FORMAT: 1A
-HOST: http://ico:3000/
+HOST: http://ico-dashboard:3000/
 
 # Jincor ICO dashboard backend
 
-Jincor ICO dashboard is a service:
+Almost all operations require 2-factor Authentication.
+To fulfill this requirement most of them are split to 2 endpoints: first (e.g. /user/login/initiate)
+initiates login and generates JWT token. Next this token must be verified using endpoint /user/login/verify.
 
-1. Tenants management.
-2. Users management.
-3. Generation of JWT tokens.
-4. Validation of JWT tokens.
+## Register user [/user]
 
+User's email must be verified after registration. Next step after calling this endpoint is `POST /user/activate` using `verification.id` from response.
 
-Common workflow is following:
-
-1. Register a tenant. Tenant is expected to be a service which requires authentication.
-2. Login tenant. Save received token. Use this token further to manage your tenant's users. Make sure that your end users DO NOT have access to this token!
-3. Create a user when he registers at your service.
-4. Login the user when he logins at your service, save received token on user's side (Browser local storage, etc.).
-5. Verify saved token whenever authentication required.
-6. Logout the user when necessary.
-7. Delete the user when his account is not active anymore or deleted.
-8. Logout your tenant's session when you stop using your service or need to deactivate tenant token for some reason.
-
-# Group Tenant
-
-## Register tenant [/tenant]
-
-### Register new tenant [POST]
+### Register new user [POST]
 
 + email `test@test.com` (string, required, email)
-
 + password `passwordA6` (string, required, min: 6, regex: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$)
++ name `ICO investror` (string, required, min: 3)
++ agreeTos `true` (boolean, equals: true)
++ referral `referral@test.com` (optinal, string, email)
 
 + Request (application/json)
 
         {
             "email": "test@test.com",
-            "password": "passwordA6"
+            "name": "ICO investor",
+            "password": "test12A6!@#$%^&*()_-=+|/",
+            "agreeTos": true,
+            "referral": "referral@test.com"
         }
 
 + Response 200 (application/json)
 
         {
-            "id": "0107bfcf-2f42-4e83-99e9-3ba44b737302",
+            "id": "8ae15eed-1c10-4711-8d15-4fddfe1f25b2",
             "email": "test@test.com",
-        }
-
-## Login tenant to create new JWT token [/tenant/login]
-
-### Login tenant [POST]
-
-+ email `test@test.com` (string, required, email)
-
-+ password `passwordA6` (string, required, min: 6, regex: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$)
-
-+ Request (application/json)
-
-        {
-            "email": "test@test.com",
-            "password": "password"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "accessToken": "jwt_token"
-        }
-
-## Logout tenant to invalidate JWT token [/tenant/logout]
-
-### Logout tenant [POST]
-
-+ accessToken `jwt` (string, required)
-
-+ Request (application/json)
-
-        {
-            "accessToken": "jwt_token"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "result": 1
-        }
-
-## Verify tenant's JWT token [/tenant/verify]
-
-### Verify tenant's token [POST]
-
-+ token `jwt` (string, required)
-
-+ Request (application/json)
-
-        {
-            "token": "jwt_token"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "decoded": {
-                "id": "24d22df4-5709-4506-a974-646d78b519fb",
-                "login": "tenant:companies@jincor.com",
-                "jti": "24d22df4-5709-4506-a974-646d78b519fb1505744965000",
-                "iat": 1505744965000,
-                "aud": "jincor.com",
-                "isTenant": true
-            }
-        }
-
-+ Response 400 (application/json)
-
-        {
-            "error": "invalid token"
-        }
-
-# Group User
-
-## Create user [/user]
-
-**Important note:**
-"Scope" field is used to store user permissions.
-It might be either just a string containing user role (e.g. "company-admin")
-or an object describing what operations user can perform with resources (e.g. {
-    "company": [
-        "create",
-        "read",
-        "update",
-        "delete"
-    ],
-    "employee": [
-        "read"
-    ]
-})
-
-
-###  Create new user [POST]
-
-+ email `test@test.com` (string, required, email)
-
-+ login `test@test.com` (string, required)
-
-+ password `passwordA6` (string, required)
-
-+ sub `Application specific subject, e.g. some ID in 3rd party service` (string, required)
-
-+ scope `scope` (optional)
-
-+ Request (application/json)
-
-        {
-            "email": "test@test.com",
-            "login": "testuser",
-            "password": "password",
-            "scope": "user_scope"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "id": "0107bfcf-2f42-4e83-99e9-3ba44b737302",
-            "login": "testuser",
-            "email": "test@test.com",
-            "scope": "user_scope"
-        }
-
-## Delete user [/user/{login}]
-
-###  Delete a user [DELETE]
-
-+ Response 200 (application/json)
-
-        {
-            "result": 1
-        }
-
-+ Response 404 (application/json)
-
-        {
-            "error": "Specified login does not exist or was already deleted."
-        }
-
-# Group Auth
-
-## Login a user [/auth]
-
-### Login [POST]
-
-+ login `login` (string, required)
-
-+ password `passwordA6` (string, required)
-
-+ deviceId `someId` (string, required)
-
-+ Request (application/json)
-
-        {
-            "login": "user_login",
-            "password": "password_hash",
-            "deviceId": "id"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "accessToken": "jwt_token"
-        }
-
-+ Response 403 (application/json)
-
-        {
-            "error": "Incorrect password",
-            "status": 403
-        }
-
-+ Response 404 (application/json)
-
-        {
-            "error": "User does not exist",
-            "status": 404
-        }
-
-+ Response 422 (application/json)
-
-        {
-            "error": {
-                "isJoi": true,
-                "name": "ValidationError",
-                "details": [
-                    {
-                        "message": "\"password\" length must be at least 6 characters long",
-                        "path": "password",
-                        "type": "string.min",
-                        "context": {
-                            "limit": 6,
-                            "value": "test6",
-                            "key": "password"
-                        }
-                    }
-                ],
-                "_object": {
-                    "email": "companies@jincor",
-                    "password": "test6"
-                }
+            "name": "ICO investor",
+            "agreeTos": true,
+            "verification": {
+                "id": "aed6f343-7397-428d-a46a-29e5468bb813",
+                "method": "email"
             },
-            "value": {
-                "email": "companies@jincor",
-                "password": "test6"
-            }
+            "wallets": [
+                {
+                    "ticker": "ETH",
+                    "address": "0x23A78e1130e7233e21E27e8c926d860C799EE3a7",
+                    "balance": "0"
+                }
+            ],
+            "isVerified": false,
+            "defaultVerificationMethod": "email"
         }
 
-## Verify token [/auth/verify]
+## Activate a user [/user/activate]
 
-### Verify [POST]
+This endpoint response with JWT token so user can be immediately redirected to dashboard.
+JWT token received by `/activate` DOES NOT require verification.
 
-+ token `token` (string, required)
+### Activate a user [POST]
+
++ email `test@test.com` (string, required, email)
++ verificationId `bb38971-1f22-4f99-a904-62fb44430ab4` (string, required)
++ code `123456` (string, required)
 
 + Request (application/json)
 
         {
-            "token": "jwt_token"
+            "email": "test@test.com",
+            "verificationId": "5bb38971-1f22-4f99-a904-62fb44430ab4",
+            "code": "327845"
         }
 
 + Response 200 (application/json)
 
         {
-            "decoded": {
-                "id": "0107bfcf-2f42-4e83-99e9-3ba44b737302",
-                "login": "tenant_id:test@test.com",
-                "scope": "user_scope",
-                "deviceId": "12345",
-                "jti": "0107bfcf-2f42-4e83-99e9-3ba44b737302123451498632187982",
-                "iat": 1498632187982,
-                "exp": 1498632792782
-            }
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MDMzMiIsImlhdCI6MTUwNzcxOTg1MDMzMiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1NTEzMn0.kG-XjH4fCcCY90dXEOND1UPawegsaJJ5WA8myDXw7Y4"
         }
 
-+ Response 400 (application/json)
+## Initiate login [/user/login/initiate]
 
-        {
-            "error": "invalid token"
-        }
+The accessToken got from this endpoint response MUST BE ALWAYS verified via `/user/login/verify`.
+Authentication attempts with not verified token will result in 401 response.
 
-## Logout [/auth/logout]
+### Initiate login [POST]
 
-### Logout [POST]
-
-+ token `token` (string, required)
++ email `test@test.com` (string, required, email)
++ password `passwordA6` (string, required)
 
 + Request (application/json)
 
         {
-            "token": "jwt_token"
+            "email": "test@test.com",
+            "password": "test12A6!@#$%^&*()_-=+|/"
         }
 
 + Response 200 (application/json)
 
         {
-            "result": 1
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "isVerified": false,
+            "verification": {
+                "verificationId": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "consumer": "test@test.com",
+                "expiredOn": 1507720153,
+                "status": 200,
+                "method": "email"
+            }
         }
 
-+ Response 400 (application/json)
+## Verify login [/user/login/verify]
+
++ accessToken `token` (required, string)
++ verification
+    + id (string, required)
+    + code (string, required)
+    + method (string, required)
+
+### Verify login [POST]
+
++ Request (application/json)
 
         {
-            "error": "invalid token"
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "verification": {
+                "id": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "code": "544188",
+                "method": "email"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "isVerified": true,
+            "verification": {
+                "verificationId": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "consumer": "test@test.com",
+                "expiredOn": 1507720153,
+                "status": 200,
+                "method": "email"
+            }
         }

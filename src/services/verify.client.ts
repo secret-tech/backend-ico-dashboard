@@ -26,6 +26,7 @@ export interface InitiateResult extends Result {
   expiredOn: number,
   method: string,
   barcode?: string
+  code?: string
 }
 
 export interface ValidationResult extends Result {
@@ -72,6 +73,7 @@ export class VerificationClient implements VerificationClientInterface {
     });
 
     result.method = method;
+    delete result.code;
 
     return result;
   }

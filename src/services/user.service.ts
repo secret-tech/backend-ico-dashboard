@@ -31,7 +31,7 @@ interface CreatedUserData extends UserData {
     method: string
   },
   wallets: Array<Wallet>,
-  verificationRequired: boolean,
+  isVerified: boolean,
   defaultVerificationMethod: string,
   barCode?: string
 }
@@ -42,7 +42,7 @@ interface InitiateLoginResult {
   verification: InitiateResult
 }
 
-interface ValidateLoginResult extends InitiateLoginResult {
+interface VerifyLoginResult extends InitiateLoginResult {
 
 }
 
@@ -57,11 +57,11 @@ interface ActivationResult {
 }
 
 interface InitiateLoginInput {
-  login: string,
+  email: string,
   password: string
 }
 
-interface ValidateLoginInput {
+interface VerifyLoginInput {
   accessToken: string,
   verification: {
     id: string,
@@ -74,7 +74,7 @@ export interface UserServiceInterface {
   create: (userData: InputUserData) => Promise<any>;
   activate: (activationData: ActivationUserData) => Promise<ActivationResult>;
   initiateLogin: (inputData: InitiateLoginInput) => Promise<InitiateLoginResult>;
-  validateLogin: (inputData: ValidateLoginInput) => Promise<ValidateLoginResult>;
+  verifyLogin: (inputData: VerifyLoginInput) => Promise<VerifyLoginResult>;
   getKey: (tenant: string, login: string) => string;
 }
 
@@ -145,7 +145,7 @@ export class UserService implements UserServiceInterface {
           balance: '0'
         }
       ],
-      verificationRequired: true,
+      isVerified: false,
       defaultVerificationMethod: 'email',
       referral
     };
@@ -169,7 +169,7 @@ export class UserService implements UserServiceInterface {
    * @return promise
    */
   async initiateLogin(loginData: InitiateLoginInput): Promise<InitiateLoginResult> {
-    const user = await this.getUser(loginData.login);
+    const user = await this.storageService.getUser(loginData.email);
 
     const passwordMatch = bcrypt.compareSync(loginData.password, user.passwordHash);
 
@@ -206,24 +206,18 @@ export class UserService implements UserServiceInterface {
       verification: verificationData
     };
 
-    this.storageService.set(`token: ${ tokenData.accessToken }`, JSON.stringify(resultingData));
+    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(resultingData));
     return resultingData;
   }
 
   /**
-   * Validate login
+   * Verify login
    *
    * @param inputData user info
    * @return promise
    */
-  async validateLogin(inputData: ValidateLoginInput): Promise<ValidateLoginResult> {
-    const tokenDataStr = await this.storageService.get(`token: ${ inputData.accessToken }`);
-
-    if (!tokenDataStr) {
-      throw Error('Token is not found');
-    }
-
-    const tokenData = JSON.parse(tokenDataStr);
+  async verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult> {
+    const tokenData = await this.storageService.getToken(inputData.accessToken);
 
     if (tokenData.verification.verificationId !== inputData.verification.id) {
       throw Error('Invalid verification id');
@@ -237,15 +231,15 @@ export class UserService implements UserServiceInterface {
 
     tokenData.isVerified = true;
 
-    await this.storageService.set(`token: ${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
 
     return tokenData;
   }
 
   async activate(activationData: ActivationUserData): Promise<ActivationResult> {
-    const user = await this.getUser(activationData.email);
+    const user = await this.storageService.getUser(activationData.email);
 
-    if (!user.verificationRequired) {
+    if (user.isVerified) {
       throw Error('User is activated already');
     }
 
@@ -259,7 +253,7 @@ export class UserService implements UserServiceInterface {
       activationData.code
     );
 
-    user.verificationRequired = false;
+    user.isVerified = true;
     await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
 
     return await this.authClient.loginUser({
@@ -267,22 +261,6 @@ export class UserService implements UserServiceInterface {
       password: user.passwordHash,
       deviceId: 'device'
     });
-  }
-
-  /**
-   * Return user's data
-   *
-   * @param  email
-   * @return promise
-   */
-  async getUser(email: string): Promise<any> {
-    const userStr = await this.storageService.get(this.getKey(email));
-
-    if (!userStr) {
-      throw Error('User is not found');
-    }
-
-    return JSON.parse(userStr);
   }
 
   getKey(email: string) {

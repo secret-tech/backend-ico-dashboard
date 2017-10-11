@@ -143,7 +143,7 @@ export class AuthClient implements AuthClientInterface {
       baseUrl: this.baseUrl,
       method: 'DELETE',
       headers: {
-        'authorization': `Bearer: ${ this.tenantToken }`
+        'authorization': `Bearer ${ this.tenantToken }`
       }
     });
   }
@@ -153,7 +153,7 @@ export class AuthClient implements AuthClientInterface {
       baseUrl: this.baseUrl,
       method: 'POST',
       headers: {
-        'authorization': `Bearer: ${ this.tenantToken }`
+        'authorization': `Bearer ${ this.tenantToken }`
       },
       body: data
     });
@@ -164,7 +164,7 @@ export class AuthClient implements AuthClientInterface {
       baseUrl: this.baseUrl,
       method: 'POST',
       headers: {
-        'authorization': `Bearer: ${ this.tenantToken }`
+        'authorization': `Bearer ${ this.tenantToken }`
       },
       body: { token }
     });
@@ -175,7 +175,7 @@ export class AuthClient implements AuthClientInterface {
       baseUrl: this.baseUrl,
       method: 'POST',
       headers: {
-        'authorization': `Bearer: ${ this.tenantToken }`
+        'authorization': `Bearer ${ this.tenantToken }`
       },
       body: { token }
     });
