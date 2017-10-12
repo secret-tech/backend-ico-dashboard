@@ -30,11 +30,6 @@ describe('Users', () => {
         expect(res.body.agreeTos).to.eq(true);
         expect(res.body.isVerified).to.eq(false);
         expect(res.body.defaultVerificationMethod).to.eq('email');
-        expect(res.body.wallets).to.deep.eq([{
-          ticker: 'ETH',
-          address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-          balance: '0'
-        }]);
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');
         expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
@@ -94,6 +89,13 @@ describe('Users', () => {
         postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user/activate').send(activateParams).end((err, res) => {
           expect(res.status).to.eq(200);
           expect(res.body.accessToken).to.eq('token');
+          expect(res.body.mnemonic).to.eq('phrase');
+          expect(res.body.privateKey).to.eq('key');
+          expect(res.body.wallets).to.deep.eq([{
+            ticker: 'ETH',
+            address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+            balance: '0'
+          }]);
           done();
         });
       });

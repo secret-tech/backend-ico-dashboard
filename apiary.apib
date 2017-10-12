@@ -40,13 +40,6 @@ User's email must be verified after registration. Next step after calling this e
                 "id": "3ed09e0a-72e1-417b-a05c-f0f08a5e1ffa",
                 "method": "email"
             },
-            "wallets": [
-                {
-                    "ticker": "ETH",
-                    "address": "0x7Ec2173e79dbFd4cab0A507D1c11B0E25fA2F404",
-                    "balance": "0"
-                }
-            ],
             "isVerified": false,
             "defaultVerificationMethod": "email",
             "referralCode": "b3J0Z21hQGdtYWlsLmNvbQ",
@@ -57,6 +50,9 @@ User's email must be verified after registration. Next step after calling this e
 
 This endpoint response with JWT token so user can be immediately redirected to dashboard.
 JWT token received by `/activate` DOES NOT require verification.
+This endpoint's response also contains VERY important information: mnemonic phrase and private key of
+user's ethereum address. This information should be saved by user. If user loses this he will also LOSE
+access to his wallet of ICO dashboard.
 
 ### Activate a user [POST]
 
@@ -75,7 +71,16 @@ JWT token received by `/activate` DOES NOT require verification.
 + Response 200 (application/json)
 
         {
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MDMzMiIsImlhdCI6MTUwNzcxOTg1MDMzMiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1NTEzMn0.kG-XjH4fCcCY90dXEOND1UPawegsaJJ5WA8myDXw7Y4"
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MDMzMiIsImlhdCI6MTUwNzcxOTg1MDMzMiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1NTEzMn0.kG-XjH4fCcCY90dXEOND1UPawegsaJJ5WA8myDXw7Y4",
+            "mnemonic": "phrase",
+            "privateKey": "key",
+            "wallets": [
+                {
+                    "ticker": "ETH",
+                    "address": "0x7Ec2173e79dbFd4cab0A507D1c11B0E25fA2F404",
+                    "balance": "0"
+                }
+            ],
         }
 
 ## Initiate login [/user/login/initiate]

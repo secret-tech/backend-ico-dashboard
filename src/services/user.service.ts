@@ -30,7 +30,6 @@ interface CreatedUserData extends UserData {
     id: string,
     method: string
   },
-  wallets: Array<Wallet>,
   isVerified: boolean,
   defaultVerificationMethod: string,
   referralCode: string,
@@ -54,7 +53,10 @@ interface ActivationUserData {
 }
 
 interface ActivationResult {
-  accessToken: string
+  accessToken: string,
+  mnemonic: string,
+  privateKey: string,
+  wallets: Array<Wallet>
 }
 
 interface InitiateLoginInput {
@@ -125,8 +127,6 @@ export class UserService implements UserServiceInterface {
       }
     });
 
-    const address = this.web3Client.createAccount().address;
-
     const passwordHash: string = bcrypt.hashSync(password);
     const key: string = this.getKey(email);
     const data = {
@@ -139,13 +139,6 @@ export class UserService implements UserServiceInterface {
         id: verification.verificationId,
         method: 'email'
       },
-      wallets: [
-        {
-          ticker: 'ETH',
-          address: address,
-          balance: '0'
-        }
-      ],
       isVerified: false,
       defaultVerificationMethod: 'email',
       referralCode: this.base64encode(email),
@@ -255,14 +248,31 @@ export class UserService implements UserServiceInterface {
       activationData.code
     );
 
+    const address = this.web3Client.createAccount().address;
+
+    user.wallets = [
+      {
+        ticker: 'ETH',
+        address: address,
+        balance: '0'
+      }
+    ];
+
     user.isVerified = true;
     await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
 
-    return await this.authClient.loginUser({
+    const loginResult = await this.authClient.loginUser({
       login: user.email,
       password: user.passwordHash,
       deviceId: 'device'
     });
+
+    return {
+     accessToken: loginResult.accessToken,
+     mnemonic: 'phrase',
+     privateKey: 'key',
+     wallets: user.wallets
+    }
   }
 
   getKey(email: string) {
