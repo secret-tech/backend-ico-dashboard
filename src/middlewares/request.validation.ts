@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import { Response, Request, NextFunction } from 'express';
-import {func} from "joi";
+import base64url from 'base64url';
 
 const options = {
   allowUnknown: true
@@ -14,6 +14,10 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email()
   });
+
+  if (req.body.referral) {
+    req.body.referral = base64url.decode(req.body.referral);
+  }
 
   const result = Joi.validate(req.body, schema, options);
 

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/joi": "10.4.0",
+    "base64url": "2.0.0",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.15.2",
     "debug": "~2.2.0",

@@ -37,6 +37,25 @@ describe('Users', () => {
         }]);
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');
+        expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
+        expect(res.body).to.not.have.property('passwordHash');
+        expect(res.body).to.not.have.property('password');
+        done();
+      });
+    });
+
+    it('should create user and assign referral', (done) => {
+      const params = {
+        email: 'test1@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        referral: 'dGVzdEB0ZXN0LmNvbQ',
+        agreeTos: true
+      };
+
+      postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body.referral).to.equal('test@test.com');
         expect(res.body).to.not.have.property('passwordHash');
         expect(res.body).to.not.have.property('password');
         done();

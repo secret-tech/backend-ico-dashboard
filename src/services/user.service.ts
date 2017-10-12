@@ -6,6 +6,7 @@ import * as uuid from 'node-uuid';
 import * as bcrypt from 'bcrypt-nodejs';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
+import base64url from 'base64url';
 
 interface UserData {
   email: string,
@@ -33,6 +34,7 @@ interface CreatedUserData extends UserData {
   wallets: Array<Wallet>,
   isVerified: boolean,
   defaultVerificationMethod: string,
+  referralCode: string,
   barCode?: string
 }
 
@@ -147,6 +149,7 @@ export class UserService implements UserServiceInterface {
       ],
       isVerified: false,
       defaultVerificationMethod: 'email',
+      referralCode: base64url.encode(email),
       referral
     };
 
