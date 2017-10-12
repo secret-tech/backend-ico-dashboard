@@ -21,7 +21,13 @@ interface InputUserData extends UserData {
 interface Wallet {
   ticker: string,
   address: string,
-  balance: string
+  balance: string,
+  salt?: string
+}
+
+interface NewWallet extends Wallet {
+  privateKey: string,
+  mnemonic: string
 }
 
 interface CreatedUserData extends UserData {
@@ -54,9 +60,7 @@ interface ActivationUserData {
 
 interface ActivationResult {
   accessToken: string,
-  mnemonic: string,
-  privateKey: string,
-  wallets: Array<Wallet>
+  wallets: Array<NewWallet>
 }
 
 interface InitiateLoginInput {
@@ -248,13 +252,16 @@ export class UserService implements UserServiceInterface {
       activationData.code
     );
 
-    const address = this.web3Client.createAccount().address;
+    const mnemonic = this.web3Client.generateMnemonic();
+    const salt = bcrypt.genSaltSync();
+    const account = this.web3Client.getAccountByMnemonicAndSalt(mnemonic, salt);
 
     user.wallets = [
       {
         ticker: 'ETH',
-        address: address,
-        balance: '0'
+        address: account.address,
+        balance: '0',
+        salt: salt
       }
     ];
 
@@ -267,11 +274,19 @@ export class UserService implements UserServiceInterface {
       deviceId: 'device'
     });
 
+    const resultWallets: Array<NewWallet> = [
+      {
+        ticker: 'ETH',
+        address: account.address,
+        balance: '0',
+        mnemonic: mnemonic,
+        privateKey: account.privateKey
+      }
+    ];
+
     return {
-     accessToken: loginResult.accessToken,
-     mnemonic: 'phrase',
-     privateKey: 'key',
-     wallets: user.wallets
+      accessToken: loginResult.accessToken,
+      wallets: resultWallets
     }
   }
 

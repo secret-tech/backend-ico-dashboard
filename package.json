@@ -17,8 +17,10 @@
   "dependencies": {
     "@types/joi": "10.4.0",
     "bcrypt-nodejs": "0.0.3",
+    "bip39": "2.4.0",
     "body-parser": "~1.15.2",
     "debug": "~2.2.0",
+    "ethereumjs-wallet": "0.6.0",
     "express": "~4.14.0",
     "inversify": "4.2.0",
     "inversify-express-utils": "4.0.0",

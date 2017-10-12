@@ -6,23 +6,16 @@ describe('web3Client', () => {
     this.client = new Web3Client();
   });
 
-  describe('#createAccount', () => {
-    it('should create new account', () => {
-      const result = this.client.createAccount();
-      console.log(result);
-    });
-  });
-
-  describe('#sendTransaction', () => {
-    it('should send transaction', async () => {
-      const to = this.client.createAccount().address;
-
-      const result = await this.client.sendTransaction(
-        (await this.client.web3.eth.getAccounts())[0],
-        to,
-        1
+  describe('#sendTransactionByMnemonic', () => {
+    it('should send transation by mnemonic', async () => {
+      await this.client.sendTransactionByMnemonic({
+          to: (await this.client.web3.eth.getAccounts())[0],
+          amount: '0.01',
+          gas: 220000
+        },
+        'mean garden addict lemon minor drastic clay demise mesh kingdom charge crash',
+        '123456'
       );
-      console.log(result);
     });
   });
 });

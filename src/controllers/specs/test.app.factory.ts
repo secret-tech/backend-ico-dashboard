@@ -37,7 +37,6 @@ import * as bcrypt from 'bcrypt-nodejs';
 export const testAppWithVerifyAuthWeb3Mock = () => {
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
   const authMock = TypeMoq.Mock.ofType(AuthClient);
-  const web3Mock = TypeMoq.Mock.ofType(Web3Client);
 
   const initiateResult: InitiateResult = {
     status: 200,
@@ -68,10 +67,6 @@ export const testAppWithVerifyAuthWeb3Mock = () => {
     accessToken: 'token'
   };
 
-  const web3MockResult: CreateAccountResult = {
-    address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-  };
-
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async (): Promise<InitiateResult> => initiateResult);
 
@@ -84,11 +79,8 @@ export const testAppWithVerifyAuthWeb3Mock = () => {
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
     .returns(async (): Promise<AccessTokenResponse> => loginResult);
 
-  web3Mock.setup(x => x.createAccount()).returns(() => web3MockResult);
-
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
-  container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
 
   const newApp = express();
   newApp.use(bodyParser.json());

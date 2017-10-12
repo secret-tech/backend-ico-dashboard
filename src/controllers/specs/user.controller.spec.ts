@@ -1,6 +1,8 @@
 import * as chai from 'chai';
 import app from '../../app';
 import * as factory from './test.app.factory';
+const Web3 = require('web3');
+const bip39 = require('bip39');
 
 chai.use(require('chai-http'));
 const {expect, request} = chai;
@@ -10,7 +12,6 @@ const postRequest = (customApp, url: string) => {
     .post(url)
     .set('Accept', 'application/json')
 };
-
 
 describe('Users', () => {
   describe('POST /user', () => {
@@ -89,13 +90,12 @@ describe('Users', () => {
         postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user/activate').send(activateParams).end((err, res) => {
           expect(res.status).to.eq(200);
           expect(res.body.accessToken).to.eq('token');
-          expect(res.body.mnemonic).to.eq('phrase');
-          expect(res.body.privateKey).to.eq('key');
-          expect(res.body.wallets).to.deep.eq([{
-            ticker: 'ETH',
-            address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-            balance: '0'
-          }]);
+          expect(res.body.wallets[0].ticker).to.eq('ETH');
+          expect(res.body.wallets[0].balance).to.eq('0');
+          expect(res.body.wallets[0]).to.have.property('privateKey');
+          expect(res.body.wallets[0]).to.not.have.property('salt');
+          expect(bip39.validateMnemonic(res.body.wallets[0].mnemonic)).to.eq(true);
+          expect(Web3.utils.isAddress(res.body.wallets[0].address)).to.eq(true);
           done();
         });
       });
