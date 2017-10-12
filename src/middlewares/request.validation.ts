@@ -1,10 +1,19 @@
 import * as Joi from 'joi';
 import { Response, Request, NextFunction } from 'express';
-import base64url from 'base64url';
 
 const options = {
   allowUnknown: true
 };
+
+function unescape(str: string): string {
+  return (str + '==='.slice((str.length + 3) % 4))
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+}
+
+function base64decode(str) {
+  return Buffer.from(unescape(str), 'base64').toString('utf8');
+}
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
@@ -16,7 +25,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
   });
 
   if (req.body.referral) {
-    req.body.referral = base64url.decode(req.body.referral);
+    req.body.referral = base64decode(req.body.referral);
   }
 
   const result = Joi.validate(req.body, schema, options);

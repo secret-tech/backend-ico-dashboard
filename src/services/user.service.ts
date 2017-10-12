@@ -6,7 +6,6 @@ import * as uuid from 'node-uuid';
 import * as bcrypt from 'bcrypt-nodejs';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
-import base64url from 'base64url';
 
 interface UserData {
   email: string,
@@ -149,7 +148,7 @@ export class UserService implements UserServiceInterface {
       ],
       isVerified: false,
       defaultVerificationMethod: 'email',
-      referralCode: base64url.encode(email),
+      referralCode: this.base64encode(email),
       referral
     };
 
@@ -270,6 +269,15 @@ export class UserService implements UserServiceInterface {
     return `user:${ email }`;
   }
 
+  escape(str: string): string {
+    return str.replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
+  }
+
+  base64encode(email: string): string {
+    return this.escape(Buffer.from(email, 'utf8').toString('base64'))
+  }
 }
 
 const UserServiceType = Symbol('UserServiceInterface');
