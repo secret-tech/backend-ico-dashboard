@@ -2,7 +2,9 @@ import { Response, Request, NextFunction } from 'express';
 import { UserServiceType, UserServiceInterface } from '../services/user.service';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost } from 'inversify-express-utils';
+import InvalidPassword from '../exceptions/invalid.password';
 import 'reflect-metadata';
+import UserNotFound from "../exceptions/user.not.found";
 
 /**
  * UserController
@@ -60,7 +62,22 @@ export class UserController {
     try {
       res.status(200).send(await this.userService.initiateLogin(req.body));
     } catch (e) {
-      next(e);
+      switch (e.constructor) {
+        case InvalidPassword:
+          res.status(403).send({
+            error: 'Invalid password'
+          });
+          break;
+        case UserNotFound:
+          res.status(404).send({
+            error: 'User is not found'
+          });
+          break;
+        default:
+          res.status(500).send({
+            error: 'Unknown error occurred'
+          });
+      }
     }
   }
 

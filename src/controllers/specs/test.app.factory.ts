@@ -20,19 +20,13 @@ import {
   AccessTokenResponse
 } from "../../services/auth.client";
 
-import {
-  CreateAccountResult,
-  Web3Client,
-  Web3ClientInterface,
-  Web3ClientType
-} from "../../services/web3.client";
-
 import * as express from 'express';
 import * as TypeMoq from 'typemoq';
 import { container } from '../../ioc.container';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import * as bodyParser from 'body-parser';
 import * as bcrypt from 'bcrypt-nodejs';
+import UserNotFound from "../../exceptions/user.not.found";
 
 export const testAppWithVerifyAuthWeb3Mock = () => {
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
@@ -133,6 +127,9 @@ export const testAppForInitiateLogin = () => {
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test@test.com')))
     .returns(async (): Promise<any> => getUserResult);
+
+  storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test123@test.com')))
+    .throws(new UserNotFound('User is not found'));
 
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
     .returns(async (): Promise<AccessTokenResponse> => loginResult);

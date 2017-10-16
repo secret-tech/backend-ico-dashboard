@@ -46,7 +46,6 @@ app.post('*', (req: Request, res: Response, next: NextFunction) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// for test purpose
 let server = new InversifyExpressServer(container, null, null, app);
 
 export default server.build();

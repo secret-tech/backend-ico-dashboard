@@ -2,11 +2,8 @@ const Web3 = require('web3');
 import { injectable } from 'inversify';
 const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
+import config from '../config';
 import 'reflect-metadata';
-
-export interface CreateAccountResult {
-  address: string,
-}
 
 interface TransactionInput {
   to: string,
@@ -19,14 +16,27 @@ export interface Web3ClientInterface {
   sendTransactionByMnemonic: (input: TransactionInput, mnemonic: string, salt: string) => Promise<any>,
   generateMnemonic: () => string,
   getAccountByMnemonicAndSalt: (mnemonic: string, salt: string) => any,
+  addAddressToWhiteList: (address: string) => any,
+  addAddressToWhiteListReferral: (address: string, referral: string) => any,
+  isAllowed: (account: string) => any
 }
 
 @injectable()
 export class Web3Client implements Web3ClientInterface {
   web3: any;
+  whiteList: any;
 
   constructor() {
     this.web3 = new Web3(new Web3.providers.HttpProvider("http://rpc:8545"));
+  }
+
+  async deployWhiteList() {
+    this.whiteList = await new this.web3.eth.Contract(config.contracts.whiteList.abi).deploy({
+      data: config.contracts.whiteList.unlinkedBinary
+    }).send({
+      from: (await this.web3.eth.getAccounts())[0],
+      gas: 1000000
+    });
   }
 
   async sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<any> {
@@ -68,6 +78,27 @@ export class Web3Client implements Web3ClientInterface {
 
     //get private key
     return "0x" + wallet.getPrivateKey().toString("hex");
+  }
+
+  async addAddressToWhiteList(address: string) {
+    await this.deployWhiteList();
+
+    await this.whiteList.methods.addInvestorToWhiteList(address).send({
+      from: (await this.web3.eth.getAccounts())[0]
+    });
+  }
+
+  async addAddressToWhiteListReferral(address: string, referral: string) {
+    await this.deployWhiteList();
+    return await this.whiteList.methods.addInvestorToListReferral(address, referral).send({
+      from: (await this.web3.eth.getAccounts())[0]
+    });
+  }
+
+  async isAllowed(address: string) {
+    const result = await this.whiteList.methods.investorWhiteList(address).call();
+
+    console.log(result);
   }
 }
 

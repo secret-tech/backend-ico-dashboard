@@ -1,4 +1,5 @@
 import { RedisClient } from 'redis';
+import UserNotFound from '../exceptions/user.not.found';
 import * as redis from 'redis';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
@@ -70,7 +71,7 @@ export class RedisService implements StorageService {
     const userStr = await this.get(`user:${ email }`);
 
     if (!userStr) {
-      throw Error('User is not found');
+      throw new UserNotFound('User is not found');
     }
 
     return JSON.parse(userStr);
@@ -86,7 +87,7 @@ export class RedisService implements StorageService {
     const tokenStr = await this.get(`token:${ token }`);
 
     if (!tokenStr) {
-      throw Error('Token is not found');
+      throw new Error('Token is not found');
     }
 
     return JSON.parse(tokenStr);

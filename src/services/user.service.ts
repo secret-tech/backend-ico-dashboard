@@ -2,6 +2,7 @@ import { StorageService, StorageServiceType } from './storage.service';
 import { AuthClientInterface, AuthClientType } from './auth.client';
 import { VerificationClientInterface, VerificationClientType, InitiateResult } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
+import InvalidPassword from '../exceptions/invalid.password';
 import * as uuid from 'node-uuid';
 import * as bcrypt from 'bcrypt-nodejs';
 import { injectable, inject } from 'inversify';
@@ -173,7 +174,7 @@ export class UserService implements UserServiceInterface {
     const passwordMatch = bcrypt.compareSync(loginData.password, user.passwordHash);
 
     if (!passwordMatch) {
-      throw Error('Incorrect password');
+      throw new InvalidPassword('Incorrect password');
     }
 
     const tokenData = await this.authClient.loginUser({
@@ -219,7 +220,7 @@ export class UserService implements UserServiceInterface {
     const tokenData = await this.storageService.getToken(inputData.accessToken);
 
     if (tokenData.verification.verificationId !== inputData.verification.id) {
-      throw Error('Invalid verification id');
+      throw new Error('Invalid verification id');
     }
 
     await this.verificationClient.validateVerification(
@@ -265,6 +266,14 @@ export class UserService implements UserServiceInterface {
       }
     ];
 
+    if (user.referral) {
+      const referral = await this.storageService.getUser(user.referral);
+      await this.web3Client.addAddressToWhiteListReferral(account.address, referral.wallets[0].address);
+    } else {
+      await this.web3Client.addAddressToWhiteList(account.address);
+    }
+
+    await this.web3Client.isAllowed(account.address);
     user.isVerified = true;
     await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
 

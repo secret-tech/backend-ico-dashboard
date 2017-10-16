@@ -215,6 +215,22 @@ describe('Users', () => {
       });
     });
 
+    it('should respond with 403 for incorrect password', (done) => {
+      const params = { email: 'test@test.com', password: 'passwordA11' };
+      postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
+        expect(res.status).to.equal(403);
+        done();
+      });
+    });
+
+    it('should respond with 404 if user is not found', (done) => {
+      const params = { email: 'test123@test.com', password: 'passwordA11' };
+      postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
+        expect(res.status).to.equal(404);
+        done();
+      });
+    });
+
     it('should require email', (done) => {
       const params = { password: 'passwordA1' };
       postRequest(app, '/user/login/initiate').send(params).end((err, res) => {
