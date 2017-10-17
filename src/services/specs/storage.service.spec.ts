@@ -5,10 +5,6 @@ import { container } from '../../ioc.container';
 const storageService = container.get<StorageService>(StorageServiceType);
 
 describe('storageService', () => {
-  afterEach(async() => {
-    await storageService.flushdb();
-  });
-
   describe('#set', () => {
     it('should return "OK"', async() => {
       const result = await storageService.set('key', 'value');

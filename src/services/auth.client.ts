@@ -37,6 +37,14 @@ interface UserVerificationResult extends VerificationResult {
   scope?: any
 }
 
+interface UserVerificationResponse {
+  decoded: UserVerificationResult
+}
+
+interface TenantVerificationResponse {
+  decoded: TenantVerificationResult
+}
+
 interface UserData {
   email: string,
   login: string,
@@ -106,13 +114,13 @@ export class AuthClient implements AuthClientInterface {
   }
 
   async verifyTenantToken(token: string): Promise<TenantVerificationResult> {
-    return await request.json<TenantVerificationResult>('/tenant/verify', {
+    return (await request.json<TenantVerificationResponse>('/tenant/verify', {
       baseUrl: this.baseUrl,
       method: 'POST',
       body: {
         token
       }
-    });
+    })).decoded;
   }
 
   async logoutTenant(token: string): Promise<void> {
@@ -160,14 +168,14 @@ export class AuthClient implements AuthClientInterface {
   }
 
   async verifyUserToken(token: string): Promise<UserVerificationResult> {
-    return await request.json<UserVerificationResult>('/auth/verify', {
+    return (await request.json<UserVerificationResponse>('/auth/verify', {
       baseUrl: this.baseUrl,
       method: 'POST',
       headers: {
         'authorization': `Bearer ${ this.tenantToken }`
       },
       body: { token }
-    });
+    })).decoded;
   }
 
   async logoutUser(token: string): Promise<void> {

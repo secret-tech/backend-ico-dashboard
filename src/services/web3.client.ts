@@ -82,7 +82,6 @@ export class Web3Client implements Web3ClientInterface {
 
   async addAddressToWhiteList(address: string) {
     await this.deployWhiteList();
-
     await this.whiteList.methods.addInvestorToWhiteList(address).send({
       from: (await this.web3.eth.getAccounts())[0]
     });
@@ -96,9 +95,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async isAllowed(address: string) {
-    const result = await this.whiteList.methods.investorWhiteList(address).call();
-
-    console.log(result);
+    return await this.whiteList.methods.investorWhiteList(address).call();
   }
 }
 

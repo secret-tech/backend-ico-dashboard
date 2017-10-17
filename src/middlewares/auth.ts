@@ -1,17 +1,15 @@
 import { Response, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
-import { AuthClientType, AuthClientInterface } from '../services/auth.client';
-import { StorageServiceType, StorageService } from '../services/storage.service';
-import { injectable, inject } from 'inversify';
+import { AuthClientInterface } from '../services/auth.client';
+import { StorageService } from '../services/storage.service';
 
-@injectable()
 export class Auth {
   /**
    * constructor
    */
   constructor(
-    @inject(AuthClientType) private authClient: AuthClientInterface,
-    @inject(StorageServiceType) private storageService: StorageService
+    private authClient: AuthClientInterface,
+    private storageService: StorageService
   ) { }
 
   async authenticate(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -31,7 +29,7 @@ export class Auth {
 
     const token = parts[1];
 
-    const tokenVerificationData = JSON.parse(await this.storageService.get(`token:${ token }`));
+    const tokenVerificationData = await this.storageService.getToken(token);
 
     if (!tokenVerificationData.isVerified) {
       return res.status(401).json({
@@ -40,7 +38,15 @@ export class Auth {
     }
 
     try {
-      req.user = await this.authClient.verifyUserToken(token);
+      const verifyResult = await this.authClient.verifyUserToken(token);
+      req.user = await this.storageService.getUser(verifyResult.login);
+
+      if (!req.user) {
+        return res.status(404).json({
+          error: 'User is not found'
+        });
+      }
+
       return next();
     } catch (e) {
       return res.status(401).json({

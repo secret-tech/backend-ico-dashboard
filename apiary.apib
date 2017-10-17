@@ -148,3 +148,78 @@ Authentication attempts with not verified token will result in 401 response.
                 "method": "email"
             }
         }
+
+## Get user info [/user/me]
+
+### Get user info [GET]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "ethAddress": "0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751",
+            "kycStatus": "Not verified"
+        }
+
+## Get dashboard info [/dashboard]
+
+### Get dashboard info [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "ethBalance": "1.0001",
+            "jcrTokensSold": "5000",
+            "jcrTokenPrice": {
+                "ETH": "0.005",
+                "USD": "1"
+            },
+            "raised": {
+                "ETH": "2000",
+                "USD": "1000000",
+                "BTC": "100"
+            },
+            "daysLeft": 10
+        }
+
+## Get referral info [/dashboard/referral]
+
+### Get referral info [GET]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "data": "dGVzdEB0ZXN0LmNvbQ",
+            "users": [
+                {
+                    "date": 1508241475,
+                    "name": "Investor 1",
+                    "walletAddress": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA",
+                    "tokens": "105"
+                },
+                {
+                    "date": 1508241475,
+                    "name": "Investor 2",
+                    "walletAddress": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eB",
+                    "tokens": "1.01"
+                }
+            ]
+        }

@@ -1,6 +1,7 @@
 import { Container } from 'inversify';
 import { StorageServiceType, StorageService, RedisService } from './services/storage.service';
 import { UserController } from './controllers/user.controller';
+import { DashboardController } from './controllers/dashboard.controller';
 import { interfaces, TYPE } from 'inversify-express-utils';
 import { UserService, UserServiceInterface, UserServiceType } from './services/user.service';
 import { AuthClientInterface, AuthClientType, AuthClient } from './services/auth.client';
@@ -20,7 +21,11 @@ container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClie
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
 
+const auth = new Auth(container.get<AuthClientInterface>(AuthClientType), container.get<StorageService>(StorageServiceType));
 // middlewares
+container.bind<express.RequestHandler>('AuthMiddleware').toConstantValue(
+  (req: any, res: any, next: any) => auth.authenticate(req, res, next)
+);
 container.bind<express.RequestHandler>('CreateUserValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.createUser(req, res, next)
 );
@@ -48,5 +53,6 @@ container.bind<express.RequestHandler>('TokenRequiredValidation').toConstantValu
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');
+container.bind<interfaces.Controller>(TYPE.Controller).to(DashboardController).whenTargetNamed('DashboardController');
 
 export { container };

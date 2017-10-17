@@ -7,6 +7,8 @@ import * as uuid from 'node-uuid';
 import * as bcrypt from 'bcrypt-nodejs';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
+import UserNotFound from '../exceptions/user.not.found';
+import UserExists from '../exceptions/user.exists';
 
 interface UserData {
   email: string,
@@ -114,6 +116,11 @@ export class UserService implements UserServiceInterface {
    */
   async create(userData: InputUserData): Promise<CreatedUserData> {
     const { email, name, password, agreeTos, referral } = userData;
+    const existingUser = await this.storageService.getUser(email);
+    if (existingUser) {
+      throw new UserExists('User already exists');
+    }
+
     const verificationMethod = 'email';
 
     const verification = await this.verificationClient.initiateVerification(verificationMethod, {
@@ -147,7 +154,8 @@ export class UserService implements UserServiceInterface {
       isVerified: false,
       defaultVerificationMethod: 'email',
       referralCode: this.base64encode(email),
-      referral
+      referral,
+      kycStatus: 'Not verified'
     };
 
     await this.authClient.createUser({
@@ -170,6 +178,10 @@ export class UserService implements UserServiceInterface {
    */
   async initiateLogin(loginData: InitiateLoginInput): Promise<InitiateLoginResult> {
     const user = await this.storageService.getUser(loginData.email);
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
 
     const passwordMatch = bcrypt.compareSync(loginData.password, user.passwordHash);
 
@@ -238,6 +250,10 @@ export class UserService implements UserServiceInterface {
 
   async activate(activationData: ActivationUserData): Promise<ActivationResult> {
     const user = await this.storageService.getUser(activationData.email);
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
 
     if (user.isVerified) {
       throw Error('User is activated already');

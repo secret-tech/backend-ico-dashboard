@@ -26,11 +26,73 @@ import { container } from '../../ioc.container';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import * as bodyParser from 'body-parser';
 import * as bcrypt from 'bcrypt-nodejs';
-import UserNotFound from "../../exceptions/user.not.found";
+import { Auth } from '../../middlewares/auth';
 
-export const testAppWithVerifyAuthWeb3Mock = () => {
+const mockAuthMiddleware = () => {
+  const storageMock = TypeMoq.Mock.ofType(RedisService);
+  const authMock = TypeMoq.Mock.ofType(AuthClient);
+
+  const getTokenResult = {
+    accessToken: 'valid_token',
+    isVerified: true,
+    verification: {
+      status: 200,
+      verificationId: '123',
+      attempts: 0,
+      expiredOn: 124545,
+      method: 'email',
+    }
+  };
+
+  const verifyTokenResult = {
+    login: 'existing@test.com'
+  };
+
+  const getUserResult = {
+    id: 'id',
+    email: 'existing@test.com',
+    name: 'ICO investor',
+    agreeTos: true,
+    passwordHash: bcrypt.hashSync('passwordA1'),
+    verification: {
+      id: 'id',
+      method: 'email'
+    },
+    wallets: [
+      {
+        ticker: 'ETH',
+        address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+        balance: '0'
+      }
+    ],
+    isVerified: true,
+    defaultVerificationMethod: 'email',
+    referral: 'referral@test.com',
+    kycStatus: 'Not verified'
+  };
+
+  storageMock.setup(x => x.getToken(TypeMoq.It.isValue('valid_token')))
+    .returns(async (): Promise<any> => getTokenResult);
+
+  storageMock.setup(x => x.getUser(TypeMoq.It.isValue('existing@test.com')))
+    .returns(async (): Promise<any> => getUserResult);
+
+  authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('valid_token')))
+    .returns(async (): Promise<any> => verifyTokenResult);
+
+  container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
+  container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
+
+  const auth = new Auth(container.get<AuthClientInterface>(AuthClientType), container.get<StorageService>(StorageServiceType));
+  container.rebind<express.RequestHandler>('AuthMiddleware').toConstantValue(
+    (req: any, res: any, next: any) => auth.authenticate(req, res, next)
+  );
+};
+
+export const testAppForSuccessRegistration = () => {
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
   const authMock = TypeMoq.Mock.ofType(AuthClient);
+  const storageMock = TypeMoq.Mock.ofType(RedisService);
 
   const initiateResult: InitiateResult = {
     status: 200,
@@ -73,8 +135,37 @@ export const testAppWithVerifyAuthWeb3Mock = () => {
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
     .returns(async (): Promise<AccessTokenResponse> => loginResult);
 
+  storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test@test.com')))
+    .returns(async () : Promise<any> => null);
+
+  const existingUser = {
+    id: 'id',
+    email: 'existing@test.com',
+    name: 'ICO investor',
+    agreeTos: true,
+    passwordHash: bcrypt.hashSync('passwordA1'),
+    verification: {
+      id: '123',
+      method: 'email'
+    },
+    wallets: [
+      {
+        ticker: 'ETH',
+        address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+        balance: '0'
+      }
+    ],
+    isVerified: false,
+    defaultVerificationMethod: 'email',
+    referral: null
+  };
+
+  storageMock.setup(x => x.getUser(TypeMoq.It.isValue('existing@test.com')))
+    .returns(async () : Promise<any> => existingUser);
+
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
+  container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
 
   const newApp = express();
   newApp.use(bodyParser.json());
@@ -129,7 +220,7 @@ export const testAppForInitiateLogin = () => {
     .returns(async (): Promise<any> => getUserResult);
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test123@test.com')))
-    .throws(new UserNotFound('User is not found'));
+    .returns(async (): Promise<any> => null);
 
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
     .returns(async (): Promise<AccessTokenResponse> => loginResult);
@@ -177,6 +268,26 @@ export const testAppForVerifyLogin = () => {
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
+
+  const newApp = express();
+  newApp.use(bodyParser.json());
+  newApp.use(bodyParser.urlencoded({ extended: false }));
+
+  return new InversifyExpressServer(container, null, null, newApp).build();
+};
+
+export const testAppForUserMe = () => {
+  mockAuthMiddleware();
+
+  const newApp = express();
+  newApp.use(bodyParser.json());
+  newApp.use(bodyParser.urlencoded({ extended: false }));
+
+  return new InversifyExpressServer(container, null, null, newApp).build();
+};
+
+export const testAppForDashboard = () => {
+  mockAuthMiddleware();
 
   const newApp = express();
   newApp.use(bodyParser.json());

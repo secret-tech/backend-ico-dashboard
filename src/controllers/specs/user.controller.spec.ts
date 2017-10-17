@@ -13,6 +13,12 @@ const postRequest = (customApp, url: string) => {
     .set('Accept', 'application/json')
 };
 
+const getRequest = (customApp, url: string) => {
+  return request(customApp)
+    .get(url)
+    .set('Accept', 'application/json')
+};
+
 describe('Users', () => {
   describe('POST /user', () => {
     it('should create user', (done) => {
@@ -23,19 +29,35 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.property('id');
         expect(res.body.name).to.eq('ICO investor');
         expect(res.body.email).to.eq('test@test.com');
         expect(res.body.agreeTos).to.eq(true);
         expect(res.body.isVerified).to.eq(false);
+        expect(res.body.kycStatus).to.eq('Not verified');
         expect(res.body.defaultVerificationMethod).to.eq('email');
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');
         expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
         expect(res.body).to.not.have.property('passwordHash');
         expect(res.body).to.not.have.property('password');
+        done();
+      });
+    });
+
+    it('should not allow to create user if email already exists', (done) => {
+      const params = {
+        email: 'existing@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        referral: 'dGVzdEB0ZXN0LmNvbQ',
+        agreeTos: true
+      };
+
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
         done();
       });
     });
@@ -49,7 +71,7 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body.referral).to.equal('test@test.com');
         expect(res.body).to.not.have.property('passwordHash');
@@ -66,38 +88,29 @@ describe('Users', () => {
         agreeTos: true,
         additional: 'value'
       };
-      postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         done();
       });
     });
 
     it('should activate user', (done) => {
-      const params = {
-        email: 'test@test.com',
-        name: 'ICO investor',
-        password: 'test12A6!@#$%^&*()_-=+|/',
-        agreeTos: true
+      const activateParams = {
+        email: 'existing@test.com',
+        verificationId: '123',
+        code: '123456'
       };
 
-      postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user').send(params).end((err, res) => {
-        const activateParams = {
-          email: 'test@test.com',
-          verificationId: '123',
-          code: '123456'
-        };
-
-        postRequest(factory.testAppWithVerifyAuthWeb3Mock(), '/user/activate').send(activateParams).end((err, res) => {
-          expect(res.status).to.eq(200);
-          expect(res.body.accessToken).to.eq('token');
-          expect(res.body.wallets[0].ticker).to.eq('ETH');
-          expect(res.body.wallets[0].balance).to.eq('0');
-          expect(res.body.wallets[0]).to.have.property('privateKey');
-          expect(res.body.wallets[0]).to.not.have.property('salt');
-          expect(bip39.validateMnemonic(res.body.wallets[0].mnemonic)).to.eq(true);
-          expect(Web3.utils.isAddress(res.body.wallets[0].address)).to.eq(true);
-          done();
-        });
+      postRequest(factory.testAppForSuccessRegistration(), '/user/activate').send(activateParams).end((err, res) => {
+        expect(res.status).to.eq(200);
+        expect(res.body.accessToken).to.eq('token');
+        expect(res.body.wallets[0].ticker).to.eq('ETH');
+        expect(res.body.wallets[0].balance).to.eq('0');
+        expect(res.body.wallets[0]).to.have.property('privateKey');
+        expect(res.body.wallets[0]).to.not.have.property('salt');
+        expect(bip39.validateMnemonic(res.body.wallets[0].mnemonic)).to.eq(true);
+        expect(Web3.utils.isAddress(res.body.wallets[0].address)).to.eq(true);
+        done();
       });
     });
 
@@ -354,6 +367,22 @@ describe('Users', () => {
         expect(res.status).to.equal(422);
 
         expect(res.body.error.details[0].message).to.equal('"method" is required');
+        done();
+      });
+    });
+  });
+
+  describe('POST /user/me', () => {
+    it('should provide user info', (done) => {
+      const token = 'valid_token';
+
+      getRequest(factory.testAppForUserMe(), '/user/me').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.equal(200);
+
+        expect(res.body).to.deep.equal({
+          ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+          kycStatus: 'Not verified'
+        });
         done();
       });
     });

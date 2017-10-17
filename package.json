@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon ./src/bin/www --exec ts-node",
     "lint": "tslint --fix -c tslint.json ./src/**/**/*.ts",
-    "test": "nyc mocha ./src/controllers/specs/user.controller.spec.ts",
+    "test": "nyc mocha ./src/**/*.spec.ts",
     "build": "tsc --outDir dist ",
     "serve": "node ./dist/bin/www.js"
   },
