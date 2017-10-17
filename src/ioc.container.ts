@@ -50,6 +50,9 @@ container.bind<express.RequestHandler>('CreateTokenValidation').toConstantValue(
 container.bind<express.RequestHandler>('TokenRequiredValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.tokenRequired(req, res, next)
 );
+container.bind<express.RequestHandler>('ChangePasswordValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.changePassword(req, res, next)
+);
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');

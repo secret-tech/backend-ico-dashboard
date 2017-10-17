@@ -1,5 +1,5 @@
 import { StorageService, StorageServiceType } from './storage.service';
-import { AuthClientInterface, AuthClientType } from './auth.client';
+import {AccessTokenResponse, AuthClientInterface, AuthClientType} from './auth.client';
 import { VerificationClientInterface, VerificationClientType, InitiateResult } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import InvalidPassword from '../exceptions/invalid.password';
@@ -45,10 +45,13 @@ interface CreatedUserData extends UserData {
   barCode?: string
 }
 
-interface InitiateLoginResult {
+interface BaseInitiateResult {
+  verification: InitiateResult
+}
+
+interface InitiateLoginResult extends BaseInitiateResult {
   accessToken: string,
   isVerified: boolean,
-  verification: InitiateResult
 }
 
 interface VerifyLoginResult extends InitiateLoginResult {
@@ -80,10 +83,17 @@ interface VerifyLoginInput {
   }
 }
 
+interface InitiateChangePasswordInput {
+  oldPassword: string,
+  newPassword: string
+}
+
 export interface UserServiceInterface {
   create: (userData: InputUserData) => Promise<any>;
   activate: (activationData: ActivationUserData) => Promise<ActivationResult>;
   initiateLogin: (inputData: InitiateLoginInput) => Promise<InitiateLoginResult>;
+  initiateChangePassword: (user: any, params: InitiateChangePasswordInput) => Promise<BaseInitiateResult>;
+  verifyChangePassword: (user: any, params: InitiateChangePasswordInput) => Promise<AccessTokenResponse>;
   verifyLogin: (inputData: VerifyLoginInput) => Promise<VerifyLoginResult>;
   getKey: (tenant: string, login: string) => string;
 }
@@ -309,10 +319,78 @@ export class UserService implements UserServiceInterface {
       }
     ];
 
+    const tokenData = {
+      accessToken: loginResult.accessToken,
+      isVerified: true
+    };
+
+    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
     return {
       accessToken: loginResult.accessToken,
       wallets: resultWallets
     }
+  }
+
+  async initiateChangePassword(user: any, params: any): Promise<BaseInitiateResult> {
+    if (!bcrypt.compareSync(params.oldPassword, user.passwordHash)) {
+      throw new InvalidPassword('Invalid password');
+    }
+
+    const verificationData = await this.verificationClient.initiateVerification(
+      user.defaultVerificationMethod,
+      {
+        consumer: user.email,
+        template: {
+          body: 'Enter this code to confirm password change: {{{CODE}}}'
+        },
+        generateCode: {
+          length: 6,
+          symbolSet: ['DIGITS'],
+        },
+        policy: {
+          expiredOn: '01:00:00'
+        }
+      }
+    );
+
+    return {
+      verification: verificationData
+    };
+  }
+
+  async verifyChangePassword(user: any, params: any): Promise<AccessTokenResponse> {
+    if (!bcrypt.compareSync(params.oldPassword, user.passwordHash)) {
+      throw new InvalidPassword('Invalid password');
+    }
+
+    await this.verificationClient.validateVerification(
+      user.verification.method,
+      params.verification.verificationId,
+      params.verification.code
+    );
+
+    user.passwordHash = bcrypt.hashSync(params.newPassword);
+    await this.storageService.set(`user:${ user.email }`, JSON.stringify(user));
+    await this.authClient.createUser({
+      email: user.email,
+      login: user.email,
+      password: user.passwordHash,
+      sub: params.verification.verificationId
+    });
+
+    const loginResult = await this.authClient.loginUser({
+      login: user.email,
+      password: user.passwordHash,
+      deviceId: 'device'
+    });
+
+    const tokenData = {
+      accessToken: loginResult.accessToken,
+      isVerified: true
+    };
+
+    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    return loginResult;
   }
 
   getKey(email: string) {

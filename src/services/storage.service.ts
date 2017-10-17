@@ -84,11 +84,11 @@ export class RedisService implements StorageService {
   async getToken(token: string): Promise<any> {
     const tokenStr = await this.get(`token:${ token }`);
 
-    if (!tokenStr) {
-      throw new Error('Token is not found');
+    try {
+      return JSON.parse(tokenStr);
+    } catch (e) {
+      return null;
     }
-
-    return JSON.parse(tokenStr);
   }
 }
 

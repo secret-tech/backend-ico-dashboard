@@ -387,4 +387,88 @@ describe('Users', () => {
       });
     });
   });
+
+  describe('POST /user/me/changePassword', () => {
+    it('should initiate password change', (done) => {
+      const token = 'valid_token';
+      const params = {
+        oldPassword: 'passwordA1',
+        newPassword: 'PasswordA1#$'
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/me/changePassword/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.equal({
+            verification: {
+              status: 200,
+              verificationId: '123',
+              attempts: 0,
+              expiredOn: 124545,
+              method: 'email'
+            }
+          });
+          done();
+      });
+    });
+
+    it('should verify password change', (done) => {
+      const token = 'valid_token';
+      const params = {
+        oldPassword: 'passwordA1',
+        newPassword: 'PasswordA1#$',
+        verification: {
+          id: '123',
+          code: '123'
+        }
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/me/changePassword/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.equal({
+            accessToken: 'new_token'
+          });
+          done();
+      });
+    });
+
+    it('should check old password on initiate', (done) => {
+      const token = 'valid_token';
+      const params = {
+        oldPassword: '1234',
+        newPassword: 'PasswordA1#$'
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/me/changePassword/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(403);
+          expect(res.body.error).to.equal('Invalid password');
+          done();
+      });
+    });
+
+    it('should require new password on initiate', (done) => {
+      const token = 'valid_token';
+      const params = {
+        oldPassword: 'passwordA1',
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/me/changePassword/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+
+          expect(res.body.error.details[0].message).to.equal('"newPassword" is required');
+          done();
+      });
+    });
+  });
 });

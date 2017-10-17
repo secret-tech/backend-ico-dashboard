@@ -149,6 +149,66 @@ Authentication attempts with not verified token will result in 401 response.
             }
         }
 
+## Initiate password change [/user/me/passwordChange/initiate]
+
+### Initiate password change [POST]
+
++ oldPassword `passwordA1` (string, required)
++ newPassword `passwordA6` (string, required, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
+
++ Request (application/json)
+
+        {
+            "oldPassword": "test12A6!@#$%^&*()_-=+|/",
+            "newPassword": "passwordA1"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "8f9ba03c-e903-459c-adb9-7594865a03a4",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508268673,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify password change [/user/me/passwordChange/verify]
+
++ oldPassword (required, string)
++ newPassword (required, string, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+
+### Verify password change [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "oldPassword": "test12A6!@#$%^&*()_-=+|/",
+                "newPassword": "passwordA1",
+                "verification": {
+                    "verificationId": "d65aa8f7-3b8a-4764-a003-1ecd06dda7fd",
+                    "code": "186198"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJiNWRjOTBjLTM1NTktNDZhNS04MGNhLTA3Mjg0OTczMjdlYiIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiYmI1ZGM5MGMtMzU1OS00NmE1LTgwY2EtMDcyODQ5NzMyN2ViZGV2aWNlMTUwODI2NTEwMjQ1NSIsImlhdCI6MTUwODI2NTEwMjQ1NSwic3ViIjoiOGY5YmEwM2MtZTkwMy00NTljLWFkYjktNzU5NDg2NWEwM2E0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwODI2NTcwNzI1NX0.9HDUMmamSIZX7T0qTKId6oN4XYU7ni7Wx8lQSiIz1S0"
+        }
+
 ## Get user info [/user/me]
 
 ### Get user info [GET]

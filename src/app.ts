@@ -2,6 +2,7 @@ import * as express from 'express';
 import { Response, Request, NextFunction, Application } from 'express';
 import * as bodyParser from 'body-parser';
 import config from './config';
+import handle from './middlewares/error.handler';
 
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { container } from './ioc.container';
@@ -47,5 +48,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 let server = new InversifyExpressServer(container, null, null, app);
+server.setErrorConfig((app) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
+});
 
 export default server.build();

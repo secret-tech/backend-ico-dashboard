@@ -31,7 +31,7 @@ export class Auth {
 
     const tokenVerificationData = await this.storageService.getToken(token);
 
-    if (!tokenVerificationData.isVerified) {
+    if (!tokenVerificationData || !tokenVerificationData.isVerified) {
       return res.status(401).json({
         error: 'Not Authorized'
       });

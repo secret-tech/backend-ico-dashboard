@@ -6,6 +6,8 @@ import {
   ValidationResult
 } from '../../services/verify.client';
 
+import { Response, Request, NextFunction } from 'express';
+
 import {
   StorageServiceType,
   StorageService,
@@ -27,6 +29,7 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import * as bodyParser from 'body-parser';
 import * as bcrypt from 'bcrypt-nodejs';
 import { Auth } from '../../middlewares/auth';
+import handle from '../../middlewares/error.handler';
 
 const mockAuthMiddleware = () => {
   const storageMock = TypeMoq.Mock.ofType(RedisService);
@@ -71,6 +74,10 @@ const mockAuthMiddleware = () => {
     kycStatus: 'Not verified'
   };
 
+  const loginResult = {
+    accessToken: 'new_token'
+  };
+
   storageMock.setup(x => x.getToken(TypeMoq.It.isValue('valid_token')))
     .returns(async (): Promise<any> => getTokenResult);
 
@@ -80,6 +87,15 @@ const mockAuthMiddleware = () => {
   authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('valid_token')))
     .returns(async (): Promise<any> => verifyTokenResult);
 
+  authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
+    .returns(async (): Promise<any> => {});
+
+  authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
+    .returns(async (): Promise<any> => {});
+
+  authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
+    .returns(async (): Promise<any> => loginResult);
+
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
 
@@ -87,6 +103,36 @@ const mockAuthMiddleware = () => {
   container.rebind<express.RequestHandler>('AuthMiddleware').toConstantValue(
     (req: any, res: any, next: any) => auth.authenticate(req, res, next)
   );
+};
+
+const mockVerifyClient = () => {
+  const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
+
+  const initiateResult: InitiateResult = {
+    status: 200,
+    verificationId: '123',
+    attempts: 0,
+    expiredOn: 124545,
+    method: 'email'
+  };
+
+  verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async (): Promise<InitiateResult> => initiateResult);
+
+  container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
+};
+
+const buildApp = () => {
+  const newApp = express();
+  newApp.use(bodyParser.json());
+  newApp.use(bodyParser.urlencoded({ extended: false }));
+
+  const server = new InversifyExpressServer(container, null, null, newApp);
+  server.setErrorConfig((app) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
+  });
+
+  return server.build();
 };
 
 export const testAppForSuccessRegistration = () => {
@@ -167,11 +213,7 @@ export const testAppForSuccessRegistration = () => {
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
 
-  const newApp = express();
-  newApp.use(bodyParser.json());
-  newApp.use(bodyParser.urlencoded({ extended: false }));
-
-  return new InversifyExpressServer(container, null, null, newApp).build();
+  return buildApp();
 };
 
 export const testAppForInitiateLogin = () => {
@@ -229,11 +271,7 @@ export const testAppForInitiateLogin = () => {
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
 
-  const newApp = express();
-  newApp.use(bodyParser.json());
-  newApp.use(bodyParser.urlencoded({ extended: false }));
-
-  return new InversifyExpressServer(container, null, null, newApp).build();
+  return buildApp();
 };
 
 export const testAppForVerifyLogin = () => {
@@ -269,29 +307,21 @@ export const testAppForVerifyLogin = () => {
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
 
-  const newApp = express();
-  newApp.use(bodyParser.json());
-  newApp.use(bodyParser.urlencoded({ extended: false }));
-
-  return new InversifyExpressServer(container, null, null, newApp).build();
+  return buildApp();
 };
 
 export const testAppForUserMe = () => {
   mockAuthMiddleware();
-
-  const newApp = express();
-  newApp.use(bodyParser.json());
-  newApp.use(bodyParser.urlencoded({ extended: false }));
-
-  return new InversifyExpressServer(container, null, null, newApp).build();
+  return buildApp();
 };
 
 export const testAppForDashboard = () => {
   mockAuthMiddleware();
+  return buildApp();
+};
 
-  const newApp = express();
-  newApp.use(bodyParser.json());
-  newApp.use(bodyParser.urlencoded({ extended: false }));
-
-  return new InversifyExpressServer(container, null, null, newApp).build();
+export const testAppForChangePassword = () => {
+  mockAuthMiddleware();
+  mockVerifyClient();
+  return buildApp();
 };
