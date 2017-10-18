@@ -29,6 +29,7 @@ export class DashboardController {
     res.json({
       ethBalance: '1.0001',
       jcrTokensSold: '5000',
+      jcrTokenBalance: '500.00012345678912345',
       jcrTokenPrice: {
         ETH: '0.005',
         USD: '1'

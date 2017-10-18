@@ -28,6 +28,7 @@ describe('Dashboard', () => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           ethBalance: '1.0001',
+          jcrTokenBalance: '500.00012345678912345',
           jcrTokensSold: '5000',
           jcrTokenPrice: {
             ETH: '0.005',

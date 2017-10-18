@@ -149,7 +149,7 @@ Authentication attempts with not verified token will result in 401 response.
             }
         }
 
-## Initiate password change [/user/me/passwordChange/initiate]
+## Initiate password change [/user/me/changePassword/initiate]
 
 ### Initiate password change [POST]
 
@@ -175,7 +175,7 @@ Authentication attempts with not verified token will result in 401 response.
             }
         }
 
-## Verify password change [/user/me/passwordChange/verify]
+## Verify password change [/user/me/changePassword/verify]
 
 + oldPassword (required, string)
 + newPassword (required, string, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
@@ -223,6 +223,8 @@ Authentication attempts with not verified token will result in 401 response.
 
         {
             "ethAddress": "0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751",
+            "email": "existing@test.com",
+            "name": "ICO investor",
             "kycStatus": "Not verified"
         }
 
@@ -242,6 +244,7 @@ Authentication attempts with not verified token will result in 401 response.
         {
             "ethBalance": "1.0001",
             "jcrTokensSold": "5000",
+            "jcrTokenBalance": "500.00012345678912345",
             "jcrTokenPrice": {
                 "ETH": "0.005",
                 "USD": "1"

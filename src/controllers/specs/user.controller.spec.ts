@@ -372,7 +372,7 @@ describe('Users', () => {
     });
   });
 
-  describe('POST /user/me', () => {
+  describe('GET /user/me', () => {
     it('should provide user info', (done) => {
       const token = 'valid_token';
 
@@ -381,6 +381,8 @@ describe('Users', () => {
 
         expect(res.body).to.deep.equal({
           ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+          email: 'existing@test.com',
+          name: 'ICO investor',
           kycStatus: 'Not verified'
         });
         done();
