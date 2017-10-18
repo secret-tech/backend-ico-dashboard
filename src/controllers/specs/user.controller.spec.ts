@@ -473,4 +473,91 @@ describe('Users', () => {
       });
     });
   });
+
+  describe('POST /user/invite', () => {
+    it('should invite users', (done) => {
+      const token = 'valid_token';
+      const params = {
+        emails: [
+          'ortgma@gmail.com'
+        ]
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/invite')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+
+          expect(res.body).to.deep.equal({
+            emails: [
+              {
+                email: 'ortgma@gmail.com',
+                invited: true
+              }
+            ]
+          });
+          done();
+        });
+    });
+
+    it('should validate emails', (done) => {
+      const token = 'valid_token';
+      const params = {
+        emails: [
+          'invite1@test.com',
+          'invite2.test.com',
+          'invite3@test.com',
+        ]
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/invite')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.equal('"1" must be a valid email');
+          done();
+        });
+    });
+
+    it('should not allow to invite more than 5 emails at once', (done) => {
+      const token = 'valid_token';
+      const params = {
+        emails: [
+          'invite1@test.com',
+          'invite2@test.com',
+          'invite3@test.com',
+          'invite4@test.com',
+          'invite5@test.com',
+          'invite6@test.com',
+        ]
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/invite')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.equal('"emails" must contain less than or equal to 5 items');
+          done();
+        });
+    });
+
+    it('should not allow to invite less than 1 email', (done) => {
+      const token = 'valid_token';
+      const params = {
+        emails: []
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/invite')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.equal('"emails" must contain at least 1 items');
+          done();
+        });
+    });
+  });
 });

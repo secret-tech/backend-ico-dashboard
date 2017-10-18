@@ -110,4 +110,13 @@ export class UserController {
   async verifyChangePassword(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.verifyChangePassword(req.user, req.body));
   }
+
+  @httpPost(
+    '/invite',
+    'AuthMiddleware',
+    'InviteUserValidation'
+  )
+  async invite(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.invite(req.user, req.body));
+  }
 }

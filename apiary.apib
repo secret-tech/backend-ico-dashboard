@@ -228,6 +228,39 @@ Authentication attempts with not verified token will result in 401 response.
             "kycStatus": "Not verified"
         }
 
+## Invite users [/user/invite]
+
+### Invite users by email [POST]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+    + body
+
+            {
+                "emails": [
+                    "ortgma@gmail.com",
+                    "a_pikulin@mail.ru"
+                ]
+            }
+
++ Response 200 (application/json)
+
+        {
+            "emails": [
+                {
+                    "email": "ortgma@gmail.com",
+                    "invited": true
+                },
+                {
+                    "email": "a_pikulin@mail.ru",
+                    "invited": true
+                }
+            ]
+        }
+
 ## Get dashboard info [/dashboard]
 
 ### Get dashboard info [GET]

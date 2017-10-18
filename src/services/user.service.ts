@@ -1,7 +1,8 @@
 import { StorageService, StorageServiceType } from './storage.service';
-import {AccessTokenResponse, AuthClientInterface, AuthClientType} from './auth.client';
+import { AccessTokenResponse, AuthClientInterface, AuthClientType } from './auth.client';
 import { VerificationClientInterface, VerificationClientType, InitiateResult } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
+import { EmailServiceType, EmailServiceInterface } from './email.service';
 import InvalidPassword from '../exceptions/invalid.password';
 import * as uuid from 'node-uuid';
 import * as bcrypt from 'bcrypt-nodejs';
@@ -9,6 +10,7 @@ import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import UserNotFound from '../exceptions/user.not.found';
 import UserExists from '../exceptions/user.exists';
+import config from '../config';
 
 interface UserData {
   email: string,
@@ -88,14 +90,24 @@ interface InitiateChangePasswordInput {
   newPassword: string
 }
 
+interface InviteResult {
+  email: string,
+  invited: boolean
+}
+
+interface InviteResultArray {
+  emails: Array<InviteResult>
+}
+
 export interface UserServiceInterface {
-  create: (userData: InputUserData) => Promise<any>;
-  activate: (activationData: ActivationUserData) => Promise<ActivationResult>;
-  initiateLogin: (inputData: InitiateLoginInput) => Promise<InitiateLoginResult>;
-  initiateChangePassword: (user: any, params: InitiateChangePasswordInput) => Promise<BaseInitiateResult>;
-  verifyChangePassword: (user: any, params: InitiateChangePasswordInput) => Promise<AccessTokenResponse>;
-  verifyLogin: (inputData: VerifyLoginInput) => Promise<VerifyLoginResult>;
-  getKey: (tenant: string, login: string) => string;
+  create(userData: InputUserData): Promise<any>;
+  activate(activationData: ActivationUserData): Promise<ActivationResult>;
+  initiateLogin(inputData: InitiateLoginInput): Promise<InitiateLoginResult>;
+  initiateChangePassword(user: any, params: InitiateChangePasswordInput): Promise<BaseInitiateResult>;
+  verifyChangePassword(user: any, params: InitiateChangePasswordInput): Promise<AccessTokenResponse>;
+  verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
+  invite(user: any, params: any): Promise<InviteResultArray>;
+  getKey(tenant: string, login: string): string;
 }
 
 /**
@@ -110,12 +122,14 @@ export class UserService implements UserServiceInterface {
    * @param  authClient  auth service client
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
+   * @param  emailService email service
    */
   constructor(
     @inject(StorageServiceType) private storageService: StorageService,
     @inject(AuthClientType) private authClient: AuthClientInterface,
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
-    @inject(Web3ClientType) private web3Client: Web3ClientInterface
+    @inject(Web3ClientType) private web3Client: Web3ClientInterface,
+    @inject(EmailServiceType) private emailService: EmailServiceInterface
   ) { }
 
   /**
@@ -391,6 +405,28 @@ export class UserService implements UserServiceInterface {
 
     await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
     return loginResult;
+  }
+
+  async invite(user: any, params: any): Promise<InviteResultArray> {
+    let result = [];
+
+    for (let email of params.emails) {
+      await this.emailService.send(
+        'invitations@jincor.com',
+        email,
+        'Invitation to join Jincor ICO',
+        config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `https://invest.jincor.com/signup?referral=${ user.referralCode }`)
+      );
+
+      result.push({
+        email,
+        invited: true
+      });
+    }
+
+    return {
+      emails: result
+    };
   }
 
   getKey(email: string) {

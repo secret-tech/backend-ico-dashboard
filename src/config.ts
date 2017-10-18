@@ -43,6 +43,11 @@ export default {
     port: parseInt(VERIFY_PORT, 10) || 3000,
     host: VERIFY_HOST || 'verify'
   },
+  email: {
+    domain: 'jincor.com',
+    secret: 'key-176cd97e7ce70c9e75d826792669e53a',
+    inviteTemplate: '%name% invites you to join Jincor ICO. Please follow this link to register: %link%'
+  },
   contracts: {
     whiteList: {
       address: '0x139bb356F113590934161a553951f9D3996D1e85',

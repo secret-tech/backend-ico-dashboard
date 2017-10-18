@@ -7,6 +7,7 @@ import { UserService, UserServiceInterface, UserServiceType } from './services/u
 import { AuthClientInterface, AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientInterface, VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
+import { EmailServiceType, EmailServiceInterface, EmailService } from './services/email.service';
 import { Auth } from './middlewares/auth';
 import config from './config';
 import * as express from 'express';
@@ -20,6 +21,7 @@ container.bind<UserServiceInterface>(UserServiceType).to(UserService);
 container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient('http://auth:3000'));
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
+container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType), container.get<StorageService>(StorageServiceType));
 // middlewares
@@ -52,6 +54,9 @@ container.bind<express.RequestHandler>('TokenRequiredValidation').toConstantValu
 );
 container.bind<express.RequestHandler>('ChangePasswordValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.changePassword(req, res, next)
+);
+container.bind<express.RequestHandler>('InviteUserValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.inviteUser(req, res, next)
 );
 
 // controllers

@@ -163,3 +163,17 @@ export function changePassword(req: AuthorizedRequest, res: Response, next: Next
     return next();
   }
 }
+
+export function inviteUser(req: AuthorizedRequest, res: Response, next: NextFunction) {
+  const schema = Joi.object().keys({
+    emails: Joi.array().required().max(5).min(1).items(Joi.string().email()),
+  });
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}

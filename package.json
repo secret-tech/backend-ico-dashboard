@@ -26,6 +26,8 @@
     "inversify-express-utils": "4.0.0",
     "joi": "10.6.0",
     "jsonwebtoken": "^7.2.1",
+    "mailcomposer": "4.0.2",
+    "mailgun-js": "0.13.1",
     "node-uuid": "^1.4.7",
     "redis": "2.6.3",
     "reflect-metadata": "0.1.10",
