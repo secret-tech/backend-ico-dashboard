@@ -29,8 +29,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'deny');
   res.setHeader('Content-Security-Policy', 'default-src \'none\'');
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Type, Accept');
   return next();
 });
 
@@ -49,7 +49,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 let server = new InversifyExpressServer(container, null, null, app);
 server.setErrorConfig((app) => {
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
 });
 
 export default server.build();

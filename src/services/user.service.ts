@@ -1,6 +1,6 @@
 import { StorageService, StorageServiceType } from './storage.service';
-import { AccessTokenResponse, AuthClientInterface, AuthClientType } from './auth.client';
-import { VerificationClientInterface, VerificationClientType, InitiateResult } from './verify.client';
+import { AuthClientType } from './auth.client';
+import { VerificationClientType } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import { EmailServiceType, EmailServiceInterface } from './email.service';
 import InvalidPassword from '../exceptions/invalid.password';
@@ -11,104 +11,6 @@ import 'reflect-metadata';
 import UserNotFound from '../exceptions/user.not.found';
 import UserExists from '../exceptions/user.exists';
 import config from '../config';
-
-interface UserData {
-  email: string,
-  name: string,
-  agreeTos: boolean,
-  referral?: string
-}
-
-interface InputUserData extends UserData {
-  password: string
-}
-
-interface Wallet {
-  ticker: string,
-  address: string,
-  balance: string,
-  salt?: string
-}
-
-interface NewWallet extends Wallet {
-  privateKey: string,
-  mnemonic: string
-}
-
-interface CreatedUserData extends UserData {
-  id: string,
-  verification: {
-    id: string,
-    method: string
-  },
-  isVerified: boolean,
-  defaultVerificationMethod: string,
-  referralCode: string,
-  barCode?: string
-}
-
-interface BaseInitiateResult {
-  verification: InitiateResult
-}
-
-interface InitiateLoginResult extends BaseInitiateResult {
-  accessToken: string,
-  isVerified: boolean,
-}
-
-interface VerifyLoginResult extends InitiateLoginResult {
-
-}
-
-interface ActivationUserData {
-  email: string,
-  verificationId: string,
-  code: string
-}
-
-interface ActivationResult {
-  accessToken: string,
-  wallets: Array<NewWallet>
-}
-
-interface InitiateLoginInput {
-  email: string,
-  password: string
-}
-
-interface VerifyLoginInput {
-  accessToken: string,
-  verification: {
-    id: string,
-    code: string,
-    method: string
-  }
-}
-
-interface InitiateChangePasswordInput {
-  oldPassword: string,
-  newPassword: string
-}
-
-interface InviteResult {
-  email: string,
-  invited: boolean
-}
-
-interface InviteResultArray {
-  emails: Array<InviteResult>
-}
-
-export interface UserServiceInterface {
-  create(userData: InputUserData): Promise<any>;
-  activate(activationData: ActivationUserData): Promise<ActivationResult>;
-  initiateLogin(inputData: InitiateLoginInput): Promise<InitiateLoginResult>;
-  initiateChangePassword(user: any, params: InitiateChangePasswordInput): Promise<BaseInitiateResult>;
-  verifyChangePassword(user: any, params: InitiateChangePasswordInput): Promise<AccessTokenResponse>;
-  verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
-  invite(user: any, params: any): Promise<InviteResultArray>;
-  getKey(tenant: string, login: string): string;
-}
 
 /**
  * UserService
@@ -150,7 +52,7 @@ export class UserService implements UserServiceInterface {
     const verification = await this.verificationClient.initiateVerification(verificationMethod, {
       consumer: email,
       template: {
-        body: 'Your code: {{{CODE}}}',
+        body: 'Your code: {{{CODE}}}'
       },
       generateCode: {
         length: 6,
@@ -228,7 +130,7 @@ export class UserService implements UserServiceInterface {
         },
         generateCode: {
           length: 6,
-          symbolSet: ['DIGITS'],
+          symbolSet: ['DIGITS']
         },
         policy: {
           expiredOn: '00:05:00'
@@ -342,7 +244,7 @@ export class UserService implements UserServiceInterface {
     return {
       accessToken: loginResult.accessToken,
       wallets: resultWallets
-    }
+    };
   }
 
   async initiateChangePassword(user: any, params: any): Promise<BaseInitiateResult> {
@@ -359,7 +261,7 @@ export class UserService implements UserServiceInterface {
         },
         generateCode: {
           length: 6,
-          symbolSet: ['DIGITS'],
+          symbolSet: ['DIGITS']
         },
         policy: {
           expiredOn: '01:00:00'
@@ -384,6 +286,76 @@ export class UserService implements UserServiceInterface {
     );
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
+    await this.storageService.set(`user:${ user.email }`, JSON.stringify(user));
+    await this.authClient.createUser({
+      email: user.email,
+      login: user.email,
+      password: user.passwordHash,
+      sub: params.verification.verificationId
+    });
+
+    const loginResult = await this.authClient.loginUser({
+      login: user.email,
+      password: user.passwordHash,
+      deviceId: 'device'
+    });
+
+    const tokenData = {
+      accessToken: loginResult.accessToken,
+      isVerified: true
+    };
+
+    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    return loginResult;
+  }
+
+  async initiateResetPassword(params: ResetPasswordInput): Promise<BaseInitiateResult> {
+    const user = await this.storageService.getUser(params.email);
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
+
+    const verificationData = await this.verificationClient.initiateVerification(
+      user.defaultVerificationMethod,
+      {
+        consumer: user.email,
+        template: {
+          body: 'Enter this code to confirm password reset: {{{CODE}}}'
+        },
+        generateCode: {
+          length: 6,
+          symbolSet: ['DIGITS']
+        },
+        policy: {
+          expiredOn: '01:00:00'
+        }
+      }
+    );
+
+    return {
+      verification: verificationData
+    };
+  }
+
+  async verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse> {
+    const user = await this.storageService.getUser(params.email);
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
+
+    const verificationResult = await this.verificationClient.validateVerification(
+      params.verification.method,
+      params.verification.verificationId,
+      params.verification.code
+    );
+
+    if (verificationResult.data.consumer !== user.email) {
+      throw new Error('Invalid verification user');
+    }
+
+    user.passwordHash = bcrypt.hashSync(params.password);
     await this.storageService.set(`user:${ user.email }`, JSON.stringify(user));
     await this.authClient.createUser({
       email: user.email,
@@ -436,11 +408,11 @@ export class UserService implements UserServiceInterface {
   escape(str: string): string {
     return str.replace(/\+/g, '-')
       .replace(/\//g, '_')
-      .replace(/=/g, '')
+      .replace(/=/g, '');
   }
 
   base64encode(email: string): string {
-    return this.escape(Buffer.from(email, 'utf8').toString('base64'))
+    return this.escape(Buffer.from(email, 'utf8').toString('base64'));
   }
 }
 

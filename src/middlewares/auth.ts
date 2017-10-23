@@ -1,6 +1,5 @@
 import { Response, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
-import { AuthClientInterface } from '../services/auth.client';
 import { StorageService } from '../services/storage.service';
 
 export class Auth {

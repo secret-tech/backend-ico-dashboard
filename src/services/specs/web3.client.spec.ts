@@ -7,7 +7,7 @@ describe('web3Client', () => {
   });
 
   describe('#sendTransactionByMnemonic', () => {
-    it('should send transation by mnemonic', async () => {
+    it('should send transation by mnemonic', async() => {
       /*await this.client.sendTransactionByMnemonic({
           to: (await this.client.web3.eth.getAccounts())[0],
           amount: '0.01',

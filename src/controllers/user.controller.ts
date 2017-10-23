@@ -1,22 +1,21 @@
 import { Response, Request } from 'express';
-import { UserServiceType, UserServiceInterface } from '../services/user.service';
+import { UserServiceType } from '../services/user.service';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
 import 'reflect-metadata';
-import { AuthorizedRequest } from "../requests/authorized.request";
+import { AuthorizedRequest } from '../requests/authorized.request';
 
 /**
  * UserController
  */
 @injectable()
 @controller(
-  '/user',
+  '/user'
 )
 export class UserController {
   constructor(
     @inject(UserServiceType) private userService: UserServiceInterface
-  )
-  { }
+  ) {}
 
   /**
    * Create user
@@ -109,6 +108,22 @@ export class UserController {
   )
   async verifyChangePassword(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.verifyChangePassword(req.user, req.body));
+  }
+
+  @httpPost(
+    '/resetPassword/initiate',
+    'ResetPasswordInitiateValidation'
+  )
+  async initiateResetPassword(req: Request, res: Response): Promise<void> {
+    res.json(await this.userService.initiateResetPassword(req.body));
+  }
+
+  @httpPost(
+    '/resetPassword/verify',
+    'ResetPasswordVerifyValidation'
+  )
+  async verifyResetPassword(req: Request, res: Response): Promise<void> {
+    res.json(await this.userService.verifyResetPassword(req.body));
   }
 
   @httpPost(

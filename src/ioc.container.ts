@@ -3,9 +3,9 @@ import { StorageServiceType, StorageService, RedisService } from './services/sto
 import { UserController } from './controllers/user.controller';
 import { DashboardController } from './controllers/dashboard.controller';
 import { interfaces, TYPE } from 'inversify-express-utils';
-import { UserService, UserServiceInterface, UserServiceType } from './services/user.service';
-import { AuthClientInterface, AuthClientType, AuthClient } from './services/auth.client';
-import { VerificationClientInterface, VerificationClientType, VerificationClient } from './services/verify.client';
+import { UserService, UserServiceType } from './services/user.service';
+import { AuthClientType, AuthClient } from './services/auth.client';
+import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { EmailServiceType, EmailServiceInterface, EmailService } from './services/email.service';
 import { Auth } from './middlewares/auth';
@@ -57,6 +57,12 @@ container.bind<express.RequestHandler>('ChangePasswordValidation').toConstantVal
 );
 container.bind<express.RequestHandler>('InviteUserValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.inviteUser(req, res, next)
+);
+container.bind<express.RequestHandler>('ResetPasswordInitiateValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.resetPasswordInitiate(req, res, next)
+);
+container.bind<express.RequestHandler>('ResetPasswordVerifyValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.resetPasswordVerify(req, res, next)
 );
 
 // controllers

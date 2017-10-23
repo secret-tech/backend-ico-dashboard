@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import config from '../config';
 
 export interface EmailServiceInterface {
-  send(sender: string, recipient: string, subject: string, text: string): Promise<any>
+  send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
 }
 
 @injectable()

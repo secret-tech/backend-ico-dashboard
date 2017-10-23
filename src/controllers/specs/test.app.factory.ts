@@ -1,9 +1,6 @@
 import {
-  InitiateResult,
   VerificationClient,
-  VerificationClientInterface,
-  VerificationClientType,
-  ValidationResult
+  VerificationClientType
 } from '../../services/verify.client';
 
 import { Response, Request, NextFunction } from 'express';
@@ -16,11 +13,8 @@ import {
 
 import {
   AuthClient,
-  AuthClientInterface,
   AuthClientType,
-  UserRegistrationResult,
-  AccessTokenResponse
-} from "../../services/auth.client";
+} from '../../services/auth.client';
 
 import * as express from 'express';
 import * as TypeMoq from 'typemoq';
@@ -43,7 +37,7 @@ const mockAuthMiddleware = () => {
       verificationId: '123',
       attempts: 0,
       expiredOn: 124545,
-      method: 'email',
+      method: 'email'
     }
   };
 
@@ -79,22 +73,26 @@ const mockAuthMiddleware = () => {
   };
 
   storageMock.setup(x => x.getToken(TypeMoq.It.isValue('valid_token')))
-    .returns(async (): Promise<any> => getTokenResult);
+    .returns(async(): Promise<any> => getTokenResult);
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('existing@test.com')))
-    .returns(async (): Promise<any> => getUserResult);
+    .returns(async(): Promise<any> => getUserResult);
 
   authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('valid_token')))
-    .returns(async (): Promise<any> => verifyTokenResult);
+    .returns(async(): Promise<any> => verifyTokenResult);
 
   authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<any> => {});
+    .returns(async(): Promise<any> => {
+      return {};
+    });
 
   authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<any> => {});
+    .returns(async(): Promise<any> => {
+      return {};
+    });
 
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<any> => loginResult);
+    .returns(async(): Promise<any> => loginResult);
 
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
@@ -117,7 +115,7 @@ const mockVerifyClient = () => {
   };
 
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async (): Promise<InitiateResult> => initiateResult);
+    .returns(async(): Promise<InitiateResult> => initiateResult);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
 };
@@ -162,7 +160,7 @@ export const testAppForSuccessRegistration = () => {
     email: 'test@test.com',
     login: 'test@test.com',
     tenant: 'tenant',
-    sub: 'sub',
+    sub: 'sub'
   };
 
   const loginResult: AccessTokenResponse = {
@@ -170,19 +168,19 @@ export const testAppForSuccessRegistration = () => {
   };
 
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async (): Promise<InitiateResult> => initiateResult);
+    .returns(async(): Promise<InitiateResult> => initiateResult);
 
   verifyMock.setup(x => x.validateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async (): Promise<ValidationResult> => validationResult);
+    .returns(async(): Promise<ValidationResult> => validationResult);
 
   authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<UserRegistrationResult> => registrationResult);
+    .returns(async(): Promise<UserRegistrationResult> => registrationResult);
 
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<AccessTokenResponse> => loginResult);
+    .returns(async(): Promise<AccessTokenResponse> => loginResult);
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test@test.com')))
-    .returns(async () : Promise<any> => null);
+    .returns(async(): Promise<any> => null);
 
   const existingUser = {
     id: 'id',
@@ -207,7 +205,7 @@ export const testAppForSuccessRegistration = () => {
   };
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('existing@test.com')))
-    .returns(async () : Promise<any> => existingUser);
+    .returns(async(): Promise<any> => existingUser);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
@@ -248,7 +246,7 @@ export const testAppForInitiateLogin = () => {
     verificationId: '123',
     attempts: 0,
     expiredOn: 124545,
-    method: 'email',
+    method: 'email'
   };
 
   const loginResult: AccessTokenResponse = {
@@ -256,16 +254,16 @@ export const testAppForInitiateLogin = () => {
   };
 
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async (): Promise<InitiateResult> => initiateResult);
+    .returns(async(): Promise<InitiateResult> => initiateResult);
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test@test.com')))
-    .returns(async (): Promise<any> => getUserResult);
+    .returns(async(): Promise<any> => getUserResult);
 
   storageMock.setup(x => x.getUser(TypeMoq.It.isValue('test123@test.com')))
-    .returns(async (): Promise<any> => null);
+    .returns(async(): Promise<any> => null);
 
   authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
-    .returns(async (): Promise<AccessTokenResponse> => loginResult);
+    .returns(async(): Promise<AccessTokenResponse> => loginResult);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
@@ -286,7 +284,7 @@ export const testAppForVerifyLogin = () => {
       verificationId: '123',
       attempts: 0,
       expiredOn: 124545,
-      method: 'email',
+      method: 'email'
     }
   };
 
@@ -299,10 +297,10 @@ export const testAppForVerifyLogin = () => {
   };
 
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async (): Promise<InitiateResult> => initiateResult);
+    .returns(async(): Promise<InitiateResult> => initiateResult);
 
   storageMock.setup(x => x.getToken(TypeMoq.It.isAny()))
-    .returns(async (): Promise<any> => getTokenResult);
+    .returns(async(): Promise<any> => getTokenResult);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
   container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
@@ -325,3 +323,37 @@ export const testAppForChangePassword = () => {
   mockVerifyClient();
   return buildApp();
 };
+
+export function testAppForResetPassword() {
+  const storageMock = TypeMoq.Mock.ofType(RedisService);
+
+  const getUserResult = {
+    id: 'id',
+    email: 'ortgma@gmail.com',
+    name: 'ICO investor',
+    agreeTos: true,
+    passwordHash: bcrypt.hashSync('passwordA1'),
+    verification: {
+      id: 'id',
+      method: 'email'
+    },
+    wallets: [
+      {
+        ticker: 'ETH',
+        address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+        balance: '0'
+      }
+    ],
+    isVerified: true,
+    defaultVerificationMethod: 'email',
+    referral: 'referral@test.com',
+    kycStatus: 'Not verified'
+  };
+
+  storageMock.setup(x => x.getUser(TypeMoq.It.isValue('ortgma@gmail.com')))
+    .returns(async(): Promise<any> => getUserResult);
+
+  container.rebind<StorageService>(StorageServiceType).toConstantValue(storageMock.object);
+
+  return buildApp();
+}

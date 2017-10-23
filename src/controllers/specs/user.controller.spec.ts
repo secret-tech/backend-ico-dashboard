@@ -10,13 +10,13 @@ const {expect, request} = chai;
 const postRequest = (customApp, url: string) => {
   return request(customApp)
     .post(url)
-    .set('Accept', 'application/json')
+    .set('Accept', 'application/json');
 };
 
 const getRequest = (customApp, url: string) => {
   return request(customApp)
     .get(url)
-    .set('Accept', 'application/json')
+    .set('Accept', 'application/json');
 };
 
 describe('Users', () => {
@@ -221,7 +221,7 @@ describe('Users', () => {
             verificationId: '123',
             attempts: 0,
             expiredOn: 124545,
-            method: 'email',
+            method: 'email'
           }
         });
         done();
@@ -296,7 +296,7 @@ describe('Users', () => {
             verificationId: '123',
             attempts: 0,
             expiredOn: 124545,
-            method: 'email',
+            method: 'email'
           }
         });
         done();
@@ -413,7 +413,7 @@ describe('Users', () => {
             }
           });
           done();
-      });
+        });
     });
 
     it('should verify password change', (done) => {
@@ -436,7 +436,7 @@ describe('Users', () => {
             accessToken: 'new_token'
           });
           done();
-      });
+        });
     });
 
     it('should check old password on initiate', (done) => {
@@ -453,13 +453,13 @@ describe('Users', () => {
           expect(res.status).to.equal(403);
           expect(res.body.error).to.equal('Invalid password');
           done();
-      });
+        });
     });
 
     it('should require new password on initiate', (done) => {
       const token = 'valid_token';
       const params = {
-        oldPassword: 'passwordA1',
+        oldPassword: 'passwordA1'
       };
 
       postRequest(factory.testAppForChangePassword(), '/user/me/changePassword/initiate')
@@ -470,7 +470,22 @@ describe('Users', () => {
 
           expect(res.body.error.details[0].message).to.equal('"newPassword" is required');
           done();
-      });
+        });
+    });
+  });
+
+  describe('POST /user/resetPassword', () => {
+    it('should initiate password reset', (done) => {
+      const params = {
+        email: 'ortgma@gmail.com'
+      };
+
+      postRequest(factory.testAppForResetPassword(), '/user/resetPassword/initiate')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          done();
+        });
     });
   });
 
@@ -507,7 +522,7 @@ describe('Users', () => {
         emails: [
           'invite1@test.com',
           'invite2.test.com',
-          'invite3@test.com',
+          'invite3@test.com'
         ]
       };
 
@@ -530,7 +545,7 @@ describe('Users', () => {
           'invite3@test.com',
           'invite4@test.com',
           'invite5@test.com',
-          'invite6@test.com',
+          'invite6@test.com'
         ]
       };
 

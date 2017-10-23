@@ -9,5 +9,5 @@ chai.use(require('chai-http'));
 const {expect, request} = chai;
 
 describe('Auth Middleware', () => {
-
+  return '';
 });

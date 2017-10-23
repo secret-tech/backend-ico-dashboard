@@ -2,48 +2,6 @@ import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
 
-export interface InitiateData {
-  consumer: string,
-  template: {
-    body: string
-  },
-  generateCode: {
-    length: number,
-    symbolSet: Array<string>,
-  },
-  policy: {
-    expiredOn: string
-  }
-}
-
-interface Result {
-  status: number
-}
-
-export interface InitiateResult extends Result {
-  verificationId: string,
-  attempts: number,
-  expiredOn: number,
-  method: string,
-  barcode?: string
-  code?: string
-}
-
-export interface ValidationResult extends Result {
-  details?: any,
-  data?: {
-    verificationId: string,
-    consumer: string,
-    expiredOn: number
-  }
-}
-
-export interface VerificationClientInterface {
-  initiateVerification: (method: string, data: InitiateData) => Promise<InitiateResult>,
-  validateVerification: (method:string, id: string, code: string) => Promise<ValidationResult>,
-  invalidateVerification: (method:string, id:string) => Promise<void>
-}
-
 @injectable()
 export class VerificationClient implements VerificationClientInterface {
   tenantToken: string;
@@ -53,7 +11,7 @@ export class VerificationClient implements VerificationClientInterface {
     request.defaults({
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       throwResponseError: true
     });
@@ -69,7 +27,7 @@ export class VerificationClient implements VerificationClientInterface {
         bearer: this.tenantToken
       },
       method: 'POST',
-      body: data,
+      body: data
     });
 
     result.method = method;
@@ -78,7 +36,7 @@ export class VerificationClient implements VerificationClientInterface {
     return result;
   }
 
-  async validateVerification(method:string, id: string, code: string): Promise<ValidationResult> {
+  async validateVerification(method: string, id: string, code: string): Promise<ValidationResult> {
     return await request.json<ValidationResult>(`/methods/${ method }/verifiers/${ id }/actions/validate`, {
       baseUrl: this.baseUrl,
       auth: {
@@ -91,13 +49,13 @@ export class VerificationClient implements VerificationClientInterface {
     });
   }
 
-  async invalidateVerification(method:string, id:string): Promise<void> {
+  async invalidateVerification(method: string, id: string): Promise<void> {
     await request.json<Result>(`/methods/${ method }/verifiers/${ id }`, {
       baseUrl: this.baseUrl,
       auth: {
         bearer: this.tenantToken
       },
-      method: 'DELETE',
+      method: 'DELETE'
     });
   }
 }

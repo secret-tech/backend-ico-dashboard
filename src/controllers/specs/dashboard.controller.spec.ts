@@ -10,13 +10,13 @@ const {expect, request} = chai;
 const postRequest = (customApp, url: string) => {
   return request(customApp)
     .post(url)
-    .set('Accept', 'application/json')
+    .set('Accept', 'application/json');
 };
 
 const getRequest = (customApp, url: string) => {
   return request(customApp)
     .get(url)
-    .set('Accept', 'application/json')
+    .set('Accept', 'application/json');
 };
 
 describe('Dashboard', () => {
@@ -37,7 +37,7 @@ describe('Dashboard', () => {
           raised: {
             ETH: '2000',
             USD: '1000000',
-            BTC: '100',
+            BTC: '100'
           },
           daysLeft: 10
         });
@@ -59,13 +59,13 @@ describe('Dashboard', () => {
               date: 1508241475,
               name: 'Investor 1',
               walletAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-              tokens: '105',
+              tokens: '105'
             },
             {
               date: 1508241475,
               name: 'Investor 2',
               walletAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eB',
-              tokens: '1.01',
+              tokens: '1.01'
             }
           ]
         });

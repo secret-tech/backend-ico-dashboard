@@ -6,19 +6,19 @@ import config from '../config';
 import 'reflect-metadata';
 
 interface TransactionInput {
-  to: string,
-  amount: string,
-  gas: number
+  to: string;
+  amount: string;
+  gas: number;
 }
 
 export interface Web3ClientInterface {
-  web3: any,
-  sendTransactionByMnemonic: (input: TransactionInput, mnemonic: string, salt: string) => Promise<any>,
-  generateMnemonic: () => string,
-  getAccountByMnemonicAndSalt: (mnemonic: string, salt: string) => any,
-  addAddressToWhiteList: (address: string) => any,
-  addAddressToWhiteListReferral: (address: string, referral: string) => any,
-  isAllowed: (account: string) => any
+  web3: any;
+  sendTransactionByMnemonic: (input: TransactionInput, mnemonic: string, salt: string) => Promise<any>;
+  generateMnemonic: () => string;
+  getAccountByMnemonicAndSalt: (mnemonic: string, salt: string) => any;
+  addAddressToWhiteList: (address: string) => any;
+  addAddressToWhiteListReferral: (address: string, referral: string) => any;
+  isAllowed: (account: string) => any;
 }
 
 @injectable()
@@ -27,7 +27,7 @@ export class Web3Client implements Web3ClientInterface {
   whiteList: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.HttpProvider("http://rpc:8545"));
+    this.web3 = new Web3(new Web3.providers.HttpProvider('http://rpc:8545'));
   }
 
   async deployWhiteList() {
@@ -67,17 +67,17 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   getPrivateKeyByMnemonicAndSalt(mnemonic: string, salt: string) {
-    //get seed
+    // get seed
     const hdWallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(mnemonic, salt));
 
-    //get first of available wallets
-    const path = "m/44'/60'/0'/0/0";
+    // get first of available wallets
+    const path = 'm/44\'/60\'/0\'/0/0';
 
-    //get wallet
+    // get wallet
     const wallet = hdWallet.derivePath(path).getWallet();
 
-    //get private key
-    return "0x" + wallet.getPrivateKey().toString("hex");
+    // get private key
+    return '0x' + wallet.getPrivateKey().toString('hex');
   }
 
   async addAddressToWhiteList(address: string) {
