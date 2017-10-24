@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "nodemon ./src/bin/www --exec ts-node",
+    "start": "nodemon -w ./src -e ts ./src/bin/www --exec ts-node",
     "lint": "tslint --fix './src/**/*.ts'",
     "test": "nyc mocha ./src/**/*.spec.ts",
     "build": "tsc --outDir dist ",
@@ -29,6 +29,7 @@
     "mailcomposer": "4.0.2",
     "mailgun-js": "0.13.1",
     "node-uuid": "^1.4.7",
+    "qr-image": "3.2.0",
     "redis": "2.6.3",
     "reflect-metadata": "0.1.10",
     "rolling-rate-limiter": "0.1.9",

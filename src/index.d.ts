@@ -96,9 +96,9 @@ declare interface InitiateResult extends Result {
   attempts: number;
   expiredOn: number;
   method: string;
-  barcode?: string;
   code?: string;
   totpUri?: string;
+  qrPngDataUri?: string;
 }
 
 declare interface ValidationResult extends Result {

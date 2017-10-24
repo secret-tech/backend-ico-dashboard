@@ -1,6 +1,7 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
+const QR = require('qr-image');
 
 @injectable()
 export class VerificationClient implements VerificationClientInterface {
@@ -32,6 +33,13 @@ export class VerificationClient implements VerificationClientInterface {
 
     result.method = method;
     delete result.code;
+    if (result.totpUri) {
+      const buffer = QR.imageSync(result.totpUri, {
+        type: 'png',
+        size: 20
+      });
+      result.qrPngDataUri = 'data:image/png;base64,' + buffer.toString('base64');
+    }
 
     return result;
   }
