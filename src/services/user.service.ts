@@ -55,6 +55,7 @@ export class UserService implements UserServiceInterface {
 
     const verification = await this.verificationClient.initiateVerification(verificationMethod, {
       consumer: email,
+      issuer: 'Jincor',
       template: {
         body: 'Your code: {{{CODE}}}'
       },
@@ -129,6 +130,7 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
+        issuer: 'Jincor',
         template: {
           body: 'Your login code is {{{CODE}}}'
         },
@@ -264,6 +266,7 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
+        issuer: 'Jincor',
         template: {
           body: 'Enter this code to confirm password change: {{{CODE}}}'
         },
@@ -328,6 +331,7 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
+        issuer: 'Jincor',
         template: {
           body: 'Enter this code to confirm password reset: {{{CODE}}}'
         },
