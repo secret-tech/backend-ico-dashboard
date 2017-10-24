@@ -12,6 +12,10 @@ import UserNotFound from '../exceptions/user.not.found';
 import UserExists from '../exceptions/user.exists';
 import config from '../config';
 
+
+const AUTHENTICATOR_VERIFICATION = 'google_auth';
+const EMAIL_VERIFICATION = 'email';
+
 /**
  * UserService
  */
@@ -164,7 +168,9 @@ export class UserService implements UserServiceInterface {
     await this.verificationClient.validateVerification(
       inputData.verification.method,
       inputData.verification.id,
-      inputData.verification.code
+      {
+        code: inputData.verification.code
+      }
     );
 
     tokenData.isVerified = true;
@@ -192,7 +198,9 @@ export class UserService implements UserServiceInterface {
     await this.verificationClient.validateVerification(
       user.verification.method,
       activationData.verificationId,
-      activationData.code
+      {
+        code: activationData.code
+      }
     );
 
     const mnemonic = this.web3Client.generateMnemonic();
@@ -348,7 +356,9 @@ export class UserService implements UserServiceInterface {
     const verificationResult = await this.verificationClient.validateVerification(
       params.verification.method,
       params.verification.verificationId,
-      params.verification.code
+      {
+        code: params.verification.code
+      }
     );
 
     if (verificationResult.data.consumer !== user.email) {
@@ -400,6 +410,94 @@ export class UserService implements UserServiceInterface {
       emails: result
     };
   }
+
+  private async initiate2faVerification(user: any): Promise<InitiateResult> {
+    return await this.verificationClient.initiateVerification(
+      AUTHENTICATOR_VERIFICATION,
+      {
+          consumer: user.email,
+        issuer: 'Jincor',
+        policy: {
+          expiredOn: '01:00:00'
+        }
+      }
+    );
+  };
+
+  async initiateEnable2fa(user: any): Promise<BaseInitiateResult> {
+    if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
+      throw Error('Authenticator is already enabled');
+    }
+
+    return {
+      verification: await this.initiate2faVerification(user)
+    }
+  }
+
+  async verifyEnable2fa(user: any, params: VerificationInput): Promise<Enable2faResult> {
+    if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
+      throw Error('Authenticator is already enabled');
+    }
+
+    const verificationResult = await this.verificationClient.validateVerification(
+      params.verification.method,
+      params.verification.verificationId,
+      {
+        code: params.verification.code
+      }
+    );
+
+    if (verificationResult.data.consumer !== user.email) {
+      throw new Error('Invalid verification user');
+    }
+
+    user.defaultVerificationMethod = AUTHENTICATOR_VERIFICATION;
+
+    await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
+
+    return {
+      enabled: true
+    }
+  };
+
+  async initiateDisable2fa(user: any): Promise<BaseInitiateResult> {
+    if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
+      throw Error('Authenticator is already disable');
+    }
+
+    return {
+      verification: await this.initiate2faVerification(user)
+    }
+  }
+
+  async verifyDisable2fa(user: any, params: VerificationInput): Promise<Enable2faResult> {
+    if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
+      throw Error('Authenticator is already disabled');
+    }
+
+    // TODO: VERY IMPORTANT - this code allows to disable 2FA even if verification was created for another purpose.
+    // TODO: ALSO IMPORTANT - by the way this is true for another requests
+    const verificationResult = await this.verificationClient.validateVerification(
+      params.verification.method,
+      params.verification.verificationId,
+      {
+        code: params.verification.code,
+        removeSecret: true
+      }
+    );
+
+    if (verificationResult.data.consumer !== user.email) {
+      throw new Error('Invalid verification user');
+    }
+
+    user.defaultVerificationMethod = EMAIL_VERIFICATION;
+
+    await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
+
+    return {
+      enabled: false
+    }
+  };
 
   getKey(email: string) {
     return `user:${ email }`;

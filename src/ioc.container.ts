@@ -64,6 +64,9 @@ container.bind<express.RequestHandler>('ResetPasswordInitiateValidation').toCons
 container.bind<express.RequestHandler>('ResetPasswordVerifyValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.resetPasswordVerify(req, res, next)
 );
+container.bind<express.RequestHandler>('VerificationRequiredValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.verificationRequired(req, res, next)
+);
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');

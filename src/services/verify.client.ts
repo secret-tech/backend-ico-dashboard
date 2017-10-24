@@ -36,16 +36,14 @@ export class VerificationClient implements VerificationClientInterface {
     return result;
   }
 
-  async validateVerification(method: string, id: string, code: string): Promise<ValidationResult> {
+  async validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult> {
     return await request.json<ValidationResult>(`/methods/${ method }/verifiers/${ id }/actions/validate`, {
       baseUrl: this.baseUrl,
       auth: {
         bearer: this.tenantToken
       },
       method: 'POST',
-      body: {
-        code
-      }
+      body: input
     });
   }
 

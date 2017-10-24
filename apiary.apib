@@ -268,6 +268,111 @@ Authentication attempts with not verified token will result in 401 response.
             "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJiNWRjOTBjLTM1NTktNDZhNS04MGNhLTA3Mjg0OTczMjdlYiIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiYmI1ZGM5MGMtMzU1OS00NmE1LTgwY2EtMDcyODQ5NzMyN2ViZGV2aWNlMTUwODI2NTEwMjQ1NSIsImlhdCI6MTUwODI2NTEwMjQ1NSwic3ViIjoiOGY5YmEwM2MtZTkwMy00NTljLWFkYjktNzU5NDg2NWEwM2E0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwODI2NTcwNzI1NX0.9HDUMmamSIZX7T0qTKId6oN4XYU7ni7Wx8lQSiIz1S0"
         }
 
+## Initiate enable 2FA [/user/enable2fa/initiate]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+### Initiate enable 2fa [GET]
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "0e47a5fd-d7f7-43af-b080-3918e49bf211",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508850911,
+                "totpUri": "otpauth://totp/Jincor:ortgma@gmail.com?secret=LGWPFJHZ5BQTSOU2QSNIE4T7TDBSU6K4&issuer=Jincor&algorithm=SHA1&digits=6&period=30",
+                "status": 200,
+                "method": "google_auth"
+            }
+        }
+
+## Verify enable 2fa [/user/enable2fa/verify]
+
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify enable 2fa [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
+## Initiate disable 2FA [/user/disable2fa/initiate]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+### Initiate disable 2fa [GET]
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "0e47a5fd-d7f7-43af-b080-3918e49bf211",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508850911,
+                "status": 200,
+                "method": "google_auth"
+            }
+        }
+
+## Verify disable 2fa [/user/disable2fa/verify]
+
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify disable 2fa [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
+
+
++ Response 200 (application/json)
+
+        {
+            "enabled": false
+        }
+
 ## Get user info [/user/me]
 
 ### Get user info [GET]

@@ -74,10 +74,11 @@ declare interface AuthClientInterface {
 
 declare interface InitiateData {
   consumer: string;
-  template: {
+  issuer?: string;
+  template?: {
     body: string
   };
-  generateCode: {
+  generateCode?: {
     length: number,
     symbolSet: Array<string>
   };
@@ -97,6 +98,7 @@ declare interface InitiateResult extends Result {
   method: string;
   barcode?: string;
   code?: string;
+  totpUri?: string;
 }
 
 declare interface ValidationResult extends Result {
@@ -108,9 +110,14 @@ declare interface ValidationResult extends Result {
   };
 }
 
+declare interface ValidateVerificationInput {
+  code: string,
+  removeSecret?: boolean
+}
+
 declare interface VerificationClientInterface {
   initiateVerification(method: string, data: InitiateData): Promise<InitiateResult>;
-  validateVerification(method: string, id: string, code: string): Promise<ValidationResult>;
+  validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult>;
   invalidateVerification(method: string, id: string): Promise<void>;
 }
 
@@ -201,14 +208,21 @@ declare interface InviteResultArray {
   emails: Array<InviteResult>;
 }
 
-declare interface ResetPasswordInput {
-  email: string;
-  password: string;
+declare interface VerificationInput {
   verification?: {
     verificationId: string,
     code: string,
     method: string
   };
+}
+
+declare interface ResetPasswordInput extends VerificationInput {
+  email: string;
+  password: string;
+}
+
+declare interface Enable2faResult {
+  enabled: boolean
 }
 
 declare interface UserServiceInterface {
@@ -217,6 +231,10 @@ declare interface UserServiceInterface {
   initiateLogin(inputData: InitiateLoginInput): Promise<InitiateLoginResult>;
   initiateChangePassword(user: any, params: InitiateChangePasswordInput): Promise<BaseInitiateResult>;
   verifyChangePassword(user: any, params: InitiateChangePasswordInput): Promise<AccessTokenResponse>;
+  initiateEnable2fa(user: any): Promise<BaseInitiateResult>;
+  verifyEnable2fa(user: any, params: VerificationInput): Promise<Enable2faResult>;
+  initiateDisable2fa(user: any): Promise<BaseInitiateResult>;
+  verifyDisable2fa(user: any, params: VerificationInput): Promise<Enable2faResult>;
   initiateResetPassword(params: ResetPasswordInput): Promise<BaseInitiateResult>;
   verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse>;
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;

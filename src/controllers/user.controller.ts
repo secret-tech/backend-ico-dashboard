@@ -134,4 +134,38 @@ export class UserController {
   async invite(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.invite(req.user, req.body));
   }
+
+  @httpGet(
+    '/enable2fa/initiate',
+    'AuthMiddleware',
+  )
+  async enable2faInitiate(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.initiateEnable2fa(req.user));
+  }
+
+  @httpPost(
+    '/enable2fa/verify',
+    'AuthMiddleware',
+    'VerificationRequiredValidation'
+  )
+  async enable2faVerify(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.verifyEnable2fa(req.user, req.body));
+  }
+
+  @httpGet(
+    '/disable2fa/initiate',
+    'AuthMiddleware',
+  )
+  async disable2faInitiate(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.initiateDisable2fa(req.user));
+  }
+
+  @httpPost(
+    '/disable2fa/verify',
+    'AuthMiddleware',
+    'VerificationRequiredValidation'
+  )
+  async disable2faVerify(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.verifyDisable2fa(req.user, req.body));
+  }
 }

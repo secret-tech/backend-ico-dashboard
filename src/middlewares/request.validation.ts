@@ -1,11 +1,16 @@
 import * as Joi from 'joi';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
-import * as bcrypt from 'bcrypt-nodejs';
 
 const options = {
   allowUnknown: true
 };
+
+const verificationSchema = Joi.object().keys({
+  verificationId: Joi.string().required(),
+  code: Joi.string().required(),
+  method: Joi.string().required()
+}).required();
 
 function unescape(str: string): string {
   return (str + '==='.slice((str.length + 3) % 4))
@@ -196,11 +201,21 @@ export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next:
   const schema = Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/),
-    verification: Joi.object().keys({
-      verificationId: Joi.string().required(),
-      code: Joi.string().required(),
-      method: Joi.string().required()
-    })
+    verification: verificationSchema
+  });
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}
+
+export function verificationRequired(req: Request, res: Response, next: NextFunction) {
+  const schema = Joi.object().keys({
+    verification: verificationSchema
   });
 
   const result = Joi.validate(req.body, schema, options);
