@@ -68,15 +68,47 @@ describe('Users', () => {
         email: 'test1@test.com',
         name: 'ICO investor',
         password: 'test12A6!@#$%^&*()_-=+|/',
-        referral: 'ZXhpc3RpbmdAdGVzdC5jb20',
+        referral: 'YWN0aXZhdGVkQHRlc3QuY29t',
         agreeTos: true
       };
 
       postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.referral).to.equal('existing@test.com');
+        expect(res.body.referral).to.equal('activated@test.com');
         expect(res.body).to.not.have.property('passwordHash');
         expect(res.body).to.not.have.property('password');
+        done();
+      });
+    });
+
+    it('should not allow to set not existing referral', (done) => {
+      const params = {
+        email: 'test1@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        referral: 'dGVzdEB0ZXN0LmNvbQ',
+        agreeTos: true
+      };
+
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        expect(res.body.error).to.eq('Referral code does not exist');
+        done();
+      });
+    });
+
+    it('should not allow to set not activated referral', (done) => {
+      const params = {
+        email: 'test1@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        referral: 'ZXhpc3RpbmdAdGVzdC5jb20',
+        agreeTos: true
+      };
+
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        expect(res.body.error).to.eq('Referral is not activated');
         done();
       });
     });

@@ -17,3 +17,11 @@ export class TokenNotFound extends Error {
 export class UserNotActivated extends Error {
 
 }
+
+export class ReferralDoesNotExist extends Error {
+
+}
+
+export class ReferralIsNotActivated extends Error {
+
+}

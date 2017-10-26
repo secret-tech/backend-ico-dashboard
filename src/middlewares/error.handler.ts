@@ -1,18 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
-import * as EX from '../exceptions/exceptions';
+import * as Err from '../exceptions/exceptions';
 
 export default function handle(err: Error, req: Request, res: Response, next: NextFunction): void {
   let status;
 
   switch (err.constructor) {
-    case EX.InvalidPassword:
-    case EX.UserNotActivated:
+    case Err.InvalidPassword:
+      // no break
+    case Err.UserNotActivated:
       status = 403;
       break;
-    case EX.UserNotFound:
+    case Err.UserNotFound:
       status = 404;
       break;
-    case EX.UserExists:
+    case Err.UserExists:
+      // no break
+    case Err.ReferralDoesNotExist:
+      // no break
+    case Err.ReferralIsNotActivated:
       status = 422;
       break;
     default:

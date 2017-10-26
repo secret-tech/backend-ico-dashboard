@@ -9,7 +9,7 @@ import {
   UserNotFound,
   InvalidPassword,
   UserNotActivated,
-  TokenNotFound
+  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated
 } from '../exceptions/exceptions';
 import config from '../config';
 import { Investor } from '../entities/investor';
@@ -54,6 +54,20 @@ export class UserService implements UserServiceInterface {
 
     if (existingUser) {
       throw new UserExists('User already exists');
+    }
+
+    if (userData.referral) {
+      const referral = await getConnection().getMongoRepository(Investor).findOne({
+        email: userData.referral
+      });
+
+      if (!referral) {
+        throw new ReferralDoesNotExist('Referral code does not exist');
+      }
+
+      if (!referral.isVerified) {
+        throw new ReferralIsNotActivated('Referral is not activated');
+      }
     }
 
     const verificationMethod = 'email';
