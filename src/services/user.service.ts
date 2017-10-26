@@ -9,7 +9,7 @@ import {
   UserNotFound,
   InvalidPassword,
   UserNotActivated,
-  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated
+  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError
 } from '../exceptions/exceptions';
 import config from '../config';
 import { Investor } from '../entities/investor';
@@ -70,9 +70,7 @@ export class UserService implements UserServiceInterface {
       }
     }
 
-    const verificationMethod = 'email';
-
-    const verification = await this.verificationClient.initiateVerification(verificationMethod, {
+    const verification = await this.verificationClient.initiateVerification(EMAIL_VERIFICATION, {
       consumer: email,
       issuer: 'Jincor',
       template: {
@@ -155,6 +153,7 @@ export class UserService implements UserServiceInterface {
     );
 
     await getConnection().getMongoRepository(VerifiedToken).save(token);
+
     return {
       accessToken: tokenData.accessToken,
       isVerified: false,
@@ -191,6 +190,7 @@ export class UserService implements UserServiceInterface {
 
     token.makeVerified();
     await getConnection().getMongoRepository(VerifiedToken).save(token);
+
     return transformers.transformVerifiedToken(token);
   }
 
@@ -268,7 +268,7 @@ export class UserService implements UserServiceInterface {
     };
   }
 
-  async initiateChangePassword(user: any, params: any): Promise<BaseInitiateResult> {
+  async initiateChangePassword(user: Investor, params: any): Promise<BaseInitiateResult> {
     if (!bcrypt.compareSync(params.oldPassword, user.passwordHash)) {
       throw new InvalidPassword('Invalid password');
     }
@@ -402,8 +402,10 @@ export class UserService implements UserServiceInterface {
     return loginResult;
   }
 
-  async invite(user: any, params: any): Promise<InviteResultArray> {
+  async invite(user: Investor, params: any): Promise<InviteResultArray> {
     let result = [];
+
+    user.checkAndUpdateInvitees(params.emails);
 
     for (let email of params.emails) {
       await this.emailService.send(
@@ -419,6 +421,7 @@ export class UserService implements UserServiceInterface {
       });
     }
 
+    await getConnection().getMongoRepository(Investor).save(user);
     return {
       emails: result
     };
@@ -439,7 +442,7 @@ export class UserService implements UserServiceInterface {
 
   async initiateEnable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
-      throw Error('Authenticator is already enabled');
+      throw new AuthenticatorError('Authenticator is enabled already.');
     }
 
     return {
@@ -449,7 +452,7 @@ export class UserService implements UserServiceInterface {
 
   async verifyEnable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
-      throw Error('Authenticator is already enabled');
+      throw new AuthenticatorError('Authenticator is enabled already.');
     }
 
     const verificationResult = await this.verificationClient.validateVerification(
@@ -475,7 +478,7 @@ export class UserService implements UserServiceInterface {
 
   async initiateDisable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
-      throw Error('Authenticator is already disable');
+      throw new AuthenticatorError('Authenticator is disabled already.');
     }
 
     return {
@@ -485,7 +488,7 @@ export class UserService implements UserServiceInterface {
 
   async verifyDisable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
-      throw Error('Authenticator is already disabled');
+      throw new AuthenticatorError('Authenticator is disabled already.');
     }
 
     // TODO: VERY IMPORTANT - this code allows to disable 2FA even if verification was created for another purpose.

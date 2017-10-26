@@ -530,6 +530,39 @@ describe('Users', () => {
           done();
         });
     });
+
+    it('should respond with error on initiate if user is not found', (done) => {
+      const params = {
+        email: 'not_found@test.com'
+      };
+
+      postRequest(factory.testAppForResetPassword(), '/user/resetPassword/initiate')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+    });
+
+    it('should reset password on verify', (done) => {
+      const params = {
+        email: 'activated@test.com',
+        password: 'PasswordA1',
+        verification: {
+          verificationId: 'activated_user_verification',
+          method: 'google_auth',
+          code: '123456'
+        }
+      };
+
+      postRequest(factory.testAppForResetPassword(), '/user/resetPassword/verify')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.accessToken).to.eq('token');
+          done();
+        });
+    });
   });
 
   describe('POST /user/invite', () => {
@@ -541,7 +574,7 @@ describe('Users', () => {
         ]
       };
 
-      postRequest(factory.testAppForChangePassword(), '/user/invite')
+      postRequest(factory.testAppForInvite(), '/user/invite')
         .set('Authorization', `Bearer ${ token }`)
         .send(params)
         .end((err, res) => {
@@ -638,6 +671,164 @@ describe('Users', () => {
           });
           done();
         });
-    })
+    });
+
+    it('should respond with error on initiate if 2fa already enabled', function(done) {
+      const token = 'verified_token_2fa_user';
+
+      getRequest(factory.testAppForChangePassword(), '/user/enable2fa/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Authenticator is enabled already.');
+          done();
+        });
+    });
+
+    it('should respond with error on verify if 2fa already enabled', function(done) {
+      const token = 'verified_token_2fa_user';
+      const params = {
+        verification: {
+          verificationId: '123',
+          code: '123',
+          method: 'google_auth'
+        }
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/enable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Authenticator is enabled already.');
+          done();
+        });
+    });
+
+    it('should enable 2fa after success verification', function(done) {
+      const token = 'verified_token';
+      const params = {
+        verification: {
+          verificationId: 'activated_user_verification',
+          code: '123',
+          method: 'google_auth'
+        }
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/enable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.eq({
+            enabled: true
+          });
+          done();
+        });
+    });
+
+    it('should require verification', function(done) {
+      const token = 'verified_token';
+      const params = {};
+
+      postRequest(factory.testAppForChangePassword(), '/user/enable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.eq('"verification" is required');
+          done();
+        });
+    });
+  });
+
+  describe('POST /user/disable2fa', () => {
+    it('should initiate 2fa disable', function(done) {
+      const token = 'verified_token_2fa_user';
+
+      getRequest(factory.testAppForChangePassword(), '/user/disable2fa/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.equal({
+            verification: {
+              status: 200,
+              verificationId: '123',
+              attempts: 0,
+              expiredOn: 124545,
+              method: 'email'
+            }
+          });
+          done();
+        });
+    });
+
+    it('should respond with error on initiate if 2fa already disabled', function(done) {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForChangePassword(), '/user/disable2fa/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Authenticator is disabled already.');
+          done();
+        });
+    });
+
+    it('should respond with error on verify if 2fa already disabled', function(done) {
+      const token = 'verified_token';
+      const params = {
+        verification: {
+          verificationId: '123',
+          code: '123',
+          method: 'google_auth'
+        }
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/disable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Authenticator is disabled already.');
+          done();
+        });
+    });
+
+    it('should require verification', function(done) {
+      const token = 'verified_token';
+      const params = {};
+
+      postRequest(factory.testAppForChangePassword(), '/user/disable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.eq('"verification" is required');
+          done();
+        });
+    });
+
+    it('should disable 2fa after success verification', function(done) {
+      const token = 'verified_token_2fa_user';
+      const params = {
+        verification: {
+          verificationId: '2fa_user_verification',
+          code: '123',
+          method: 'google_auth'
+        }
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/disable2fa/verify')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.eq({
+            enabled: false
+          });
+          done();
+        });
+    });
   });
 });

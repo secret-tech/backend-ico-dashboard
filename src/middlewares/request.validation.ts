@@ -12,6 +12,8 @@ const verificationSchema = Joi.object().keys({
   method: Joi.string().required()
 }).required();
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
+
 function unescape(str: string): string {
   return (str + '==='.slice((str.length + 3) % 4))
     .replace(/-/g, '+')
@@ -26,7 +28,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     name: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/),
+    password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email()
   });
@@ -94,36 +96,6 @@ export function verifyLogin(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function createTenant(req: Request, res: Response, next: NextFunction) {
-  const schema = Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required().min(6).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-  });
-
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
-}
-
-export function loginTenant(req: Request, res: Response, next: NextFunction) {
-  const schema = Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required().min(6).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-  });
-
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
-}
-
 export function createToken(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     login: Joi.string().required(),
@@ -157,7 +129,7 @@ export function tokenRequired(req: Request, res: Response, next: NextFunction) {
 export function changePassword(req: AuthorizedRequest, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     oldPassword: Joi.string().required(),
-    newPassword: Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
+    newPassword: Joi.string().required().regex(passwordRegex)
   });
 
   const result = Joi.validate(req.body, schema, options);
@@ -200,7 +172,7 @@ export function resetPasswordInitiate(req: AuthorizedRequest, res: Response, nex
 export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/),
+    password: Joi.string().required().regex(passwordRegex),
     verification: verificationSchema
   });
 

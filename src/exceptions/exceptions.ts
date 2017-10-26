@@ -25,3 +25,11 @@ export class ReferralDoesNotExist extends Error {
 export class ReferralIsNotActivated extends Error {
 
 }
+
+export class InviteIsNotAllowed extends Error {
+
+}
+
+export class AuthenticatorError extends Error {
+
+}

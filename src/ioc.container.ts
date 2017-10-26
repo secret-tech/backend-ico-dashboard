@@ -38,12 +38,6 @@ container.bind<express.RequestHandler>('InitiateLoginValidation').toConstantValu
 container.bind<express.RequestHandler>('VerifyLoginValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.verifyLogin(req, res, next)
 );
-container.bind<express.RequestHandler>('CreateTenantValidation').toConstantValue(
-  (req: any, res: any, next: any) => validation.createTenant(req, res, next)
-);
-container.bind<express.RequestHandler>('LoginTenantValidation').toConstantValue(
-  (req: any, res: any, next: any) => validation.loginTenant(req, res, next)
-);
 container.bind<express.RequestHandler>('CreateTokenValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.createToken(req, res, next)
 );

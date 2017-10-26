@@ -5,6 +5,9 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
   let status;
 
   switch (err.constructor) {
+    case Err.AuthenticatorError:
+      status = 400;
+      break;
     case Err.InvalidPassword:
       // no break
     case Err.UserNotActivated:
@@ -16,6 +19,8 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
     case Err.UserExists:
       // no break
     case Err.ReferralDoesNotExist:
+      // no break
+    case Err.InviteIsNotAllowed:
       // no break
     case Err.ReferralIsNotActivated:
       status = 422;
