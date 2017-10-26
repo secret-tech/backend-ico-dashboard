@@ -1,30 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
-import UserNotFound from '../exceptions/user.not.found';
-import UserExists from '../exceptions/user.exists';
-import InvalidPassword from '../exceptions/invalid.password';
+import * as EX from '../exceptions/exceptions';
 
 export default function handle(err: Error, req: Request, res: Response, next: NextFunction): void {
+  let status;
+
   switch (err.constructor) {
-    case InvalidPassword:
-      res.status(403).send({
-        error: 'Invalid password'
-      });
+    case EX.InvalidPassword:
+    case EX.UserNotActivated:
+      status = 403;
       break;
-    case UserNotFound:
-      res.status(404).send({
-        error: 'User is not found'
-      });
+    case EX.UserNotFound:
+      status = 404;
       break;
-    case UserExists:
-      res.status(422).send({
-        error: 'User already exists'
-      });
+    case EX.UserExists:
+      status = 422;
       break;
     default:
+      status = 500;
       console.error(err.message);
       console.error(err.stack);
-      res.status(500).send({
-        error: 'Unknown error occurred'
-      });
   }
+
+  res.status(status).send({
+    error: err.message
+  });
 }

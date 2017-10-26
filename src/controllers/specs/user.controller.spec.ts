@@ -3,6 +3,8 @@ import app from '../../app';
 import * as factory from './test.app.factory';
 const Web3 = require('web3');
 const bip39 = require('bip39');
+import "reflect-metadata";
+require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));
 const {expect, request} = chai;
@@ -52,7 +54,6 @@ describe('Users', () => {
         email: 'existing@test.com',
         name: 'ICO investor',
         password: 'test12A6!@#$%^&*()_-=+|/',
-        referral: 'dGVzdEB0ZXN0LmNvbQ',
         agreeTos: true
       };
 
@@ -67,13 +68,13 @@ describe('Users', () => {
         email: 'test1@test.com',
         name: 'ICO investor',
         password: 'test12A6!@#$%^&*()_-=+|/',
-        referral: 'dGVzdEB0ZXN0LmNvbQ',
+        referral: 'ZXhpc3RpbmdAdGVzdC5jb20',
         agreeTos: true
       };
 
       postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.referral).to.equal('test@test.com');
+        expect(res.body.referral).to.equal('existing@test.com');
         expect(res.body).to.not.have.property('passwordHash');
         expect(res.body).to.not.have.property('password');
         done();
@@ -210,7 +211,7 @@ describe('Users', () => {
 
   describe('POST /user/login/initiate', () => {
     it('should initiate login', (done) => {
-      const params = { email: 'test@test.com', password: 'passwordA1' };
+      const params = { email: 'activated@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
       postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.equal({
@@ -229,9 +230,18 @@ describe('Users', () => {
     });
 
     it('should respond with 403 for incorrect password', (done) => {
-      const params = { email: 'test@test.com', password: 'passwordA11' };
+      const params = { email: 'activated@test.com', password: 'passwordA11' };
       postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(403);
+        done();
+      });
+    });
+
+    it('should respond with 403 if user is not activated', (done) => {
+      const params = { email: 'existing@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
+      postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
+        expect(res.status).to.equal(403);
+        expect(res.body.error).to.equal('Account is not activated! Please check your email.');
         done();
       });
     });
@@ -278,7 +288,7 @@ describe('Users', () => {
   describe('POST /user/login/verify', () => {
     it('should verify login', (done) => {
       const params = {
-        accessToken: 'token',
+        accessToken: 'not_verified_token',
         verification: {
           id: '123',
           code: '123',
@@ -289,12 +299,12 @@ describe('Users', () => {
       postRequest(factory.testAppForVerifyLogin(), '/user/login/verify').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.equal({
-          accessToken: 'token',
+          accessToken: 'not_verified_token',
           isVerified: true,
           verification: {
             status: 200,
             verificationId: '123',
-            attempts: 0,
+            attempts: 1,
             expiredOn: 124545,
             method: 'email'
           }
@@ -374,16 +384,17 @@ describe('Users', () => {
 
   describe('GET /user/me', () => {
     it('should provide user info', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
 
       getRequest(factory.testAppForUserMe(), '/user/me').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
 
         expect(res.body).to.deep.equal({
           ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-          email: 'existing@test.com',
+          email: 'activated@test.com',
           name: 'ICO investor',
-          kycStatus: 'Not verified'
+          kycStatus: 'Not verified',
+          defaultVerificationMethod: 'email'
         });
         done();
       });
@@ -392,9 +403,9 @@ describe('Users', () => {
 
   describe('POST /user/me/changePassword', () => {
     it('should initiate password change', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
-        oldPassword: 'passwordA1',
+        oldPassword: 'test12A6!@#$%^&*()_-=+|/',
         newPassword: 'PasswordA1#$'
       };
 
@@ -417,9 +428,9 @@ describe('Users', () => {
     });
 
     it('should verify password change', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
-        oldPassword: 'passwordA1',
+        oldPassword: 'test12A6!@#$%^&*()_-=+|/',
         newPassword: 'PasswordA1#$',
         verification: {
           id: '123',
@@ -440,7 +451,7 @@ describe('Users', () => {
     });
 
     it('should check old password on initiate', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         oldPassword: '1234',
         newPassword: 'PasswordA1#$'
@@ -457,7 +468,7 @@ describe('Users', () => {
     });
 
     it('should require new password on initiate', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         oldPassword: 'passwordA1'
       };
@@ -477,7 +488,7 @@ describe('Users', () => {
   describe('POST /user/resetPassword', () => {
     it('should initiate password reset', (done) => {
       const params = {
-        email: 'ortgma@gmail.com'
+        email: 'activated@test.com'
       };
 
       postRequest(factory.testAppForResetPassword(), '/user/resetPassword/initiate')
@@ -491,7 +502,7 @@ describe('Users', () => {
 
   describe('POST /user/invite', () => {
     it('should invite users', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         emails: [
           'ortgma@gmail.com'
@@ -517,7 +528,7 @@ describe('Users', () => {
     });
 
     it('should validate emails', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         emails: [
           'invite1@test.com',
@@ -537,7 +548,7 @@ describe('Users', () => {
     });
 
     it('should not allow to invite more than 5 emails at once', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         emails: [
           'invite1@test.com',
@@ -560,7 +571,7 @@ describe('Users', () => {
     });
 
     it('should not allow to invite less than 1 email', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
       const params = {
         emails: []
       };
@@ -574,5 +585,27 @@ describe('Users', () => {
           done();
         });
     });
+  });
+
+  describe('POST /user/enable2fa', () => {
+    it('should initiate 2fa enable', function(done) {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForChangePassword(), '/user/enable2fa/initiate')
+        .set('Authorization', `Bearer ${ token }`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.equal({
+            verification: {
+              status: 200,
+              verificationId: '123',
+              attempts: 0,
+              expiredOn: 124545,
+              method: 'email'
+            }
+          });
+          done();
+        });
+    })
   });
 });

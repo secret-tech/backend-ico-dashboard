@@ -8,7 +8,5 @@ ADD . /usr/src/app
 WORKDIR /usr/src/app
 
 RUN npm i
-RUN mkdir ./dist
-RUN npm run build
 
-CMD npm run serve
+CMD npm start

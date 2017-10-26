@@ -5,8 +5,8 @@
   "scripts": {
     "start": "nodemon -w ./src -e ts ./src/bin/www --exec ts-node",
     "lint": "tslint --fix './src/**/*.ts'",
-    "test": "nyc mocha ./src/**/*.spec.ts",
-    "build": "tsc --outDir dist ",
+    "test": "nyc mocha ./src/**/*.spec.ts --require test/prepare.ts",
+    "build": "tsc -p tsconfig.build.json --outDir dist",
     "serve": "node ./dist/bin/www.js"
   },
   "nyc": {
@@ -28,12 +28,15 @@
     "jsonwebtoken": "^7.2.1",
     "mailcomposer": "4.0.2",
     "mailgun-js": "0.13.1",
+    "mocha-prepare": "0.1.0",
+    "mongodb": "2.2.33",
+    "mongodb-restore": "1.6.2",
     "node-uuid": "^1.4.7",
     "qr-image": "3.2.0",
-    "redis": "2.6.3",
     "reflect-metadata": "0.1.10",
     "rolling-rate-limiter": "0.1.9",
     "typemoq": "2.0.1",
+    "typeorm": "0.1.1",
     "web-request": "1.0.7",
     "web3": "1.0.0-beta.22"
   },
@@ -46,16 +49,15 @@
     "@types/jsonwebtoken": "7.2.0",
     "@types/mocha": "2.2.38",
     "@types/node-uuid": "0.0.28",
-    "@types/redis": "0.12.34",
     "chai": "3.5.0",
     "chai-http": "3.0.0",
     "mocha": "3.2.0",
     "nodemon": "^1.11.0",
     "nyc": "10.0.0",
-    "ts-node": "2.0.0",
+    "ts-node": "3.3.0",
     "tslint": "5.7.0",
     "tslint-config-standard": "5.0.2",
     "tslint-loader": "3.5.3",
-    "typescript": "2.1.5"
+    "typescript": "2.5.3"
   }
 }

@@ -1,5 +1,4 @@
 import { Container } from 'inversify';
-import { StorageServiceType, StorageService, RedisService } from './services/storage.service';
 import { UserController } from './controllers/user.controller';
 import { DashboardController } from './controllers/dashboard.controller';
 import { interfaces, TYPE } from 'inversify-express-utils';
@@ -16,14 +15,13 @@ import * as validation from './middlewares/request.validation';
 let container = new Container();
 
 // services
-container.bind<StorageService>(StorageServiceType).to(RedisService);
 container.bind<UserServiceInterface>(UserServiceType).to(UserService);
-container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient('http://auth:3000'));
-container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
 container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
+container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient('http://auth:3000'));
+container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
 
-const auth = new Auth(container.get<AuthClientInterface>(AuthClientType), container.get<StorageService>(StorageServiceType));
+const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
 container.bind<express.RequestHandler>('AuthMiddleware').toConstantValue(
   (req: any, res: any, next: any) => auth.authenticate(req, res, next)

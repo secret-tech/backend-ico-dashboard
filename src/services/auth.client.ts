@@ -1,6 +1,7 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
+import 'reflect-metadata';
 
 @injectable()
 export class AuthClient implements AuthClientInterface {

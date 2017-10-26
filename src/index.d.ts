@@ -126,6 +126,7 @@ declare interface UserData {
   name: string;
   agreeTos: boolean;
   referral?: string;
+  passwordHash?: string;
 }
 
 declare interface InputUserData extends UserData {
@@ -153,7 +154,7 @@ declare interface CreatedUserData extends UserData {
   isVerified: boolean;
   defaultVerificationMethod: string;
   referralCode: string;
-  barCode?: string;
+  kycStatus: string;
 }
 
 declare interface BaseInitiateResult {
@@ -239,5 +240,4 @@ declare interface UserServiceInterface {
   verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse>;
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
   invite(user: any, params: any): Promise<InviteResultArray>;
-  getKey(tenant: string, login: string): string;
 }

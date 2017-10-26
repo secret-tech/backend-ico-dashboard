@@ -85,10 +85,11 @@ export class UserController {
   )
   getMe(req: AuthorizedRequest, res: Response): void {
     res.json({
-      ethAddress: req.user.wallets[0].address,
+      ethAddress: req.user.ethWallet.address,
       email: req.user.email,
       name: req.user.name,
-      kycStatus: req.user.kycStatus || 'Not verified'
+      kycStatus: req.user.kycStatus,
+      defaultVerificationMethod: req.user.defaultVerificationMethod
     });
   }
 

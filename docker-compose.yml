@@ -71,6 +71,17 @@ services:
       default:
         ipv4_address: 10.100.0.6
 
+  mongo:
+    image: registry.jincor.com/backend/mongodb:latest
+    volumes:
+        - ./storage/mongodb:/data/db
+    networks:
+      default:
+        ipv4_address: 10.100.0.7
+    ports:
+      - 27017:27017
+      - 28017:28017
+
 networks:
   default:
     driver: bridge

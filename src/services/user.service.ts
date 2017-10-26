@@ -1,37 +1,39 @@
-import { StorageService, StorageServiceType } from './storage.service';
 import { AuthClientType } from './auth.client';
 import { VerificationClientType } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import { EmailServiceType, EmailServiceInterface } from './email.service';
-import InvalidPassword from '../exceptions/invalid.password';
-import * as uuid from 'node-uuid';
-import * as bcrypt from 'bcrypt-nodejs';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
-import UserNotFound from '../exceptions/user.not.found';
-import UserExists from '../exceptions/user.exists';
+import {
+  UserExists,
+  UserNotFound,
+  InvalidPassword,
+  UserNotActivated,
+  TokenNotFound
+} from '../exceptions/exceptions';
 import config from '../config';
-
-
-const AUTHENTICATOR_VERIFICATION = 'google_auth';
-const EMAIL_VERIFICATION = 'email';
+import { Investor } from '../entities/investor';
+import { VerifiedToken } from '../entities/verified.token';
+import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification'
+import * as transformers from '../transformers/transformers';
+import { getConnection } from 'typeorm';
+import * as bcrypt from 'bcrypt-nodejs';
 
 /**
  * UserService
  */
 @injectable()
 export class UserService implements UserServiceInterface {
+
   /**
    * constructor
    *
-   * @param  storageService  redis client
    * @param  authClient  auth service client
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
    * @param  emailService email service
    */
   constructor(
-    @inject(StorageServiceType) private storageService: StorageService,
     @inject(AuthClientType) private authClient: AuthClientInterface,
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
@@ -45,8 +47,11 @@ export class UserService implements UserServiceInterface {
    * @return promise
    */
   async create(userData: InputUserData): Promise<CreatedUserData> {
-    const { email, name, password, agreeTos, referral } = userData;
-    const existingUser = await this.storageService.getUser(email);
+    const { email } = userData;
+    const existingUser = await getConnection().getMongoRepository(Investor).findOne({
+      email: email
+    });
+
     if (existingUser) {
       throw new UserExists('User already exists');
     }
@@ -70,35 +75,15 @@ export class UserService implements UserServiceInterface {
       }
     });
 
-    const passwordHash: string = bcrypt.hashSync(password);
-    const key: string = this.getKey(email);
-    const data = {
-      id: uuid.v4(),
-      email,
-      name,
-      agreeTos,
-      passwordHash,
-      verification: {
-        id: verification.verificationId,
-        method: 'email'
-      },
-      isVerified: false,
-      defaultVerificationMethod: 'email',
-      referralCode: this.base64encode(email),
-      referral,
-      kycStatus: 'Not verified'
-    };
-
-    await this.authClient.createUser({
-      email: email,
-      login: email,
-      password: passwordHash,
-      sub: verification.verificationId
+    userData.passwordHash = bcrypt.hashSync(userData.password);
+    const investor = Investor.createInvestor(userData, {
+      verificationId: verification.verificationId
     });
 
-    await this.storageService.set(key, JSON.stringify(data));
-    delete data.passwordHash;
-    return data;
+    await getConnection().mongoManager.save(investor);
+    await this.authClient.createUser(transformers.transformInvestorForAuth(investor));
+
+    return transformers.transformCreatedInvestor(investor);
   }
 
   /**
@@ -108,10 +93,16 @@ export class UserService implements UserServiceInterface {
    * @return promise
    */
   async initiateLogin(loginData: InitiateLoginInput): Promise<InitiateLoginResult> {
-    const user = await this.storageService.getUser(loginData.email);
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: loginData.email
+    });
 
     if (!user) {
       throw new UserNotFound('User is not found');
+    }
+
+    if (!user.isVerified) {
+      throw new UserNotActivated('Account is not activated! Please check your email.');
     }
 
     const passwordMatch = bcrypt.compareSync(loginData.password, user.passwordHash);
@@ -144,14 +135,17 @@ export class UserService implements UserServiceInterface {
       }
     );
 
-    const resultingData = {
+    const token = VerifiedToken.createNotVerifiedToken(
+      tokenData.accessToken,
+      verificationData
+    );
+
+    await getConnection().getMongoRepository(VerifiedToken).save(token);
+    return {
       accessToken: tokenData.accessToken,
       isVerified: false,
       verification: verificationData
     };
-
-    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(resultingData));
-    return resultingData;
   }
 
   /**
@@ -161,9 +155,15 @@ export class UserService implements UserServiceInterface {
    * @return promise
    */
   async verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult> {
-    const tokenData = await this.storageService.getToken(inputData.accessToken);
+    const token = await getConnection().getMongoRepository(VerifiedToken).findOne({
+      token: inputData.accessToken
+    });
 
-    if (tokenData.verification.verificationId !== inputData.verification.id) {
+    if (!token) {
+      throw new TokenNotFound('Token is not found');
+    }
+
+    if (token.verification.id !== inputData.verification.id) {
       throw new Error('Invalid verification id');
     }
 
@@ -175,15 +175,15 @@ export class UserService implements UserServiceInterface {
       }
     );
 
-    tokenData.isVerified = true;
-
-    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
-
-    return tokenData;
+    token.makeVerified();
+    await getConnection().getMongoRepository(VerifiedToken).save(token);
+    return transformers.transformVerifiedToken(token);
   }
 
   async activate(activationData: ActivationUserData): Promise<ActivationResult> {
-    const user = await this.storageService.getUser(activationData.email);
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: activationData.email
+    });
 
     if (!user) {
       throw new UserNotFound('User is not found');
@@ -209,25 +209,24 @@ export class UserService implements UserServiceInterface {
     const salt = bcrypt.genSaltSync();
     const account = this.web3Client.getAccountByMnemonicAndSalt(mnemonic, salt);
 
-    user.wallets = [
-      {
-        ticker: 'ETH',
-        address: account.address,
-        balance: '0',
-        salt: salt
-      }
-    ];
+    user.addEthWallet({
+      ticker: 'ETH',
+      address: account.address,
+      balance: '0',
+      salt: salt
+    });
 
     if (user.referral) {
-      const referral = await this.storageService.getUser(user.referral);
-      await this.web3Client.addAddressToWhiteListReferral(account.address, referral.wallets[0].address);
+      const referral = await getConnection().getMongoRepository(Investor).findOne({
+        email: user.referral
+      });
+      await this.web3Client.addAddressToWhiteListReferral(account.address, referral.ethWallet.address);
     } else {
       await this.web3Client.addAddressToWhiteList(account.address);
     }
 
-    await this.web3Client.isAllowed(account.address);
     user.isVerified = true;
-    await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
+    await getConnection().getMongoRepository(Investor).save(user);
 
     const loginResult = await this.authClient.loginUser({
       login: user.email,
@@ -245,12 +244,10 @@ export class UserService implements UserServiceInterface {
       }
     ];
 
-    const tokenData = {
-      accessToken: loginResult.accessToken,
-      isVerified: true
-    };
+    const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
 
-    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    await getConnection().getMongoRepository(VerifiedToken).save(token);
+
     return {
       accessToken: loginResult.accessToken,
       wallets: resultWallets
@@ -285,7 +282,7 @@ export class UserService implements UserServiceInterface {
     };
   }
 
-  async verifyChangePassword(user: any, params: any): Promise<AccessTokenResponse> {
+  async verifyChangePassword(user: Investor, params: any): Promise<AccessTokenResponse> {
     if (!bcrypt.compareSync(params.oldPassword, user.passwordHash)) {
       throw new InvalidPassword('Invalid password');
     }
@@ -297,7 +294,7 @@ export class UserService implements UserServiceInterface {
     );
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
-    await this.storageService.set(`user:${ user.email }`, JSON.stringify(user));
+    await getConnection().getMongoRepository(Investor).save(user);
     await this.authClient.createUser({
       email: user.email,
       login: user.email,
@@ -311,17 +308,15 @@ export class UserService implements UserServiceInterface {
       deviceId: 'device'
     });
 
-    const tokenData = {
-      accessToken: loginResult.accessToken,
-      isVerified: true
-    };
-
-    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
+    await getConnection().getMongoRepository(VerifiedToken).save(token);
     return loginResult;
   }
 
   async initiateResetPassword(params: ResetPasswordInput): Promise<BaseInitiateResult> {
-    const user = await this.storageService.getUser(params.email);
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: params.email
+    });
 
     if (!user) {
       throw new UserNotFound('User is not found');
@@ -351,7 +346,9 @@ export class UserService implements UserServiceInterface {
   }
 
   async verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse> {
-    const user = await this.storageService.getUser(params.email);
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: params.email
+    });
 
     if (!user) {
       throw new UserNotFound('User is not found');
@@ -370,7 +367,8 @@ export class UserService implements UserServiceInterface {
     }
 
     user.passwordHash = bcrypt.hashSync(params.password);
-    await this.storageService.set(`user:${ user.email }`, JSON.stringify(user));
+    await getConnection().getMongoRepository(Investor).save(user);
+
     await this.authClient.createUser({
       email: user.email,
       login: user.email,
@@ -384,12 +382,9 @@ export class UserService implements UserServiceInterface {
       deviceId: 'device'
     });
 
-    const tokenData = {
-      accessToken: loginResult.accessToken,
-      isVerified: true
-    };
+    const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
 
-    await this.storageService.set(`token:${ tokenData.accessToken }`, JSON.stringify(tokenData));
+    await getConnection().getMongoRepository(VerifiedToken).save(token);
     return loginResult;
   }
 
@@ -415,7 +410,7 @@ export class UserService implements UserServiceInterface {
     };
   }
 
-  private async initiate2faVerification(user: any): Promise<InitiateResult> {
+  private async initiate2faVerification(user: Investor): Promise<InitiateResult> {
     return await this.verificationClient.initiateVerification(
       AUTHENTICATOR_VERIFICATION,
       {
@@ -428,7 +423,7 @@ export class UserService implements UserServiceInterface {
     );
   };
 
-  async initiateEnable2fa(user: any): Promise<BaseInitiateResult> {
+  async initiateEnable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
       throw Error('Authenticator is already enabled');
     }
@@ -438,7 +433,7 @@ export class UserService implements UserServiceInterface {
     }
   }
 
-  async verifyEnable2fa(user: any, params: VerificationInput): Promise<Enable2faResult> {
+  async verifyEnable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
       throw Error('Authenticator is already enabled');
     }
@@ -457,14 +452,14 @@ export class UserService implements UserServiceInterface {
 
     user.defaultVerificationMethod = AUTHENTICATOR_VERIFICATION;
 
-    await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
+    await getConnection().getMongoRepository(Investor).save(user);
 
     return {
       enabled: true
     }
   };
 
-  async initiateDisable2fa(user: any): Promise<BaseInitiateResult> {
+  async initiateDisable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
       throw Error('Authenticator is already disable');
     }
@@ -474,7 +469,7 @@ export class UserService implements UserServiceInterface {
     }
   }
 
-  async verifyDisable2fa(user: any, params: VerificationInput): Promise<Enable2faResult> {
+  async verifyDisable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
       throw Error('Authenticator is already disabled');
     }
@@ -496,26 +491,12 @@ export class UserService implements UserServiceInterface {
 
     user.defaultVerificationMethod = EMAIL_VERIFICATION;
 
-    await this.storageService.set(this.getKey(user.email), JSON.stringify(user));
+    await getConnection().getMongoRepository(Investor).save(user);
 
     return {
       enabled: false
     }
   };
-
-  getKey(email: string) {
-    return `user:${ email }`;
-  }
-
-  escape(str: string): string {
-    return str.replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
-
-  base64encode(email: string): string {
-    return this.escape(Buffer.from(email, 'utf8').toString('base64'));
-  }
 }
 
 const UserServiceType = Symbol('UserServiceInterface');

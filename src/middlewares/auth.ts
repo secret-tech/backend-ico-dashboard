@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
-import { StorageService } from '../services/storage.service';
+import { getConnection } from 'typeorm';
+import { Investor } from '../entities/investor';
+import { VerifiedToken } from '../entities/verified.token';
 
 export class Auth {
   /**
@@ -8,7 +10,6 @@ export class Auth {
    */
   constructor(
     private authClient: AuthClientInterface,
-    private storageService: StorageService
   ) { }
 
   async authenticate(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -28,9 +29,11 @@ export class Auth {
 
     const token = parts[1];
 
-    const tokenVerificationData = await this.storageService.getToken(token);
+    const tokenVerification = await getConnection().getMongoRepository(VerifiedToken).findOne({
+      token: token
+    });
 
-    if (!tokenVerificationData || !tokenVerificationData.isVerified) {
+    if (!tokenVerification || !tokenVerification.verified) {
       return res.status(401).json({
         error: 'Not Authorized'
       });
@@ -38,7 +41,9 @@ export class Auth {
 
     try {
       const verifyResult = await this.authClient.verifyUserToken(token);
-      req.user = await this.storageService.getUser(verifyResult.login);
+      req.user = await getConnection().getMongoRepository(Investor).findOne({
+        email: verifyResult.login
+      });
 
       if (!req.user) {
         return res.status(404).json({

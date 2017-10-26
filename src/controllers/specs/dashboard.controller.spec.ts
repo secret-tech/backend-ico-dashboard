@@ -1,8 +1,5 @@
 import * as chai from 'chai';
-import app from '../../app';
 import * as factory from './test.app.factory';
-const Web3 = require('web3');
-const bip39 = require('bip39');
 
 chai.use(require('chai-http'));
 const {expect, request} = chai;
@@ -22,7 +19,7 @@ const getRequest = (customApp, url: string) => {
 describe('Dashboard', () => {
   describe('GET /dashboard', () => {
     it('should get dashboard data', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
 
       getRequest(factory.testAppForDashboard(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
@@ -48,7 +45,7 @@ describe('Dashboard', () => {
 
   describe('GET /dashboard/referral', () => {
     it('should get dashboard referral data', (done) => {
-      const token = 'valid_token';
+      const token = 'verified_token';
 
       getRequest(factory.testAppForDashboard(), '/dashboard/referral').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
