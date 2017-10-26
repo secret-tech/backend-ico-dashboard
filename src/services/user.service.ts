@@ -14,7 +14,7 @@ import {
 import config from '../config';
 import { Investor } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
-import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification'
+import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
@@ -431,14 +431,14 @@ export class UserService implements UserServiceInterface {
     return await this.verificationClient.initiateVerification(
       AUTHENTICATOR_VERIFICATION,
       {
-          consumer: user.email,
+        consumer: user.email,
         issuer: 'Jincor',
         policy: {
           expiredOn: '01:00:00'
         }
       }
     );
-  };
+  }
 
   async initiateEnable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
@@ -447,7 +447,7 @@ export class UserService implements UserServiceInterface {
 
     return {
       verification: await this.initiate2faVerification(user)
-    }
+    };
   }
 
   async verifyEnable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
@@ -473,8 +473,8 @@ export class UserService implements UserServiceInterface {
 
     return {
       enabled: true
-    }
-  };
+    };
+  }
 
   async initiateDisable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
@@ -483,7 +483,7 @@ export class UserService implements UserServiceInterface {
 
     return {
       verification: await this.initiate2faVerification(user)
-    }
+    };
   }
 
   async verifyDisable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
@@ -512,8 +512,8 @@ export class UserService implements UserServiceInterface {
 
     return {
       enabled: false
-    }
-  };
+    };
+  }
 }
 
 const UserServiceType = Symbol('UserServiceInterface');

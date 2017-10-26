@@ -9,7 +9,7 @@ export class Auth {
    * constructor
    */
   constructor(
-    private authClient: AuthClientInterface,
+    private authClient: AuthClientInterface
   ) { }
 
   async authenticate(req: AuthorizedRequest, res: Response, next: NextFunction) {

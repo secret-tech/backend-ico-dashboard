@@ -111,8 +111,8 @@ declare interface ValidationResult extends Result {
 }
 
 declare interface ValidateVerificationInput {
-  code: string,
-  removeSecret?: boolean
+  code: string;
+  removeSecret?: boolean;
 }
 
 declare interface VerificationClientInterface {
@@ -223,7 +223,7 @@ declare interface ResetPasswordInput extends VerificationInput {
 }
 
 declare interface Enable2faResult {
-  enabled: boolean
+  enabled: boolean;
 }
 
 declare interface UserServiceInterface {

@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column } from 'typeorm';
 import 'reflect-metadata';
 
 export const AUTHENTICATOR_VERIFICATION = 'google_auth';

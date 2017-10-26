@@ -138,7 +138,7 @@ export class UserController {
 
   @httpGet(
     '/enable2fa/initiate',
-    'AuthMiddleware',
+    'AuthMiddleware'
   )
   async enable2faInitiate(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.initiateEnable2fa(req.user));
@@ -155,7 +155,7 @@ export class UserController {
 
   @httpGet(
     '/disable2fa/initiate',
-    'AuthMiddleware',
+    'AuthMiddleware'
   )
   async disable2faInitiate(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.initiateDisable2fa(req.user));

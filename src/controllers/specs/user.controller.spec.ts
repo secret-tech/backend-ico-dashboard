@@ -3,7 +3,7 @@ import app from '../../app';
 import * as factory from './test.app.factory';
 const Web3 = require('web3');
 const bip39 = require('bip39');
-import "reflect-metadata";
+import 'reflect-metadata';
 require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));

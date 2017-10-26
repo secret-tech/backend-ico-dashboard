@@ -1,5 +1,5 @@
 import { Investor } from '../entities/investor';
-import {VerifiedToken} from '../entities/verified.token';
+import { VerifiedToken } from '../entities/verified.token';
 
 export function transformInvestorForAuth(investor: Investor) {
   return {
@@ -7,7 +7,7 @@ export function transformInvestorForAuth(investor: Investor) {
     login: investor.email,
     password: investor.passwordHash,
     sub: investor.verification.id
-  }
+  };
 }
 
 export function transformCreatedInvestor(investor: Investor): CreatedUserData {
@@ -25,7 +25,7 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
     referralCode: investor.referralCode,
     kycStatus: investor.kycStatus,
     referral: investor.referral
-  }
+  };
 }
 
 export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult {
@@ -39,5 +39,5 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
       expiredOn: token.verification.expiredOn,
       status: 200
     }
-  }
+  };
 }

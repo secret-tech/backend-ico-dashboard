@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column } from 'typeorm';
 import 'reflect-metadata';
 
 export class Invitee {

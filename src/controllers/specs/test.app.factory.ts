@@ -7,7 +7,7 @@ import { Response, Request, NextFunction } from 'express';
 
 import {
   AuthClient,
-  AuthClientType,
+  AuthClientType
 } from '../../services/auth.client';
 
 import * as express from 'express';
@@ -17,7 +17,7 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
-import {EmailService} from '../../services/email.service';
+import { EmailService, EmailServiceInterface, EmailServiceType } from '../../services/email.service';
 
 const mockEmailClient = () => {
   const emailMock = TypeMoq.Mock.ofType(EmailService);
@@ -26,6 +26,8 @@ const mockEmailClient = () => {
     .returns(async(): Promise<any> => {
       return {};
     });
+
+  container.rebind<EmailServiceInterface>(EmailServiceType).toConstantValue(emailMock.object);
 };
 
 const mockAuthMiddleware = () => {

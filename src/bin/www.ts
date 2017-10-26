@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import config from '../config';
-import "reflect-metadata";
+import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 
 /**
@@ -25,4 +25,4 @@ createConnection().then(async connection => {
     const httpsServer = https.createServer(httpsOptions, app);
     httpsServer.listen(config.app.httpsPort);
   }
-}).catch(error => console.log("TypeORM connection error: ", error));
+}).catch(error => console.log('TypeORM connection error: ', error));

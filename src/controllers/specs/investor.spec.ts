@@ -2,14 +2,14 @@ import * as chai from 'chai';
 const { expect } = chai;
 import { Investor } from '../../entities/investor';
 import * as faker from 'faker';
-import {Invitee} from '../../entities/invitee';
+import { Invitee } from '../../entities/invitee';
 
 describe('Investor Entity', () => {
   beforeEach(() => {
     const userData = {
       email: 'invitor@test.com',
       name: 'ICO investor',
-      agreeTos: true,
+      agreeTos: true
     };
 
     const verification = {
@@ -56,7 +56,7 @@ describe('Investor Entity', () => {
     it('should not allow to invite more than 50 emails during 24 hours', () => {
       for (let i = 0; i < 50; i++) {
         this.investor.checkAndUpdateInvitees([
-            faker.internet.email('', '', 'jincor.com')
+          faker.internet.email('', '', 'jincor.com')
         ]);
       }
 
