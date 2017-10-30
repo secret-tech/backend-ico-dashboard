@@ -198,3 +198,18 @@ export function verificationRequired(req: Request, res: Response, next: NextFunc
     return next();
   }
 }
+
+export function invest(req: Request, res: Response, next: NextFunction) {
+  const schema = Joi.object().keys({
+    ethAmount: Joi.number().required().min(1),
+    mnemonic: Joi.string().required()
+  });
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}

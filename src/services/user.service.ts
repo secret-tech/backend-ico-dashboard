@@ -1,7 +1,8 @@
 import { AuthClientType } from './auth.client';
 import { VerificationClientType } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
-import { EmailServiceType, EmailServiceInterface } from './email.service';
+import { EmailQueueType, EmailQueueInterface } from '../queues/email.queue';
+import { Web3QueueType, Web3QueueInterface } from '../queues/web3.queue';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import {
@@ -31,13 +32,15 @@ export class UserService implements UserServiceInterface {
    * @param  authClient  auth service client
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
-   * @param  emailService email service
+   * @param  web3Queue web3 queue
+   * @param  emailQueue email queue
    */
   constructor(
     @inject(AuthClientType) private authClient: AuthClientInterface,
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(EmailServiceType) private emailService: EmailServiceInterface
+    @inject(Web3QueueType) private web3Queue: Web3QueueInterface,
+    @inject(EmailQueueType) private emailQueue: EmailQueueInterface
   ) { }
 
   /**
@@ -234,9 +237,11 @@ export class UserService implements UserServiceInterface {
       const referral = await getConnection().getMongoRepository(Investor).findOne({
         email: user.referral
       });
-      await this.web3Client.addAddressToWhiteListReferral(account.address, referral.ethWallet.address);
+      this.web3Client.addAddressToWhiteListReferral(account.address, referral.ethWallet.address);
     } else {
-      await this.web3Client.addAddressToWhiteList(account.address);
+      await this.web3Queue.addJob({
+        address: account.address
+      });
     }
 
     user.isVerified = true;
@@ -408,12 +413,12 @@ export class UserService implements UserServiceInterface {
     user.checkAndUpdateInvitees(params.emails);
 
     for (let email of params.emails) {
-      await this.emailService.send(
-        'invitations@jincor.com',
-        email,
-        'Invitation to join Jincor ICO',
-        config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `https://invest.jincor.com/signup?referral=${ user.referralCode }`)
-      );
+      this.emailQueue.addJob({
+        sender: 'invitations@jincor.com',
+        recipient: email,
+        subject: 'Invitation to join Jincor ICO',
+        text: config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `https://invest.jincor.com/signup?referral=${ user.referralCode }`)
+      });
 
       result.push({
         email,

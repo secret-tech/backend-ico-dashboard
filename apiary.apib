@@ -491,3 +491,77 @@ Authentication attempts with not verified token will result in 401 response.
                 }
             ]
         }
+
+## Initiate investment [/dashboard/invest/initiate]
+
++ ethAmount `1` (required, number, min(1))
++ mnemonic `pig turn bounce jeans left mouse hammer sketch hold during grief spirit` (required, string)
+
+### Initiate investment [POST]
+
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + Body
+
+            {
+                "ethAmount": 1,
+                "mnemonic": "pig turn bounce jeans left mouse hammer sketch hold during grief spirit"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "a4d642d6-8c96-4435-94b8-9a2bbd501552",
+                "consumer": "test@gmail.com",
+                "expiredOn": 1509387586,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify investment [/dashboard/invest/verify]
+
+
++ ethAmount `1` (required, number, min(1))
++ mnemonic `pig turn bounce jeans left mouse hammer sketch hold during grief spirit` (required, string)
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify investment [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "ethAmount": 1,
+                "mnemonic": "pig turn bounce jeans left mouse hammer sketch hold during grief spirit",
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
+
+
++ Response 200 (application/json)
+
+        {
+            "transactionHash": "0xf33afe0b5b56dfb6584d308d7b5e4c0412041045f3f728708eb90ac6f48e0956",
+            "status": "pending",
+            "type": "token_purchase"
+        }

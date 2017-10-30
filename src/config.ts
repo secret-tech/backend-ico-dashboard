@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 const {
   REDIS_HOST,
   REDIS_PORT,
@@ -12,7 +14,10 @@ const {
   AUTH_HOST,
   AUTH_PORT,
   VERIFY_HOST,
-  VERIFY_PORT
+  VERIFY_PORT,
+  ORM_ENTITIES_DIR,
+  ORM_SUBSCRIBER_DIR,
+  ORM_MIGRATIONS_DIR
 } = process.env;
 
 export default {
@@ -37,7 +42,7 @@ export default {
   auth: {
     port: parseInt(AUTH_PORT, 10) || 3000,
     host: AUTH_HOST || 'auth',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNmMTc3Zjc5LWU3Y2MtNDY1Mi1iYzMzLWIxYjAxOTI5NWViYyIsImxvZ2luIjoidGVuYW50OnRlc3RAdGVzdC5jb20iLCJqdGkiOiJjZjE3N2Y3OS1lN2NjLTQ2NTItYmMzMy1iMWIwMTkyOTVlYmMxNTA3NzE2ODI1MTk1IiwiaWF0IjoxNTA3NzE2ODI1MTk1LCJhdWQiOiJqaW5jb3IuY29tIiwiaXNUZW5hbnQiOnRydWV9.GzXULjjqxgO-6V6OEiQqInd3X4druterXl1zi2miXSM'
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1MjNjNTljLWVkMWQtNGYyZC04MTBjLTc3ZWQyODA4MmQxNyIsImxvZ2luIjoidGVuYW50OmNvbXBhbmllc0BqaW5jb3IuY29tIiwianRpIjoiYjUyM2M1OWMtZWQxZC00ZjJkLTgxMGMtNzdlZDI4MDgyZDE3MTUwOTM3NzY3OTg5OCIsImlhdCI6MTUwOTM3NzY3OTg5OCwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.iq95JqkINztJe3TKVohhfRQsb6WcSMPnoGdFa5Kjgsk'
   },
   verify: {
     port: parseInt(VERIFY_PORT, 10) || 3000,
@@ -50,146 +55,38 @@ export default {
   },
   contracts: {
     whiteList: {
-      address: '0x139bb356F113590934161a553951f9D3996D1e85',
-      abi: [
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'investor',
-              'type': 'address'
-            }
-          ],
-          'name': 'addInvestorToWhiteList',
-          'outputs': [],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': true,
-          'inputs': [],
-          'name': 'owner',
-          'outputs': [
-            {
-              'name': '',
-              'type': 'address'
-            }
-          ],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': true,
-          'inputs': [
-            {
-              'name': '',
-              'type': 'address'
-            }
-          ],
-          'name': 'investorWhiteList',
-          'outputs': [
-            {
-              'name': 'allowed',
-              'type': 'bool'
-            },
-            {
-              'name': 'referral',
-              'type': 'address'
-            }
-          ],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'investor',
-              'type': 'address'
-            }
-          ],
-          'name': 'getReferralOf',
-          'outputs': [
-            {
-              'name': 'result',
-              'type': 'address'
-            }
-          ],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'investor',
-              'type': 'address'
-            }
-          ],
-          'name': 'removeInvestorFromWhiteList',
-          'outputs': [],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'investor',
-              'type': 'address'
-            }
-          ],
-          'name': 'isAllowed',
-          'outputs': [
-            {
-              'name': 'result',
-              'type': 'bool'
-            }
-          ],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'investor',
-              'type': 'address'
-            },
-            {
-              'name': 'referral',
-              'type': 'address'
-            }
-          ],
-          'name': 'addInvestorToListReferral',
-          'outputs': [],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'constant': false,
-          'inputs': [
-            {
-              'name': 'newOwner',
-              'type': 'address'
-            }
-          ],
-          'name': 'transferOwnership',
-          'outputs': [],
-          'payable': false,
-          'type': 'function'
-        },
-        {
-          'inputs': [],
-          'payable': false,
-          'type': 'constructor'
-        }
-      ],
-      unlinkedBinary: '0x6060604052341561000f57600080fd5b5b5b60008054600160a060020a03191633600160a060020a03161790555b5b5b6104fa8061003e6000396000f3006060604052361561008b5763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416634f76a07781146100905780638da5cb5b146100b157806394642f96146100e05780639478a7c914610122578063984fba491461015d578063babcc5391461017e578063d597ab9e146101b1578063f2fde38b146101d8575b600080fd5b341561009b57600080fd5b6100af600160a060020a03600435166101f9565b005b34156100bc57600080fd5b6100c461027b565b604051600160a060020a03909116815260200160405180910390f35b34156100eb57600080fd5b6100ff600160a060020a036004351661028a565b6040519115158252600160a060020a031660208201526040908101905180910390f35b341561012d57600080fd5b6100c4600160a060020a03600435166102af565b604051600160a060020a03909116815260200160405180910390f35b341561016857600080fd5b6100af600160a060020a03600435166102d5565b005b341561018957600080fd5b61019d600160a060020a0360043516610350565b604051901515815260200160405180910390f35b34156101bc57600080fd5b6100af600160a060020a0360043581169060243516610372565b005b34156101e357600080fd5b6100af600160a060020a0360043516610476565b005b60005433600160a060020a0390811691161461021457600080fd5b600160a060020a038116158015906102455750600160a060020a03811660009081526001602052604090205460ff16155b151561025057600080fd5b600160a060020a0381166000908152600160208190526040909120805460ff191690911790555b5b50565b600054600160a060020a031681565b60016020526000908152604090205460ff8116906101009004600160a060020a031682565b600160a060020a038082166000908152600160205260409020546101009004165b919050565b60005433600160a060020a039081169116146102f057600080fd5b600160a060020a038116158015906103205750600160a060020a03811660009081526001602052604090205460ff165b151561032b57600080fd5b600160a060020a0381166000908152600160205260409020805460ff191690555b5b50565b600160a060020a03811660009081526001602052604090205460ff165b919050565b60005433600160a060020a0390811691161461038d57600080fd5b600160a060020a038216158015906103ad5750600160a060020a03811615155b80156103d65750600160a060020a03808316600090815260016020526040902054610100900416155b80156103f4575080600160a060020a031682600160a060020a031614155b80156104195750600160a060020a03821660009081526001602052604090205460ff16155b151561042457600080fd5b600160a060020a03808316600090815260016020819052604090912080549284166101000274ffffffffffffffffffffffffffffffffffffffff001960ff19909416909217929092161790555b5b5050565b60005433600160a060020a0390811691161461049157600080fd5b600160a060020a03811615610277576000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0383161790555b5b5b505600a165627a7a723058203c12d65d20a295a278b570500d17cd04d8c0c6ea7efc34fd997900ff9d840f730029'
+      address: '0x94c4b2ee76ff421cdae95a9affeea7c80d4334e8',
+      abi: [{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'addInvestorToWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'owner','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'investorWhiteList','outputs': [{'name': 'allowed','type': 'bool'},{'name': 'referral','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'getReferralOf','outputs': [{'name': 'result','type': 'address'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'removeInvestorFromWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'isAllowed','outputs': [{'name': 'result','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'},{'name': 'referral','type': 'address'}],'name': 'addInvestorToListReferral','outputs': [],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newOwner','type': 'address'}],'name': 'transferOwnership','outputs': [],'payable': false,'type': 'function'},{'inputs': [],'payable': false,'type': 'constructor'}]
     },
     ico: {
-      address: '0x0',
-      abi: []
+      address: '0xfd7345eaa260ec6259223ca996abac70a7cc8ac3',
+      abi: [{'constant': true,'inputs': [],'name': 'name','outputs': [{'name': '','type': 'string'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'endBlock','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'softCapReached','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'jcrUsdRate','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'beneficiary','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'btcUsdPrice','type': 'uint256'}],'name': 'receiveBtcPrice','outputs': [],'payable': false,'type': 'function'},{'constant': false,'inputs': [],'name': 'withdraw','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'jcrBtcRate','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'startBlock','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'tokensSold','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [],'name': 'refund','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'weiRefunded','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [],'name': 'halt','outputs': [],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'provider','type': 'address'}],'name': 'setBtcPriceProvider','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'collected','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'owner','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'softCap','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'ethUsdPrice','type': 'uint256'}],'name': 'receiveEthPrice','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'halted','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'btcPriceProvider','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'deposited','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [],'name': 'unhalt','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'jcrEthRate','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newWhiteList','type': 'address'}],'name': 'setNewWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'investorWhiteList','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'ethPriceProvider','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'provider','type': 'address'}],'name': 'setEthPriceProvider','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'preSaleAddress','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'crowdsaleFinished','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newOwner','type': 'address'}],'name': 'transferOwnership','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'hardCap','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'token','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'inputs': [{'name': '_hardCapJCR','type': 'uint256'},{'name': '_softCapJCR','type': 'uint256'},{'name': '_token','type': 'address'},{'name': '_beneficiary','type': 'address'},{'name': '_investorWhiteList','type': 'address'},{'name': '_baseEthUsdPrice','type': 'uint256'},{'name': '_baseBtcUsdPrice','type': 'uint256'},{'name': '_startBlock','type': 'uint256'},{'name': '_endBlock','type': 'uint256'}],'payable': false,'type': 'constructor'},{'payable': true,'type': 'fallback'},{'anonymous': false,'inputs': [{'indexed': false,'name': 'softCap','type': 'uint256'}],'name': 'SoftCapReached','type': 'event'},{'anonymous': false,'inputs': [{'indexed': true,'name': 'holder','type': 'address'},{'indexed': false,'name': 'tokenAmount','type': 'uint256'},{'indexed': false,'name': 'etherAmount','type': 'uint256'}],'name': 'NewContribution','type': 'event'},{'anonymous': false,'inputs': [{'indexed': true,'name': 'holder','type': 'address'},{'indexed': false,'name': 'amount','type': 'uint256'}],'name': 'Refunded','type': 'event'}]
+    },
+    ethPriceProvider: {
+      address: '0xb70560a43a9abf6ea2016f40a3e84b8821e134c5'
+    },
+    jcrToken: {
+      address: '0x1a164bd1a4bd6f26726dba43972a91b20e7d93be',
+      abi: [{'constant': false,'inputs': [{'name': 'addr','type': 'address'},{'name': 'state','type': 'bool'}],'name': 'setTransferAgent','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'name','outputs': [{'name': '','type': 'string'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': '_spender','type': 'address'},{'name': '_value','type': 'uint256'}],'name': 'approve','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'totalSupply','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': '_from','type': 'address'},{'name': '_to','type': 'address'},{'name': '_value','type': 'uint256'}],'name': 'transferFrom','outputs': [{'name': 'success','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'addr','type': 'address'}],'name': 'setReleaseAgent','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'INITIAL_SUPPLY','outputs': [{'name': '','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'decimals','outputs': [{'name': '','type': 'uint8'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': '_value','type': 'uint256'}],'name': 'burn','outputs': [{'name': 'success','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '_owner','type': 'address'}],'name': 'balanceOf','outputs': [{'name': 'balance','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': '_from','type': 'address'},{'name': '_value','type': 'uint256'}],'name': 'burnFrom','outputs': [{'name': 'success','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'transferAgents','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [],'name': 'release','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'owner','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'symbol','outputs': [{'name': '','type': 'string'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'released','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': '_to','type': 'address'},{'name': '_value','type': 'uint256'}],'name': 'transfer','outputs': [{'name': 'success','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'releaseAgent','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '_owner','type': 'address'},{'name': '_spender','type': 'address'}],'name': 'allowance','outputs': [{'name': 'remaining','type': 'uint256'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newOwner','type': 'address'}],'name': 'transferOwnership','outputs': [],'payable': false,'type': 'function'},{'inputs': [],'payable': false,'type': 'constructor'},{'anonymous': false,'inputs': [{'indexed': true,'name': 'from','type': 'address'},{'indexed': false,'name': 'value','type': 'uint256'}],'name': 'Burn','type': 'event'},{'anonymous': false,'inputs': [{'indexed': true,'name': 'owner','type': 'address'},{'indexed': true,'name': 'spender','type': 'address'},{'indexed': false,'name': 'value','type': 'uint256'}],'name': 'Approval','type': 'event'},{'anonymous': false,'inputs': [{'indexed': true,'name': 'from','type': 'address'},{'indexed': true,'name': 'to','type': 'address'},{'indexed': false,'name': 'value','type': 'uint256'}],'name': 'Transfer','type': 'event'}]
     }
+  },
+  typeOrm: {
+    type: 'mongodb',
+    host: 'mongo',
+    port: 27017,
+    username: '',
+    password: '',
+    database: 'ico-dashboard',
+    synchronize: true,
+    logging: false,
+    entities: [
+      ORM_ENTITIES_DIR
+    ],
+    migrations: [
+      ORM_MIGRATIONS_DIR
+    ],
+    subscribers: [
+      ORM_SUBSCRIBER_DIR
+    ]
   }
 };

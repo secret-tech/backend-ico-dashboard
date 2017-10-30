@@ -7,17 +7,23 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { EmailServiceType, EmailServiceInterface, EmailService } from './services/email.service';
+import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';
 import * as express from 'express';
 import * as validation from './middlewares/request.validation';
+import { Web3Queue, Web3QueueInterface, Web3QueueType } from './queues/web3.queue';
 
 let container = new Container();
 
+container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
+container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue);
+
+container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
+container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue);
+
 // services
 container.bind<UserServiceInterface>(UserServiceType).to(UserService);
-container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
-container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
 container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient('http://auth:3000'));
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
 
@@ -58,6 +64,9 @@ container.bind<express.RequestHandler>('ResetPasswordVerifyValidation').toConsta
 );
 container.bind<express.RequestHandler>('VerificationRequiredValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.verificationRequired(req, res, next)
+);
+container.bind<express.RequestHandler>('InvestValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.invest(req, res, next)
 );
 
 // controllers

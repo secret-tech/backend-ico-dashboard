@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon -w ./src -e ts ./src/bin/www --exec ts-node",
-    "lint": "tslint --fix './src/**/*.ts'",
+    "lint": "tslint './src/**/*.ts'",
+    "lintFix": "tslint --fix './src/**/*.ts'",
     "test": "nyc mocha ./src/**/*.spec.ts --require test/prepare.ts",
     "build": "tsc -p tsconfig.build.json --outDir dist",
     "serve": "node ./dist/bin/www.js"
@@ -20,6 +21,7 @@
     "bcrypt-nodejs": "0.0.3",
     "bip39": "2.4.0",
     "body-parser": "~1.15.2",
+    "bull": "3.3.4",
     "debug": "~2.2.0",
     "ethereumjs-wallet": "0.6.0",
     "express": "~4.14.0",
@@ -44,6 +46,7 @@
   },
   "devDependencies": {
     "@types/bcrypt-nodejs": "0.0.30",
+    "@types/bull": "3.0.2",
     "@types/chai": "3.4.34",
     "@types/chai-http": "0.0.29",
     "@types/debug": "0.0.29",

@@ -13,6 +13,10 @@ services:
       - redis
       - verify
       - rpc
+    environment:
+      ORM_ENTITIES_DIR: "dist/entities/**/*.js"
+      ORM_SUBSCRIBER_DIR: "dist/subscriber/**/*.js"
+      ORM_MIGRATIONS_DIR: "dist/migrations/**/*.js"
     networks:
       default:
         ipv4_address: 10.100.0.2
@@ -52,6 +56,8 @@ services:
       dockerfile: rpc.Dockerfile
     ports:
       - "8545"
+    volumes:
+      - /root/ethereum-blockchain:/home/ethereum
     networks:
       default:
         ipv4_address: 10.100.0.5

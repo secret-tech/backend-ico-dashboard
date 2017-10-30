@@ -10,6 +10,10 @@ services:
       - 4000:4000
     volumes:
       - ./:/usr/src/app
+    environment:
+      ORM_ENTITIES_DIR: "src/entities/**/*.ts"
+      ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
+      ORM_MIGRATIONS_DIR: "src/migrations/**/*.ts"
     links:
       - auth
       - redis
@@ -54,6 +58,8 @@ services:
       dockerfile: rpc.Dockerfile
     ports:
       - "8545"
+    volumes:
+      - /media/artem/Seagate Expansion Drive/gethtest:/home/ethereum
     networks:
       default:
         ipv4_address: 10.100.0.5

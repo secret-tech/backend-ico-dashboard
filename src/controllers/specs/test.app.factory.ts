@@ -3,6 +3,12 @@ import {
   VerificationClientType
 } from '../../services/verify.client';
 
+import {
+  Web3ClientInterface,
+  Web3ClientType,
+  Web3Client
+} from '../../services/web3.client';
+
 import { Response, Request, NextFunction } from 'express';
 
 import {
@@ -17,17 +23,24 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
-import { EmailService, EmailServiceInterface, EmailServiceType } from '../../services/email.service';
+import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
 
-const mockEmailClient = () => {
-  const emailMock = TypeMoq.Mock.ofType(EmailService);
+const mockEmailQueue = () => {
+  const emailMock = TypeMoq.Mock.ofType(EmailQueue);
 
-  emailMock.setup(x => x.send(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-    .returns(async(): Promise<any> => {
-      return {};
-    });
+  emailMock.setup(x => x.addJob(TypeMoq.It.isAny()))
+    .returns((): any => null);
 
-  container.rebind<EmailServiceInterface>(EmailServiceType).toConstantValue(emailMock.object);
+  container.rebind<EmailQueueInterface>(EmailQueueType).toConstantValue(emailMock.object);
+};
+
+const mockWeb3 = () => {
+  const web3Mock = TypeMoq.Mock.ofType(Web3Client);
+
+  web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => 'transactionHash');
+
+  container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
 };
 
 const mockAuthMiddleware = () => {
@@ -96,6 +109,15 @@ const mockVerifyClient = () => {
     }
   };
 
+  const validationResultToVerifyInvestment: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: 'verify_invest',
+      consumer: 'activated@test.com',
+      expiredOn: 123456
+    }
+  };
+
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<InitiateResult> => initiateResult);
 
@@ -104,6 +126,9 @@ const mockVerifyClient = () => {
 
   verifyMock.setup(x => x.validateVerification('google_auth', '2fa_user_verification', TypeMoq.It.isAny()))
     .returns(async(): Promise<ValidationResult> => validationResultToDisable2fa);
+
+  verifyMock.setup(x => x.validateVerification('email', 'verify_invest', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultToVerifyInvestment);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
 };
@@ -223,6 +248,8 @@ export const testAppForUserMe = () => {
 
 export const testAppForDashboard = () => {
   mockAuthMiddleware();
+  mockVerifyClient();
+  mockWeb3();
   return buildApp();
 };
 
@@ -234,7 +261,7 @@ export const testAppForChangePassword = () => {
 
 export const testAppForInvite = () => {
   mockAuthMiddleware();
-  mockEmailClient();
+  mockEmailQueue();
   return buildApp();
 };
 
