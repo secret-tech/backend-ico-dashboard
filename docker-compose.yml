@@ -10,6 +10,7 @@ services:
       - 4000:4000
     volumes:
       - ./:/usr/src/app
+      - /media/artem/Seagate Expansion Drive/gethtest:/home/ethereum
     environment:
       ORM_ENTITIES_DIR: "src/entities/**/*.ts"
       ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
@@ -60,6 +61,7 @@ services:
       - "8545"
     volumes:
       - /media/artem/Seagate Expansion Drive/gethtest:/home/ethereum
+      - ./passwords:/passwords
     networks:
       default:
         ipv4_address: 10.100.0.5

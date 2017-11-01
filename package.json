@@ -18,6 +18,7 @@
   "dependencies": {
     "@types/faker": "4.1.1",
     "@types/joi": "10.4.0",
+    "abi-decoder": "1.0.9",
     "bcrypt-nodejs": "0.0.3",
     "bip39": "2.4.0",
     "body-parser": "~1.15.2",
@@ -42,7 +43,7 @@
     "typemoq": "2.0.1",
     "typeorm": "0.1.1",
     "web-request": "1.0.7",
-    "web3": "1.0.0-beta.22"
+    "web3": "1.0.0-beta.24"
   },
   "devDependencies": {
     "@types/bcrypt-nodejs": "0.0.30",

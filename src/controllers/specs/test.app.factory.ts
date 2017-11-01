@@ -40,6 +40,32 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => 'transactionHash');
 
+  web3Mock.setup(x => x.getJcrEthPrice())
+    .returns(async(): Promise<number> => 200);
+
+  web3Mock.setup(x => x.getEthBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '1.0001');
+
+  web3Mock.setup(x => x.getJcrBalanceOf(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '500.00012345678912345');
+
+  web3Mock.setup(x => x.getEthCollected())
+    .returns(async(): Promise<string> => '2000');
+
+  web3Mock.setup(x => x.getSoldIcoTokens())
+    .returns(async(): Promise<string> => '5000');
+
+  const generatedAccount = {
+    address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+    privateKey: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA'
+  };
+
+  web3Mock.setup(x => x.getAccountByMnemonicAndSalt(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns((): any => generatedAccount);
+
+  web3Mock.setup(x => x.generateMnemonic())
+    .returns((): string => 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit');
+
   container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
 };
 
@@ -147,6 +173,8 @@ const buildApp = () => {
 };
 
 export const testAppForSuccessRegistration = () => {
+  mockWeb3();
+
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
   const authMock = TypeMoq.Mock.ofType(AuthClient);
 

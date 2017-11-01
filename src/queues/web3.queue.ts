@@ -22,7 +22,6 @@ export class Web3Queue implements Web3QueueInterface {
 
   private async process(job: Bull.Job): Promise<boolean> {
     await this.web3Client.addAddressToWhiteList(job.data.address);
-    console.log('job done');
     return true;
   }
 

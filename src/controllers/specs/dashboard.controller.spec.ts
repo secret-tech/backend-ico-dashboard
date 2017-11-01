@@ -34,7 +34,7 @@ describe('Dashboard', () => {
           },
           raised: {
             ETH: '2000',
-            USD: '1000000',
+            USD: '400000',
             BTC: '100'
           },
           daysLeft: 10

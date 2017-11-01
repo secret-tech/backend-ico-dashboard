@@ -13,14 +13,16 @@ import config from './config';
 import * as express from 'express';
 import * as validation from './middlewares/request.validation';
 import { Web3Queue, Web3QueueInterface, Web3QueueType } from './queues/web3.queue';
+import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler'
 
 let container = new Container();
 
 container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue);
 
-container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client);
+container.bind<Web3ClientInterface>(Web3ClientType).toConstantValue(new Web3Client());
 container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue);
+container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler());
 
 // services
 container.bind<UserServiceInterface>(UserServiceType).to(UserService);

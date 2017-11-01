@@ -34,17 +34,20 @@ export class DashboardController {
     'AuthMiddleware'
   )
   async dashboard(req: AuthorizedRequest, res: Response): Promise<void> {
+    const currentJcrEthPrice = await this.web3Client.getJcrEthPrice();
+    const ethCollected = await this.web3Client.getEthCollected();
+
     res.json({
       ethBalance: await this.web3Client.getEthBalance(req.user.ethWallet.address),
       jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
       jcrTokenBalance: await this.web3Client.getJcrBalanceOf(req.user.ethWallet.address),
       jcrTokenPrice: {
-        ETH: '0.005',
+        ETH: (1 / Number(currentJcrEthPrice)).toString(),
         USD: '1'
       },
       raised: {
-        ETH: '2000',
-        USD: '1000000',
+        ETH: ethCollected,
+        USD: (Number(ethCollected) * currentJcrEthPrice).toString(),
         BTC: '100'
       },
       daysLeft: 10

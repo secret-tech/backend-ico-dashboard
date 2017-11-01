@@ -1,10 +1,10 @@
-const Web3 = require('web3');
+const  Web3 = require('web3');
 import { injectable } from 'inversify';
-
 const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
+const net = require('net');
 
 interface TransactionInput {
   from: string;
@@ -24,6 +24,8 @@ export interface Web3ClientInterface {
   getEthBalance(address: string): Promise<string>;
   getSoldIcoTokens(): Promise<string>;
   getJcrBalanceOf(address: string): Promise<string>;
+  getEthCollected(): Promise<string>;
+  getJcrEthPrice(): Promise<number>
 }
 
 @injectable()
@@ -34,10 +36,25 @@ export class Web3Client implements Web3ClientInterface {
   jcrToken: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.HttpProvider('http://rpc:8545'));
+    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+
+    /*this.web3.eth.subscribe('pendingTransactions', (error, data) => {
+      if (error) {
+        console.log(error);
+      }
+    }).on('data', data => {
+      this.web3.eth.getTransactionReceipt('0xc716685a27b2d99f0c7814ee105da67b523c8dee6d64e19d9156640dbe4afe6c')
+        .then(console.log);
+
+      this.web3.eth.getTransactionReceipt('0x64828f521036af2005b70637f177ee17ac2a7699c35a05b0227f440090c3b1d6')
+        .then(console.log);
+
+      this.web3.eth.getTransactionReceipt('0xf83b0bb1a1df82e27b648350b922e04c8b7c3c1912edad25bd47e6102bb03e60')
+        .then(console.log);
+    });*/
   }
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
@@ -133,13 +150,23 @@ export class Web3Client implements Web3ClientInterface {
   async getSoldIcoTokens(): Promise<string> {
     return this.web3.utils.fromWei(
       await this.ico.methods.tokensSold().call()
-    );
+    ).toString();
   }
 
   async getJcrBalanceOf(address: string): Promise<string> {
     return this.web3.utils.fromWei(
       await this.jcrToken.methods.balanceOf(address).call()
-    );
+    ).toString();
+  }
+
+  async getEthCollected(): Promise<string> {
+    return this.web3.utils.fromWei(
+      await this.ico.methods.collected().call()
+    ).toString();
+  }
+
+  async getJcrEthPrice(): Promise<number> {
+    return await this.ico.methods.jcrEthRate().call();
   }
 }
 
