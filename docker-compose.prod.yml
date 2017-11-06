@@ -62,6 +62,7 @@ services:
       - "8545"
     volumes:
       - /root/ethereum-blockchain:/home/ethereum
+      - ./passwords:/passwords
     networks:
       default:
         ipv4_address: 10.100.0.5
