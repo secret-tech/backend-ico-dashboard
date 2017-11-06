@@ -417,7 +417,7 @@ export class UserService implements UserServiceInterface {
         sender: 'invitations@jincor.com',
         recipient: email,
         subject: 'Invitation to join Jincor ICO',
-        text: config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `https://invest.jincor.com/signup?referral=${ user.referralCode }`)
+        text: config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `http://45.33.52.185/auth/signup/${ user.referralCode }`)
       });
 
       result.push({
