@@ -88,17 +88,14 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   addAddressToWhiteList(address: string) {
-    console.log(address);
     return new Promise((resolve, reject) => {
       this.web3.eth.getAccounts().then(accounts => {
-
         this.whiteList.methods.addInvestorToWhiteList(address).send({
           from: accounts[0],
           gas: 200000,
           gasPrice: this.web3.utils.toWei(20, 'gwei')
         }).on('transactionHash', hash => {
-          console.log('Transaction hash: ' + hash);
-          resolve();
+          resolve(hash);
         });
       });
     });
@@ -106,11 +103,11 @@ export class Web3Client implements Web3ClientInterface {
 
   addAddressToWhiteListReferral(address: string, referral: string) {
     return new Promise((resolve, reject) => {
-      this.web3.eth.getAccounts().then(function(accounts) {
+      this.web3.eth.getAccounts().then(accounts => {
         this.whiteList.methods.addInvestorToListReferral(address, referral).send({
           from: accounts[0],
           gas: 200000
-        }, function(err, transactionHash) {
+        }, (err, transactionHash) => {
           resolve(transactionHash);
         });
       });
