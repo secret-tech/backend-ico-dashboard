@@ -171,7 +171,7 @@ export function verificationRequired(req: Request, res: Response, next: NextFunc
 
 export function invest(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
-    ethAmount: Joi.number().required().min(1),
+    ethAmount: Joi.number().required().min(0.01),
     mnemonic: Joi.string().required()
   });
 
