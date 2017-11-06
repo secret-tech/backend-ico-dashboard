@@ -18,7 +18,7 @@ export class Transaction {
   transactionHash: string;
 
   @Column()
-  timestamp: string;
+  timestamp: number;
 
   @Column()
   blockNumber: number;
@@ -30,28 +30,14 @@ export class Transaction {
   to: string;
 
   @Column()
-  ethValue: string;
+  ethAmount: string;
 
   @Column()
-  jcrValue: string;
+  jcrAmount: string;
 
   @Column()
   status: string;
 
   @Column()
   type: string;
-
-  static createTransaction(data: any): Transaction {
-    const transaction = new Transaction();
-    transaction.transactionHash = data.transactionHash;
-    transaction.timestamp = data.timestamp;
-    transaction.from = data.from;
-    transaction.to = data.to;
-    transaction.blockNumber = data.blockNumber;
-    transaction.ethValue = data.ethValue;
-    transaction.jcrValue = data.jcrValue;
-    transaction.type = data.type;
-    transaction.status = data.status;
-    return transaction;
-  }
 }

@@ -13,6 +13,8 @@ services:
       - redis
       - verify
       - rpc
+    depends_on:
+      - rpc
     environment:
       ORM_ENTITIES_DIR: "dist/entities/**/*.js"
       ORM_SUBSCRIBER_DIR: "dist/subscriber/**/*.js"

@@ -5,4 +5,3 @@ VOLUME /usr/src/app
 EXPOSE 3000
 EXPOSE 4000
 WORKDIR /usr/src/app
-CMD npm start

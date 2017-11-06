@@ -96,36 +96,6 @@ export function verifyLogin(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function createToken(req: Request, res: Response, next: NextFunction) {
-  const schema = Joi.object().keys({
-    login: Joi.string().required(),
-    password: Joi.string().required(),
-    deviceId: Joi.string().required()
-  });
-
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
-}
-
-export function tokenRequired(req: Request, res: Response, next: NextFunction) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required()
-  });
-
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
-}
-
 export function changePassword(req: AuthorizedRequest, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     oldPassword: Joi.string().required(),

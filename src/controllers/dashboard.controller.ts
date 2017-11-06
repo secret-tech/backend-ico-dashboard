@@ -6,10 +6,12 @@ import 'reflect-metadata';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
+import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
+
 /**
  * Dashboard controller
  */
@@ -20,14 +22,12 @@ const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 export class DashboardController {
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
-    @inject(Web3ClientType) private web3Client: Web3ClientInterface
+    @inject(Web3ClientType) private web3Client: Web3ClientInterface,
+    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface
   ) { }
 
   /**
-   * Create user
-   *
-   * @param  req  express req object
-   * @param  res  express res object
+   * Get main dashboard data
    */
   @httpGet(
     '/',
@@ -55,34 +55,25 @@ export class DashboardController {
   }
 
   /**
-   * Login user and respond with token
-   *
-   * @param  req  express req object
-   * @param  res  express res object
-   * @param  next express next middleware function
+   * Get referral data
    */
   @httpGet(
     '/referral',
     'AuthMiddleware'
   )
   async referral(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
-    res.json({
-      data: 'dGVzdEB0ZXN0LmNvbQ',
-      users: [
-        {
-          date: 1508241475,
-          name: 'Investor 1',
-          walletAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-          tokens: '105'
-        },
-        {
-          date: 1508241475,
-          name: 'Investor 2',
-          walletAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eB',
-          tokens: '1.01'
-        }
-      ]
-    });
+    res.json(await this.transactionService.getReferralIncome(req.user));
+  }
+
+  /**
+   * Get transaction history
+   */
+  @httpGet(
+    '/transactions',
+    'AuthMiddleware'
+  )
+  async transactionHistory(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    res.json(await this.transactionService.getTransactionsOfUser(req.user));
   }
 
   @httpPost(
@@ -92,7 +83,7 @@ export class DashboardController {
   )
   async investInitiate(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
     const verificationResult = await this.verificationClient.initiateVerification(
-        req.user.defaultVerificationMethod,
+      req.user.defaultVerificationMethod,
       {
         consumer: req.user.email,
         issuer: 'Jincor',
@@ -107,7 +98,7 @@ export class DashboardController {
           expiredOn: '00:05:00'
         }
       }
-      );
+    );
 
     res.json({
       verification: verificationResult

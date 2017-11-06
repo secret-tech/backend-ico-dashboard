@@ -13,21 +13,26 @@ import config from './config';
 import * as express from 'express';
 import * as validation from './middlewares/request.validation';
 import { Web3Queue, Web3QueueInterface, Web3QueueType } from './queues/web3.queue';
-import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler'
+import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler';
+import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
 
 let container = new Container();
 
-container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService);
-container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue);
+container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService).inSingletonScope();
+container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
 
-container.bind<Web3ClientInterface>(Web3ClientType).toConstantValue(new Web3Client());
-container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue);
-container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler());
+container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
+container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue).inSingletonScope();
+container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
+container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
+  container.get<TransactionServiceInterface>(TransactionServiceType)
+));
 
 // services
-container.bind<UserServiceInterface>(UserServiceType).to(UserService);
+
 container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient('http://auth:3000'));
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient('http://verify:3000'));
+container.bind<UserServiceInterface>(UserServiceType).to(UserService).inSingletonScope();
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
@@ -45,12 +50,6 @@ container.bind<express.RequestHandler>('InitiateLoginValidation').toConstantValu
 );
 container.bind<express.RequestHandler>('VerifyLoginValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.verifyLogin(req, res, next)
-);
-container.bind<express.RequestHandler>('CreateTokenValidation').toConstantValue(
-  (req: any, res: any, next: any) => validation.createToken(req, res, next)
-);
-container.bind<express.RequestHandler>('TokenRequiredValidation').toConstantValue(
-  (req: any, res: any, next: any) => validation.tokenRequired(req, res, next)
 );
 container.bind<express.RequestHandler>('ChangePasswordValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.changePassword(req, res, next)

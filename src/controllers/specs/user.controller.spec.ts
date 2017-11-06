@@ -147,6 +147,19 @@ describe('Users', () => {
       });
     });
 
+    it('should require email on activate user', (done) => {
+      const activateParams = {
+        verificationId: '123',
+        code: '123456'
+      };
+
+      postRequest(factory.testAppForSuccessRegistration(), '/user/activate').send(activateParams).end((err, res) => {
+        expect(res.status).to.eq(422);
+        expect(res.body.error.details[0].message).to.equal('"email" is required');
+        done();
+      });
+    });
+
     it('should validate email', (done) => {
       const params = {
         email: 'test.test.com',
@@ -531,6 +544,19 @@ describe('Users', () => {
         });
     });
 
+    it('should require email on initiate password reset', (done) => {
+      const params = {
+      };
+
+      postRequest(factory.testAppForResetPassword(), '/user/resetPassword/initiate')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.equal('"email" is required');
+          done();
+        });
+    });
+
     it('should respond with error on initiate if user is not found', (done) => {
       const params = {
         email: 'not_found@test.com'
@@ -560,6 +586,25 @@ describe('Users', () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.accessToken).to.eq('token');
+          done();
+        });
+    });
+
+    it('should require password on verify', (done) => {
+      const params = {
+        email: 'activated@test.com',
+        verification: {
+          verificationId: 'activated_user_verification',
+          method: 'google_auth',
+          code: '123456'
+        }
+      };
+
+      postRequest(factory.testAppForResetPassword(), '/user/resetPassword/verify')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.equal('"password" is required');
           done();
         });
     });
