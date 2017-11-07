@@ -695,6 +695,25 @@ describe('Users', () => {
           done();
         });
     });
+
+    it('should not allow to invite already existing users', (done) => {
+      const token = 'verified_token';
+      const params = {
+        emails: [
+          'invited@test.com',
+          'existing@test.com'
+        ]
+      };
+
+      postRequest(factory.testAppForChangePassword(), '/user/invite')
+        .set('Authorization', `Bearer ${ token }`)
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error).to.equal('existing@test.com account already exists');
+          done();
+        });
+    });
   });
 
   describe('POST /user/enable2fa', () => {

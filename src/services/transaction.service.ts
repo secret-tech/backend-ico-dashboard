@@ -29,6 +29,7 @@ interface ReferralData {
 
 interface ReferralResult {
   data: string;
+  referralCount: number;
   users: ReferralData[];
 }
 
@@ -121,8 +122,13 @@ export class TransactionService implements TransactionServiceInterface {
       });
     }
 
+    const referralCount = await getMongoManager().createEntityCursor(Investor, {
+      referral: user.email
+    }).count(false);
+
     return {
       data: user.referralCode,
+      referralCount,
       users
     };
   }

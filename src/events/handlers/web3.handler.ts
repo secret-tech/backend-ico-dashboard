@@ -53,9 +53,9 @@ export class Web3Handler implements Web3HandlerInterface {
 
     this.queueWrapper = new Bull('check_transaction', 'redis://redis:6379');
     this.queueWrapper.process((job) => {
-      this.checkAndRestoreTransactions(job);
+      return this.checkAndRestoreTransactions(job);
     });
-    this.queueWrapper.add({}, {repeat: {cron: '* * * * *'}});
+    this.queueWrapper.add({}, {repeat: {cron: '*/5 * * * *'}});
   }
 
   async processNewBlockHeaders(data: any): Promise<void> {
@@ -216,12 +216,30 @@ export class Web3Handler implements Web3HandlerInterface {
     await txRepo.save(newTx);
   }
 
-  async checkAndRestoreTransactions(job: any) {
+  async checkAndRestoreTransactions(job: any): Promise<boolean> {
     const transferEvents = await this.jcrToken.getPastEvents('Transfer', { fromBlock: 0 });
 
     for (let event of transferEvents) {
       await this.processJcrTransfer(event);
     }
+
+    const referralEvents = await this.ico.getPastEvents('NewReferralTransfer', { fromBlock: 0 });
+
+    for (let event of referralEvents) {
+      await this.processReferralTransfer(event);
+    }
+
+    const currentBlock = await this.web3.eth.getBlockNumber();
+    for (let i = 2015593; i < currentBlock; i++) {
+      const blockData = await this.web3.eth.getBlock(i, true);
+      const transactions = blockData.transactions;
+      for (let transaction of transactions) {
+        const transactionReceipt = await this.web3.eth.getTransactionReceipt(transaction.hash);
+        await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
+      }
+    }
+
+    return true;
   }
 }
 

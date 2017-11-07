@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import config from '../config';
 const QR = require('qr-image');
 
+/* istanbul ignore next */
 @injectable()
 export class VerificationClient implements VerificationClientInterface {
   tenantToken: string;

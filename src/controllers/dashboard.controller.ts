@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { VerificationClientType } from '../services/verify.client';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
@@ -123,7 +123,6 @@ export class DashboardController {
     const transactionInput = {
       from: req.user.ethWallet.address,
       to: config.contracts.ico.address,
-      gas: 220000,
       amount: req.body.ethAmount
     };
 

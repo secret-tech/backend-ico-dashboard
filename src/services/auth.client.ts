@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import config from '../config';
 import 'reflect-metadata';
 
+/* istanbul ignore next */
 @injectable()
 export class AuthClient implements AuthClientInterface {
   tenantToken: string;

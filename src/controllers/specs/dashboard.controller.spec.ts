@@ -52,6 +52,7 @@ describe('Dashboard', () => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           data: 'YWN0aXZhdGVkQHRlc3QuY29t',
+          referralCount: 1,
           users: [
             {
               date: 1509885929,

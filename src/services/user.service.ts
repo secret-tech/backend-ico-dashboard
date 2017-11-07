@@ -10,7 +10,7 @@ import {
   UserNotFound,
   InvalidPassword,
   UserNotActivated,
-  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError
+  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed
 } from '../exceptions/exceptions';
 import config from '../config';
 import { Investor } from '../entities/investor';
@@ -409,6 +409,13 @@ export class UserService implements UserServiceInterface {
 
   async invite(user: Investor, params: any): Promise<InviteResultArray> {
     let result = [];
+
+    for (let email of params.emails) {
+      const user = await getConnection().getMongoRepository(Investor).findOne({ email });
+      if (user) {
+        throw new InviteIsNotAllowed(`${ email } account already exists`);
+      }
+    }
 
     user.checkAndUpdateInvitees(params.emails);
 

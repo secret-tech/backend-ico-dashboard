@@ -1,33 +1,48 @@
 const Web3 = require('web3');
 import { injectable } from 'inversify';
+
 const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
+
 const net = require('net');
 
 interface TransactionInput {
   from: string;
   to: string;
   amount: string;
-  gas: number;
+  gas?: number;
+  gasPrice?: number;
 }
 
 export interface Web3ClientInterface {
   web3: any;
+
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
+
   generateMnemonic(): string;
+
   getAccountByMnemonicAndSalt(mnemonic: string, salt: string): any;
+
   addAddressToWhiteList(address: string): any;
+
   addAddressToWhiteListReferral(address: string, referral: string): any;
+
   isAllowed(account: string): any;
+
   getEthBalance(address: string): Promise<string>;
+
   getSoldIcoTokens(): Promise<string>;
+
   getJcrBalanceOf(address: string): Promise<string>;
+
   getEthCollected(): Promise<string>;
+
   getJcrEthPrice(): Promise<number>;
 }
 
+/* istanbul ignore next */
 @injectable()
 export class Web3Client implements Web3ClientInterface {
   web3: any;
@@ -43,23 +58,44 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
+    const gas = input.gas || 300000;
+
+    const gasPrice = this.web3.utils.toWei(input.gasPrice || 21, 'gwei');
+    const value = this.web3.utils.toWei(input.amount);
+
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
 
     const params = {
-      value: this.web3.utils.toWei(input.amount),
+      value,
       from: input.from,
       to: input.to,
-      gas: 300000
+      gas,
+      gasPrice
     };
 
     return new Promise<string>((resolve, reject) => {
-      this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-        console.log(transaction);
-
-        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
-          .on('transactionHash', transactionHash => {
-            resolve(transactionHash);
+      this.web3.eth.getBalance(input.from).then(balance => {
+        const BN = this.web3.utils.BN;
+        const txFee = new BN(gas).mul(new BN(gasPrice));
+        const total = new BN(value).add(txFee);
+        if (total.gt(new BN(balance))) {
+          reject({
+            message: 'You have insufficient funds to perform this operation and pay tx fee'
           });
+        }
+
+        this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
+          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+            .on('transactionHash', transactionHash => {
+              resolve(transactionHash);
+            })
+            .on('error', (error) => {
+              reject(error);
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        });
       });
     });
   }
@@ -96,6 +132,10 @@ export class Web3Client implements Web3ClientInterface {
           gasPrice: this.web3.utils.toWei(20, 'gwei')
         }).on('transactionHash', hash => {
           resolve(hash);
+        }).on('error', error => {
+          reject(error);
+        }).catch((error) => {
+          reject(error);
         });
       });
     });
@@ -107,8 +147,12 @@ export class Web3Client implements Web3ClientInterface {
         this.whiteList.methods.addInvestorToListReferral(address, referral).send({
           from: accounts[0],
           gas: 200000
-        }, (err, transactionHash) => {
-          resolve(transactionHash);
+        }).on('transactionHash', hash => {
+          resolve(hash);
+        }).on('error', error => {
+          reject(error);
+        }).catch((error) => {
+          reject(error);
         });
       });
     });
