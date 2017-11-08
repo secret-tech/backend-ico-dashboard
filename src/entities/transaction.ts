@@ -11,7 +11,12 @@ export const JCR_TRANSFER = 'jcr_transfer';
 export const REFERRAL_TRANSFER = 'referral_transfer';
 
 @Entity()
-@Index('hash_type', () => ({ transactionHash: 1, type: 1 }), { unique: true })
+@Index('hash_type_from_to', () => ({
+  transactionHash: 1,
+  type: 1,
+  from: 1,
+  to: 1
+}), { unique: true })
 export class Transaction {
   @ObjectIdColumn()
   id: ObjectID;

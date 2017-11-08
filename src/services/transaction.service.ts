@@ -46,13 +46,17 @@ export interface TransactionServiceInterface {
 
   getFromToJcrAmountByTxDataAndType(txData: any, type: string): FromToJcrAmount;
 
-  getTxByHashAndType(hash: string, type: string): Promise<Transaction>;
-
   getTxStatusByReceipt(receipt: any): string;
 
   getTxTypeByData(transactionData: any): string;
 
-  getUserCountByFromTo(from: string, to: string): Promise<number>;
+  getTxByTxData(transactionData: any): Promise<Transaction>;
+
+  getUserCountByTxData(txData: any): Promise<number>;
+
+  updateTx(tx: Transaction, status: string, blockData: any): Promise<void>;
+
+  createAndSaveTransaction(transactionData: any, status: string, blockData?: any): Promise<void>;
 }
 
 @injectable()
@@ -133,6 +137,19 @@ export class TransactionService implements TransactionServiceInterface {
     };
   }
 
+  async getTxByTxData(transactionData: any): Promise<Transaction> {
+    const type = this.getTxTypeByData(transactionData);
+    const { from, to } = this.getFromToJcrAmountByTxDataAndType(transactionData, type);
+
+    const txRepo = getConnection().getMongoRepository(Transaction);
+    return await txRepo.findOne({
+      transactionHash: transactionData.hash,
+      type,
+      from,
+      to
+    });
+  }
+
   getFromToJcrAmountByTxDataAndType(txData: any, type: string): FromToJcrAmount {
     let from = this.web3.utils.toChecksumAddress(txData.from);
     let to = null;
@@ -146,10 +163,8 @@ export class TransactionService implements TransactionServiceInterface {
         to = this.web3.utils.toChecksumAddress(decodedData.params[0].value);
         jcrAmount = this.web3.utils.fromWei(decodedData.params[1].value).toString();
       }
-    } else {
-      if (txData.to) {
-        to = this.web3.utils.toChecksumAddress(txData.to);
-      }
+    } else if (txData.to) {
+      to = this.web3.utils.toChecksumAddress(txData.to);
     }
 
     return {
@@ -157,14 +172,6 @@ export class TransactionService implements TransactionServiceInterface {
       to,
       jcrAmount
     };
-  }
-
-  async getTxByHashAndType(hash: string, type: string): Promise<Transaction> {
-    const txRepo = getConnection().getMongoRepository(Transaction);
-    return await txRepo.findOne({
-      transactionHash: hash,
-      type: type
-    });
   }
 
   getTxStatusByReceipt(receipt: any): string {
@@ -183,8 +190,11 @@ export class TransactionService implements TransactionServiceInterface {
     return ETHEREUM_TRANSFER;
   }
 
-  getUserCountByFromTo(from: string, to: string): Promise<number> {
+  getUserCountByTxData(txData: any): Promise<number> {
     let query;
+
+    const type = this.getTxTypeByData(txData);
+    const { from, to } = this.getFromToJcrAmountByTxDataAndType(txData, type);
     if (to) {
       query = {
         '$or': [
@@ -203,6 +213,45 @@ export class TransactionService implements TransactionServiceInterface {
     }
 
     return getMongoManager().createEntityCursor(Investor, query).count(false);
+  }
+
+  async updateTx(tx: Transaction, status: string, blockData: any): Promise<void> {
+    const txRepo = getConnection().getMongoRepository(Transaction);
+    tx.status = status;
+    tx.timestamp = blockData.timestamp;
+    tx.blockNumber = blockData.number;
+    await txRepo.save(tx);
+  }
+
+  async createAndSaveTransaction(transactionData: any, status: string, blockData?: any ): Promise<void> {
+    const txRepo = getConnection().getMongoRepository(Transaction);
+    const type = this.getTxTypeByData(transactionData);
+    const { from, to, jcrAmount } = this.getFromToJcrAmountByTxDataAndType(transactionData, type);
+
+    let timestamp;
+    let blockNumber;
+
+    if (blockData) {
+      timestamp = blockData.timestamp;
+      blockNumber = blockData.number;
+    } else {
+      timestamp = Math.round(+new Date() / 1000);
+    }
+
+    const transformedTxData = {
+      transactionHash: transactionData.hash,
+      from,
+      type,
+      to,
+      ethAmount: this.web3.utils.fromWei(transactionData.value).toString(),
+      jcrAmount: jcrAmount,
+      status,
+      timestamp,
+      blockNumber
+    };
+
+    const txToSave = txRepo.create(transformedTxData);
+    await txRepo.save(txToSave);
   }
 }
 

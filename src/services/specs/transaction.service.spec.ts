@@ -86,17 +86,20 @@ describe('TransactionService', () => {
   });
 
   it('should return correct count by from/to', (done) => {
-    transactionService.getUserCountByFromTo('0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF', null).then(result => {
+    transactionService.getUserCountByTxData({
+      from: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF',
+      to: null
+    }).then(result => {
       expect(result).to.eq(1);
       done();
     });
   });
 
   it('should return correct count by from/to', (done) => {
-    transactionService.getUserCountByFromTo(
-      '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
-      '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF'
-    ).then(result => {
+    transactionService.getUserCountByTxData({
+      from: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+      to: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF'
+    }).then(result => {
       expect(result).to.eq(2);
       done();
     });

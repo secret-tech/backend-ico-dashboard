@@ -81,19 +81,6 @@ describe('Dashboard', () => {
       });
     });
 
-    it('/invest/initiate should require mnemonic', (done) => {
-      const token = 'verified_token';
-      const params = {
-        ethAmount: 1
-      };
-
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
-        expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
-        done();
-      });
-    });
-
     it('/invest/initiate should require ethAmount to be greater than 1', (done) => {
       const token = 'verified_token';
       const params = {
@@ -132,9 +119,7 @@ describe('Dashboard', () => {
 
     it('/invest/verify should require ethAmount', (done) => {
       const token = 'verified_token';
-      const params = {
-        mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
-      };
+      const params = {};
 
       postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
@@ -146,8 +131,7 @@ describe('Dashboard', () => {
     it('/invest/verify should require verification', (done) => {
       const token = 'verified_token';
       const params = {
-        ethAmount: 1,
-        mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
+        ethAmount: 1
       };
 
       postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
@@ -157,24 +141,10 @@ describe('Dashboard', () => {
       });
     });
 
-    it('/invest/verify should require mnemonic', (done) => {
-      const token = 'verified_token';
-      const params = {
-        ethAmount: 1
-      };
-
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
-        expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
-        done();
-      });
-    });
-
     it('/invest/verify should require ethAmount to be greater than 1', (done) => {
       const token = 'verified_token';
       const params = {
-        ethAmount: 0.99,
-        mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
+        ethAmount: 0.99
       };
 
       postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
@@ -188,7 +158,6 @@ describe('Dashboard', () => {
       const token = 'verified_token';
       const params = {
         ethAmount: 1,
-        mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit',
         verification: {
           verificationId: 'verify_invest',
           method: 'email',

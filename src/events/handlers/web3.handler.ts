@@ -41,7 +41,7 @@ export class Web3Handler implements Web3HandlerInterface {
 
     // process pending transactions
     this.web3.eth.subscribe('pendingTransactions')
-      .on('data', (data) => this.processPendingTransaction(data));
+      .on('data', (txHash) => this.processPendingTransaction(txHash));
 
     // process JCR transfers
     this.jcrToken.events.Transfer()
@@ -81,87 +81,56 @@ export class Web3Handler implements Web3HandlerInterface {
    * @returns {Promise<void>}
    */
   async saveConfirmedTransaction(transactionData: any, blockData: any, transactionReceipt: any): Promise<void> {
-    const type = this.txService.getTxTypeByData(transactionData);
-
-    const txRepo = getConnection().getMongoRepository(Transaction);
-    const tx = await this.txService.getTxByHashAndType(transactionData.hash, type);
+    const tx = await this.txService.getTxByTxData(transactionData);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
-    if ((type === JCR_TRANSFER && status === TRANSACTION_STATUS_CONFIRMED) || (tx && tx.status !== TRANSACTION_STATUS_PENDING)) {
+    if (tx && ((tx.type === JCR_TRANSFER && status === TRANSACTION_STATUS_CONFIRMED) || tx.status !== TRANSACTION_STATUS_PENDING)) {
       // success jcr transfer or transaction already processed
       return;
     }
 
-    const { from, to, jcrAmount } = this.txService.getFromToJcrAmountByTxDataAndType(transactionData, type);
-
-    const userCount = await this.txService.getUserCountByFromTo(from, to);
+    const userCount = await this.txService.getUserCountByTxData(transactionData);
 
     // save only transactions of investor addresses
     if (userCount > 0) {
       if (tx) {
-        tx.status = status;
-        tx.timestamp = blockData.timestamp;
-        tx.blockNumber = blockData.number;
-        await txRepo.save(tx);
+        await this.txService.updateTx(tx, status, blockData);
         return;
       }
 
-      const transformedTxData = {
-        transactionHash: transactionData.hash,
-        from: from,
-        type: type,
-        to: to,
-        ethAmount: this.web3.utils.fromWei(transactionData.value).toString(),
-        jcrAmount: jcrAmount,
-        status: status,
-        timestamp: blockData.timestamp,
-        blockNumber: blockData.number
-      };
-
-      const txToSave = txRepo.create(transformedTxData);
-      await txRepo.save(txToSave);
+      await this.txService.createAndSaveTransaction(transactionData, status, blockData);
     }
   }
 
   // process pending transaction by transaction hash
-  async processPendingTransaction(data: string): Promise<void> {
-    const transactionData = await this.web3.eth.getTransaction(data);
-    const type = this.txService.getTxTypeByData(transactionData);
+  async processPendingTransaction(txHash: string): Promise<void> {
+    const data = await this.web3.eth.getTransaction(txHash);
 
-    const txRepo = getConnection().getMongoRepository(Transaction);
-    const tx = await this.txService.getTxByHashAndType(transactionData.hash, type);
+    const tx = await this.txService.getTxByTxData(data);
 
     if (tx) {
       // tx is already processed
       return;
     }
 
-    const { from, to, jcrAmount } = this.txService.getFromToJcrAmountByTxDataAndType(transactionData, type);
-    const userCount = await this.txService.getUserCountByFromTo(from, to);
+    const userCount = await this.txService.getUserCountByTxData(data);
 
     // save only transactions of investor addresses
     if (userCount > 0) {
-      const transformedTxData = {
-        transactionHash: transactionData.hash,
-        from: from,
-        type: type,
-        to: to,
-        ethAmount: this.web3.utils.fromWei(transactionData.value).toString(),
-        jcrAmount: jcrAmount,
-        status: TRANSACTION_STATUS_PENDING,
-        timestamp: Math.round(+new Date() / 1000)
-      };
-
-      const txToSave = txRepo.create(transformedTxData);
-
-      await txRepo.save(txToSave);
+      await this.txService.createAndSaveTransaction(data, TRANSACTION_STATUS_PENDING);
     }
   }
 
   async processJcrTransfer(data: any): Promise<void> {
     const txRepo = getConnection().getMongoRepository(Transaction);
 
-    const tx = await this.txService.getTxByHashAndType(data.transactionHash, JCR_TRANSFER);
+    const tx = await txRepo.findOne({
+      transactionHash: data.transactionHash,
+      type: JCR_TRANSFER,
+      from: data.returnValues.from,
+      to: data.returnValues.to
+    });
+
     const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
     const blockData = await this.web3.eth.getBlock(data.blockNumber);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
@@ -190,12 +159,19 @@ export class Web3Handler implements Web3HandlerInterface {
   }
 
   async processReferralTransfer(data: any): Promise<void> {
-    const existing = await this.txService.getTxByHashAndType(data.transactionHash, REFERRAL_TRANSFER);
+    const txRepo = getConnection().getMongoRepository(Transaction);
+
+    const existing = await txRepo.findOne({
+      transactionHash: data.transactionHash,
+      type: REFERRAL_TRANSFER,
+      from: data.returnValues.investor,
+      to: data.returnValues.referral
+    });
+
     if (existing) {
       return;
     }
 
-    const txRepo = getConnection().getMongoRepository(Transaction);
     const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
     const blockData = await this.web3.eth.getBlock(data.blockNumber);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
