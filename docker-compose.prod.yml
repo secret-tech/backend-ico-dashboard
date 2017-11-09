@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - 3000:3000
-      - 4000:4000
+      - 80:3000
     links:
       - auth
       - redis
@@ -21,6 +21,7 @@ services:
       ORM_ENTITIES_DIR: "dist/entities/**/*.js"
       ORM_SUBSCRIBER_DIR: "dist/subscriber/**/*.js"
       ORM_MIGRATIONS_DIR: "dist/migrations/**/*.js"
+      API_URL: "https://jcrstage.artempikulin.ru"
     networks:
       default:
         ipv4_address: 10.100.0.2

@@ -226,6 +226,13 @@ declare interface Enable2faResult {
   enabled: boolean;
 }
 
+declare interface KycInitResult {
+  timestamp: string;
+  authorizationToken: string;
+  jumioIdScanReference: string;
+  clientRedirectUrl: string;
+}
+
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;
@@ -240,4 +247,8 @@ declare interface UserServiceInterface {
   verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse>;
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
   invite(user: any, params: any): Promise<InviteResultArray>;
+}
+
+declare interface KycClientInterface {
+  init(investor: any): Promise<KycInitResult>;
 }

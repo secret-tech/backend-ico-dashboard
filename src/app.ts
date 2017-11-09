@@ -20,7 +20,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000');
   }
 
-  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json') {
+  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json' && req.header('Content-Type') === 'application/json') {
     return res.status(406).json({
       error: 'Unsupported "Accept" header'
     });
@@ -35,7 +35,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.post('*', (req: Request, res: Response, next: NextFunction) => {
-  if (req.header('Content-Type') !== 'application/json') {
+  if (req.header('Content-Type') !== 'application/json' && !req.header('Content-Type').includes('application/x-www-form-urlencoded')) {
     return res.status(406).json({
       error: 'Unsupported "Content-Type"'
     });

@@ -4,11 +4,14 @@ import { Wallet } from './wallet';
 import 'reflect-metadata';
 import { Invitee } from './invitee';
 import { InviteIsNotAllowed } from '../exceptions/exceptions';
+import { Index } from 'typeorm/decorator/Index';
 
-const KYC_STATUS_NOT_VERIFIED = 'Not verified';
-const KYC_STATUS_VERIFIED = 'Verified';
+export const KYC_STATUS_NOT_VERIFIED = 'not_verified';
+export const KYC_STATUS_VERIFIED = 'verified';
+export const KYC_STATUS_FAILED = 'failed';
 
 @Entity()
+@Index('email', () => ({ email: 1 }), { unique: true })
 export class Investor {
   @ObjectIdColumn()
   id: ObjectID;

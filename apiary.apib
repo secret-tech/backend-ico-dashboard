@@ -573,7 +573,6 @@ Authentication attempts with not verified token will result in 401 response.
 ## Initiate investment [/dashboard/invest/initiate]
 
 + ethAmount `1` (required, number, min(1))
-+ mnemonic `pig turn bounce jeans left mouse hammer sketch hold during grief spirit` (required, string)
 
 ### Initiate investment [POST]
 
@@ -588,7 +587,6 @@ Authentication attempts with not verified token will result in 401 response.
 
             {
                 "ethAmount": 1,
-                "mnemonic": "pig turn bounce jeans left mouse hammer sketch hold during grief spirit"
             }
 
 + Response 200 (application/json)
@@ -607,7 +605,6 @@ Authentication attempts with not verified token will result in 401 response.
 
 
 + ethAmount `1` (required, number, min(1))
-+ mnemonic `pig turn bounce jeans left mouse hammer sketch hold during grief spirit` (required, string)
 + verification
     + verificationId (string, required)
     + code (string, required)
@@ -626,7 +623,6 @@ Authentication attempts with not verified token will result in 401 response.
 
             {
                 "ethAmount": 1,
-                "mnemonic": "pig turn bounce jeans left mouse hammer sketch hold during grief spirit",
                 "verification": {
                     "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
                     "code": "813365",
@@ -642,4 +638,25 @@ Authentication attempts with not verified token will result in 401 response.
             "transactionHash": "0xf33afe0b5b56dfb6584d308d7b5e4c0412041045f3f728708eb90ac6f48e0956",
             "status": "pending",
             "type": "token_purchase"
+        }
+
+## Init KYC process [/kyc/init]
+
+### Init KYC process [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+
++ Response 200 (application/json)
+
+        {
+            "timestamp": "2017-11-09T06:47:31.467Z",
+            "authorizationToken": "c87447f8-fa43-4f98-a933-3c88be4e86ea",
+            "clientRedirectUrl": "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
+            "jumioIdScanReference": "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
         }

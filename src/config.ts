@@ -17,7 +17,8 @@ const {
   VERIFY_PORT,
   ORM_ENTITIES_DIR,
   ORM_SUBSCRIBER_DIR,
-  ORM_MIGRATIONS_DIR
+  ORM_MIGRATIONS_DIR,
+  API_URL
 } = process.env;
 
 export default {
@@ -25,7 +26,8 @@ export default {
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
     httpsServer: HTTPS_SERVER || 'disabled',
-    forceHttps: FORCE_HTTPS || 'disabled'
+    forceHttps: FORCE_HTTPS || 'disabled',
+    apiUrl: API_URL
   },
   redis: {
     port: parseInt(REDIS_PORT, 10) || 6379,
@@ -89,5 +91,10 @@ export default {
     subscribers: [
       ORM_SUBSCRIBER_DIR
     ]
+  },
+  kyc: {
+    apiToken: '68b0d36a-46f4-4336-8f4e-e1f570cea5d9',
+    apiSecret: 'w37alAxYV9i5bIsiOF9bROvdzMqNlJGZ',
+    baseUrl: 'https://lon.netverify.com/api/netverify/v2/'
   }
 };

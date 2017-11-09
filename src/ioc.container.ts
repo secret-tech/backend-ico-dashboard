@@ -15,11 +15,15 @@ import * as validation from './middlewares/request.validation';
 import { Web3Queue, Web3QueueInterface, Web3QueueType } from './queues/web3.queue';
 import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
+import { KycController } from './controllers/kyc.controller';
+import { KycClient, KycClientType } from './services/kyc.client';
 
 let container = new Container();
 
 container.bind<EmailServiceInterface>(EmailServiceType).to(EmailService).inSingletonScope();
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
+
+container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue).inSingletonScope();
@@ -73,5 +77,6 @@ container.bind<express.RequestHandler>('InvestValidation').toConstantValue(
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');
 container.bind<interfaces.Controller>(TYPE.Controller).to(DashboardController).whenTargetNamed('DashboardController');
+container.bind<interfaces.Controller>(TYPE.Controller).to(KycController).whenTargetNamed('KycController');
 
 export { container };
