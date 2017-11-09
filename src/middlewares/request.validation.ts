@@ -182,3 +182,44 @@ export function invest(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 }
+
+export function onlyJumioIp(req: Request, res: Response, next: NextFunction) {
+  const jumioIps = [
+    '184.106.91.66',
+    '184.106.91.67',
+    '104.130.61.196',
+    '146.20.77.156',
+    '34.202.241.227',
+    '34.226.103.119',
+    '34.226.254.127',
+    '52.53.95.123',
+    '52.52.51.178',
+    '54.67.101.173',
+    '162.13.228.132',
+    '162.13.228.134',
+    '162.13.229.103',
+    '162.13.229.104',
+    '34.253.41.236',
+    '52.209.180.134',
+    '52.48.0.25',
+    '35.157.27.193',
+    '52.57.194.92',
+    '52.58.113.86'
+  ];
+
+  let ip = req.header('cf-connecting-ip') || req.ip;
+
+  /*
+   Check if IP has ipv6 prefix and remove it.
+   See: https://stackoverflow.com/questions/29411551/express-js-req-ip-is-returning-ffff127-0-0-1
+   */
+  if (ip.substr(0, 7) === '::ffff:') {
+    ip = ip.substr(7);
+  }
+
+  if (jumioIps.indexOf(ip) === -1) {
+    return res.status(401).send();
+  } else {
+    return next();
+  }
+}

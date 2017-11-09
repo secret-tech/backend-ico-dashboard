@@ -4,11 +4,13 @@ import { controller, httpPost, httpGet } from 'inversify-express-utils';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { KycClientType } from '../services/kyc.client';
 import { KycResult } from '../entities/kyc.result';
-import { getConnection } from 'typeorm';
+import { getConnection, getMongoManager } from 'typeorm';
 import { Investor, KYC_STATUS_FAILED, KYC_STATUS_VERIFIED } from '../entities/investor';
+import { KycAlreadyVerifiedError, KycMaxAttemptsReached } from '../exceptions/exceptions';
 
 const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
 const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
+const MAX_VERIFICATION_ATTEMPTS = 3;
 
 /**
  * KYC controller
@@ -27,11 +29,23 @@ export class KycController {
     'AuthMiddleware'
   )
   async init(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    if (req.user.kycStatus === KYC_STATUS_VERIFIED) {
+      throw new KycAlreadyVerifiedError('Your account is verified already');
+    }
+
+    const query = { customerId: req.user.email };
+    const verificationsCount = await getMongoManager().createEntityCursor(KycResult, query).count(false);
+
+    if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
+      throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
+    }
+
     res.json(await this.kycClient.init(req.user));
   }
 
   @httpPost(
-    '/callback'
+    '/callback',
+    'OnlyJumioIp'
   )
   async callback(req: Request, res: Response, next: NextFunction): Promise<void> {
     const kycRepo = getConnection().getMongoRepository(KycResult);

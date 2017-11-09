@@ -118,6 +118,10 @@ export class TransactionService implements TransactionServiceInterface {
         'ethWallet.address': transaction.from
       }).toArray();
 
+      if (referral.length === 0) {
+        throw Error('Referral is not found');
+      }
+
       users.push({
         date: transaction.timestamp,
         tokens: transaction.jcrAmount,

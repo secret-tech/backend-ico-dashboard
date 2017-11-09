@@ -86,6 +86,14 @@ const mockAuthMiddleware = () => {
     login: '2fa@test.com'
   };
 
+  const verifyTokenResultKycVerified = {
+    login: 'kyc.verified@test.com'
+  };
+
+  const verifyTokenResultKycFailed3 = {
+    login: 'kyc.failed3@test.com'
+  };
+
   const loginResult = {
     accessToken: 'new_token'
   };
@@ -95,6 +103,12 @@ const mockAuthMiddleware = () => {
 
   authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('verified_token_2fa_user')))
     .returns(async(): Promise<any> => verifyTokenResult2fa);
+
+  authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('kyc_verified_token')))
+    .returns(async(): Promise<any> => verifyTokenResultKycVerified);
+
+  authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('kyc_3_failed_token')))
+    .returns(async(): Promise<any> => verifyTokenResultKycFailed3);
 
   authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
     .returns(async(): Promise<any> => {

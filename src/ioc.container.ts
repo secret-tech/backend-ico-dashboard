@@ -73,6 +73,9 @@ container.bind<express.RequestHandler>('VerificationRequiredValidation').toConst
 container.bind<express.RequestHandler>('InvestValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.invest(req, res, next)
 );
+container.bind<express.RequestHandler>('OnlyJumioIp').toConstantValue(
+  (req: any, res: any, next: any) => validation.onlyJumioIp(req, res, next)
+);
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');

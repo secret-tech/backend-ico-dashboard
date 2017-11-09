@@ -38,7 +38,7 @@ describe('Users', () => {
         expect(res.body.email).to.eq('test@test.com');
         expect(res.body.agreeTos).to.eq(true);
         expect(res.body.isVerified).to.eq(false);
-        expect(res.body.kycStatus).to.eq('Not verified');
+        expect(res.body.kycStatus).to.eq('not_verified');
         expect(res.body.defaultVerificationMethod).to.eq('email');
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');

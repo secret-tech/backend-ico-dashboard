@@ -18,7 +18,9 @@ const {
   ORM_ENTITIES_DIR,
   ORM_SUBSCRIBER_DIR,
   ORM_MIGRATIONS_DIR,
-  API_URL
+  API_URL,
+  FRONTEND_URL,
+  AUTH_JWT
 } = process.env;
 
 export default {
@@ -27,7 +29,8 @@ export default {
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
     httpsServer: HTTPS_SERVER || 'disabled',
     forceHttps: FORCE_HTTPS || 'disabled',
-    apiUrl: API_URL
+    apiUrl: API_URL,
+    frontendUrl: FRONTEND_URL
   },
   redis: {
     port: parseInt(REDIS_PORT, 10) || 6379,
@@ -44,7 +47,7 @@ export default {
   auth: {
     port: parseInt(AUTH_PORT, 10) || 3000,
     host: AUTH_HOST || 'auth',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1MjNjNTljLWVkMWQtNGYyZC04MTBjLTc3ZWQyODA4MmQxNyIsImxvZ2luIjoidGVuYW50OmNvbXBhbmllc0BqaW5jb3IuY29tIiwianRpIjoiYjUyM2M1OWMtZWQxZC00ZjJkLTgxMGMtNzdlZDI4MDgyZDE3MTUwOTM3NzY3OTg5OCIsImlhdCI6MTUwOTM3NzY3OTg5OCwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.iq95JqkINztJe3TKVohhfRQsb6WcSMPnoGdFa5Kjgsk'
+    token: AUTH_JWT
   },
   verify: {
     port: parseInt(VERIFY_PORT, 10) || 3000,

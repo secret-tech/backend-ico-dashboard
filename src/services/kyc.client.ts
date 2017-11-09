@@ -34,8 +34,8 @@ export class KycClient implements KycClientInterface {
       },
       body: {
         merchantIdScanReference: uuid.v4(),
-        successUrl: 'https://google.com',
-        errorUrl: 'https://google.com',
+        successUrl: `${ config.app.frontendUrl }/dashboard/verification/success`,
+        errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
         customerId: investor.email
       }

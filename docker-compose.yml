@@ -17,6 +17,8 @@ services:
       ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
       ORM_MIGRATIONS_DIR: "src/migrations/**/*.ts"
       API_URL: "https://home.artempikulin.ru"
+      FRONTEND_URL: "https://home.artempikulin.ru"
+      AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1MjNjNTljLWVkMWQtNGYyZC04MTBjLTc3ZWQyODA4MmQxNyIsImxvZ2luIjoidGVuYW50OmNvbXBhbmllc0BqaW5jb3IuY29tIiwianRpIjoiYjUyM2M1OWMtZWQxZC00ZjJkLTgxMGMtNzdlZDI4MDgyZDE3MTUwOTM3NzY3OTg5OCIsImlhdCI6MTUwOTM3NzY3OTg5OCwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.iq95JqkINztJe3TKVohhfRQsb6WcSMPnoGdFa5Kjgsk"
     links:
       - auth
       - redis
