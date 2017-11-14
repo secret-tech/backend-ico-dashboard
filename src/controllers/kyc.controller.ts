@@ -36,9 +36,9 @@ export class KycController {
     const query = { customerId: req.user.email };
     const verificationsCount = await getMongoManager().createEntityCursor(KycResult, query).count(false);
 
-    if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
+    /*if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
       throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
-    }
+    }*/
 
     res.json(await this.kycClient.init(req.user));
   }

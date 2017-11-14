@@ -11,7 +11,7 @@ services:
       - 4000:4000
     volumes:
       - ./:/usr/src/app
-      - /media/artem/Seagate Expansion Drive/gethtest:/home/ethereum
+      - /media/artem/48F0BE6BF0BE5EBE/gethtest:/home/ethereum
     environment:
       ORM_ENTITIES_DIR: "src/entities/**/*.ts"
       ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
@@ -67,7 +67,7 @@ services:
     ports:
       - "8545"
     volumes:
-      - /media/artem/Seagate Expansion Drive/gethtest:/home/ethereum
+      - /media/artem/48F0BE6BF0BE5EBE/gethtest:/home/ethereum
       - ./passwords:/passwords
     networks:
       default:
