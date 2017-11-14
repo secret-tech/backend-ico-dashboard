@@ -76,7 +76,9 @@ declare interface InitiateData {
   consumer: string;
   issuer?: string;
   template?: {
-    body: string
+    body: string;
+    fromEmail?: string;
+    subject?: string;
   };
   generateCode?: {
     length: number,

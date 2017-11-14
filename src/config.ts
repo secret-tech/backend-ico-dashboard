@@ -56,6 +56,10 @@ export default {
   email: {
     domain: 'jincor.com',
     secret: 'key-176cd97e7ce70c9e75d826792669e53a',
+    from: {
+      general: 'noreply@jincor.com',
+      referral: 'partners@jincor.com'
+    },
     inviteTemplate: '%name% invites you to join Jincor ICO. Please follow this link to register: %link%'
   },
   contracts: {

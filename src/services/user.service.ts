@@ -4,6 +4,8 @@ import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import { EmailQueueType, EmailQueueInterface } from '../queues/email.queue';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
+import initiateSignUp from '../emails/1_initiate_signup';
+import successSignUp from '../emails/2_success_signup';
 import {
   UserExists,
   UserNotFound,
@@ -74,7 +76,9 @@ export class UserService implements UserServiceInterface {
       consumer: email,
       issuer: 'Jincor',
       template: {
-        body: 'Your code: {{{CODE}}}'
+        fromEmail: config.email.from.general,
+        subject: 'Verify your email at Jincor.com',
+        body: initiateSignUp(userData.name, 'https://google.com'),
       },
       generateCode: {
         length: 6,
@@ -260,6 +264,13 @@ export class UserService implements UserServiceInterface {
     const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
 
     await getConnection().getMongoRepository(VerifiedToken).save(token);
+
+    this.emailQueue.addJob({
+      sender: config.email.from.general,
+      recipient: user.email,
+      subject: 'You are officially registered for participation in Jincor’s ICO',
+      text: successSignUp(user.name)
+    });
 
     return {
       accessToken: loginResult.accessToken,
