@@ -12,7 +12,6 @@ import { Auth } from './middlewares/auth';
 import config from './config';
 import * as express from 'express';
 import * as validation from './middlewares/request.validation';
-import { Web3Queue, Web3QueueInterface, Web3QueueType } from './queues/web3.queue';
 import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
 import { KycController } from './controllers/kyc.controller';
@@ -26,7 +25,6 @@ container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonSc
 container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
-container.bind<Web3QueueInterface>(Web3QueueType).to(Web3Queue).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
 container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
   container.get<TransactionServiceInterface>(TransactionServiceType)

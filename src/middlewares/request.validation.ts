@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import { Response, Request, NextFunction } from 'express';
-import { AuthorizedRequest } from '../requests/authorized.request';
+import {Response, Request, NextFunction} from 'express';
+import {AuthorizedRequest} from '../requests/authorized.request';
 
 const options = {
   allowUnknown: true
@@ -30,7 +30,14 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     email: Joi.string().email().required(),
     password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
-    referral: Joi.string().email()
+    referral: Joi.string().email().options({
+      language: {
+        key: '{{!label}}',
+        string: {
+          email: 'Not valid referral code'
+        }
+      }
+    }).label(' ') // Joi does not allow empty label but space is working
   });
 
   if (req.body.referral) {

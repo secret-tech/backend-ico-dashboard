@@ -22,6 +22,8 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
       break;
     case Err.UserExists:
       // no break
+    case Err.NotCorrectVerificationCode:
+      // no break
     case Err.ReferralDoesNotExist:
       // no break
     case Err.InviteIsNotAllowed:

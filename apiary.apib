@@ -46,6 +46,40 @@ User's email must be verified after registration. Next step after calling this e
             "referral": "test@test.com"
         }
 
++ Response 422 (application/json)
+
+        {
+            "error": {
+                "isJoi": true,
+                "name": "ValidationError",
+                "details": [
+                    {
+                        "message": "Not valid referral code",
+                        "path": "referral",
+                        "type": "string.email",
+                        "context": {
+                            "value": "\ufffdm\ufffd",
+                            "key": " "
+                        }
+                    }
+                ],
+                "_object": {
+                    "email": "ortgma111@gmail.com",
+                    "name": "ICO investor",
+                    "password": "PasswordA1",
+                    "agreeTos": true,
+                    "referral": "\ufffdm\ufffd"
+                }
+            },
+            "value": {
+                "email": "ortgma111@gmail.com",
+                "name": "ICO investor",
+                "password": "PasswordA1",
+                "agreeTos": true,
+                "referral": "\ufffdm\ufffd"
+            }
+        }
+
 ## Activate a user [/user/activate]
 
 This endpoint response with JWT token so user can be immediately redirected to dashboard.

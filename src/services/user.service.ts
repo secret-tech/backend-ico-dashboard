@@ -2,7 +2,6 @@ import { AuthClientType } from './auth.client';
 import { VerificationClientType } from './verify.client';
 import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import { EmailQueueType, EmailQueueInterface } from '../queues/email.queue';
-import { Web3QueueType, Web3QueueInterface } from '../queues/web3.queue';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import {
@@ -32,14 +31,12 @@ export class UserService implements UserServiceInterface {
    * @param  authClient  auth service client
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
-   * @param  web3Queue web3 queue
    * @param  emailQueue email queue
    */
   constructor(
     @inject(AuthClientType) private authClient: AuthClientInterface,
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(Web3QueueType) private web3Queue: Web3QueueInterface,
     @inject(EmailQueueType) private emailQueue: EmailQueueInterface
   ) { }
 
@@ -65,11 +62,11 @@ export class UserService implements UserServiceInterface {
       });
 
       if (!referral) {
-        throw new ReferralDoesNotExist('Referral code does not exist');
+        throw new ReferralDoesNotExist('Not valid referral code');
       }
 
       if (!referral.isVerified) {
-        throw new ReferralIsNotActivated('Referral is not activated');
+        throw new ReferralIsNotActivated('Not valid referral code');
       }
     }
 
@@ -238,11 +235,7 @@ export class UserService implements UserServiceInterface {
       const referral = await getConnection().getMongoRepository(Investor).findOne({
         email: user.referral
       });
-      this.web3Client.addAddressToWhiteListReferral(account.address, referral.ethWallet.address);
-    } else {
-      await this.web3Queue.addJob({
-        address: account.address
-      });
+      await this.web3Client.addReferralOf(account.address, referral.ethWallet.address);
     }
 
     user.isVerified = true;

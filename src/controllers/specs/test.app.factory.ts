@@ -24,7 +24,6 @@ import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
 import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
-import { Web3Queue, Web3QueueInterface, Web3QueueType } from '../../queues/web3.queue';
 
 const mockEmailQueue = () => {
   const emailMock = TypeMoq.Mock.ofType(EmailQueue);
@@ -37,7 +36,6 @@ const mockEmailQueue = () => {
 
 const mockWeb3 = () => {
   const web3Mock = TypeMoq.Mock.ofType(Web3Client);
-  const web3QueueMock = TypeMoq.Mock.ofType(Web3Queue);
 
   web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => 'transactionHash');
@@ -57,9 +55,6 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.getSoldIcoTokens())
     .returns(async(): Promise<string> => '5000');
 
-  web3QueueMock.setup(x => x.addJob(TypeMoq.It.isAny()))
-    .returns(() => null);
-
   const generatedAccount = {
     address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
     privateKey: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA'
@@ -72,7 +67,6 @@ const mockWeb3 = () => {
     .returns((): string => 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit');
 
   container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
-  container.rebind<Web3QueueInterface>(Web3QueueType).toConstantValue(web3QueueMock.object);
 };
 
 const mockAuthMiddleware = () => {

@@ -27,7 +27,7 @@ export interface Web3ClientInterface {
 
   addAddressToWhiteList(address: string): any;
 
-  addAddressToWhiteListReferral(address: string, referral: string): any;
+  addReferralOf(address: string, referral: string): any;
 
   isAllowed(account: string): any;
 
@@ -80,7 +80,7 @@ export class Web3Client implements Web3ClientInterface {
         const total = new BN(value).add(txFee);
         if (total.gt(new BN(balance))) {
           reject({
-            message: 'You have insufficient funds to perform this operation and pay tx fee'
+            message: 'Insufficient funds to perform this operation and pay tx fee'
           });
         }
 
@@ -141,10 +141,10 @@ export class Web3Client implements Web3ClientInterface {
     });
   }
 
-  addAddressToWhiteListReferral(address: string, referral: string) {
+  addReferralOf(address: string, referral: string) {
     return new Promise((resolve, reject) => {
       this.web3.eth.getAccounts().then(accounts => {
-        this.whiteList.methods.addInvestorToListReferral(address, referral).send({
+        this.whiteList.methods.addReferralOf(address, referral).send({
           from: accounts[0],
           gas: 200000
         }).on('transactionHash', hash => {

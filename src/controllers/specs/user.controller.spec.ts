@@ -92,7 +92,7 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error).to.eq('Referral code does not exist');
+        expect(res.body.error).to.eq('Not valid referral code');
         done();
       });
     });
@@ -108,7 +108,23 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error).to.eq('Referral is not activated');
+        expect(res.body.error).to.eq('Not valid referral code');
+        done();
+      });
+    });
+
+    it('should not allow to set random referral code', (done) => {
+      const params = {
+        email: 'test1@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        referral: 'randomstuff',
+        agreeTos: true
+      };
+
+      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        expect(res.body.error.details[0].message).to.eq('Not valid referral code');
         done();
       });
     });
@@ -188,7 +204,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"referral" must be a valid email');
+        expect(res.body.error.details[0].message).to.equal('Not valid referral code');
         done();
       });
     });

@@ -7,6 +7,7 @@ import { KycResult } from '../entities/kyc.result';
 import { getConnection, getMongoManager } from 'typeorm';
 import { Investor, KYC_STATUS_FAILED, KYC_STATUS_VERIFIED } from '../entities/investor';
 import { KycAlreadyVerifiedError, KycMaxAttemptsReached } from '../exceptions/exceptions';
+import {Web3ClientInterface, Web3ClientType} from "../services/web3.client";
 
 const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
 const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
@@ -21,7 +22,8 @@ const MAX_VERIFICATION_ATTEMPTS = 3;
 )
 export class KycController {
   constructor(
-    @inject(KycClientType) private kycClient: KycClientInterface
+    @inject(KycClientType) private kycClient: KycClientInterface,
+    @inject(Web3ClientType) private web3Client: Web3ClientInterface,
   ) { }
 
   @httpGet(
@@ -36,9 +38,9 @@ export class KycController {
     const query = { customerId: req.user.email };
     const verificationsCount = await getMongoManager().createEntityCursor(KycResult, query).count(false);
 
-    /*if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
+    if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
       throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
-    }*/
+    }
 
     res.json(await this.kycClient.init(req.user));
   }
@@ -80,6 +82,7 @@ export class KycController {
     switch (verificationResult.idScanStatus) {
       case JUMIO_SCAN_STATUS_SUCCESS:
         investor.kycStatus = KYC_STATUS_VERIFIED;
+        await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
         break;
       case JUMIO_SCAN_STATUS_ERROR:
         investor.kycStatus = KYC_STATUS_FAILED;
@@ -91,6 +94,7 @@ export class KycController {
 
     await investorRepo.save(investor);
     await kycRepo.save(kycRepo.create(verificationResult));
+
     res.status(200).send();
   }
 }
