@@ -308,9 +308,11 @@ export class UserService implements UserServiceInterface {
     }
 
     await this.verificationClient.validateVerification(
-      user.verification.method,
+      params.verification.method,
       params.verification.verificationId,
-      params.verification.code
+      {
+        code: params.verification.code
+      }
     );
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);

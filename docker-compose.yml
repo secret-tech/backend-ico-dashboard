@@ -18,7 +18,7 @@ services:
       ORM_MIGRATIONS_DIR: "src/migrations/**/*.ts"
       API_URL: "https://home.artempikulin.ru"
       FRONTEND_URL: "https://home.artempikulin.ru"
-      AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1MjNjNTljLWVkMWQtNGYyZC04MTBjLTc3ZWQyODA4MmQxNyIsImxvZ2luIjoidGVuYW50OmNvbXBhbmllc0BqaW5jb3IuY29tIiwianRpIjoiYjUyM2M1OWMtZWQxZC00ZjJkLTgxMGMtNzdlZDI4MDgyZDE3MTUwOTM3NzY3OTg5OCIsImlhdCI6MTUwOTM3NzY3OTg5OCwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.iq95JqkINztJe3TKVohhfRQsb6WcSMPnoGdFa5Kjgsk"
+      AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNlZGZiMzM4LTJjMGYtNDY2Yi04ZGE3LWQzZWMxYzk5ZTFhMyIsImxvZ2luIjoidGVuYW50OnRlc3RAdGVzdC5jb20iLCJqdGkiOiJjZWRmYjMzOC0yYzBmLTQ2NmItOGRhNy1kM2VjMWM5OWUxYTMxNTEwNjY5NjQ2MDI1IiwiaWF0IjoxNTEwNjY5NjQ2MDI1LCJhdWQiOiJqaW5jb3IuY29tIiwiaXNUZW5hbnQiOnRydWV9.1TRr3A0Ol1ZcbIG7XG9GUaWs78l4x-7A-M0NeV-me00"
     links:
       - auth
       - redis
@@ -26,6 +26,7 @@ services:
       - rpc
     depends_on:
       - rpc
+      - mongo
     tty: true
     networks:
       default:
