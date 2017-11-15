@@ -56,7 +56,13 @@ export class UserController {
     'InitiateLoginValidation'
   )
   async initiateLogin(req: Request, res: Response): Promise<void> {
-    res.json(await this.userService.initiateLogin(req.body, req.ip));
+    let ip = req.header('cf-connecting-ip') || req.ip;
+
+    if (ip.substr(0, 7) === '::ffff:') {
+      ip = ip.substr(7);
+    }
+
+    res.json(await this.userService.initiateLogin(req.body, ip));
   }
 
   /**

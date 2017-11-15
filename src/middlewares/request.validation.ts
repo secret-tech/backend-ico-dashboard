@@ -225,7 +225,7 @@ export function onlyJumioIp(req: Request, res: Response, next: NextFunction) {
   }
 
   if (jumioIps.indexOf(ip) === -1) {
-    return res.status(401).send();
+    return res.status(403).send();
   } else {
     return next();
   }
