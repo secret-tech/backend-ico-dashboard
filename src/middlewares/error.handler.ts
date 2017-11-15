@@ -40,6 +40,7 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
   }
 
   res.status(status).send({
+    statusCode: status,
     error: err.message
   });
 }
