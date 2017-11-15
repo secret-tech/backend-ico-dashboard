@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+export default function (name) {
+  return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <meta charset="utf-8"> <!-- utf-8 works for most cases -->
@@ -197,15 +198,14 @@
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello Aidar,</p>
+          <p style="margin: 0;">Hello ${ name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
           <p style="margin: 0;">
-            We’ve noticed that you were trying to buy JCR tokens at Jincor.com.
-            Please use the code <b>777777</b> to proceed.
+            Your password was successfully changed.
           </p>
         </td>
       </tr>
@@ -342,4 +342,5 @@
 
     </center>
 </body>
-</html>
+</html>`;
+}

@@ -238,7 +238,7 @@ declare interface KycInitResult {
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;
-  initiateLogin(inputData: InitiateLoginInput): Promise<InitiateLoginResult>;
+  initiateLogin(inputData: InitiateLoginInput, ip: string): Promise<InitiateLoginResult>;
   initiateChangePassword(user: any, params: InitiateChangePasswordInput): Promise<BaseInitiateResult>;
   verifyChangePassword(user: any, params: InitiateChangePasswordInput): Promise<AccessTokenResponse>;
   initiateEnable2fa(user: any): Promise<BaseInitiateResult>;

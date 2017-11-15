@@ -7,6 +7,7 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
 import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
+import initiateBuyTemplate from '../emails/12_initiate_buy_jcr_code';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -88,7 +89,9 @@ export class DashboardController {
         consumer: req.user.email,
         issuer: 'Jincor',
         template: {
-          body: 'To confirm investment enter this code: {{{CODE}}}'
+          fromEmail: config.email.from.general,
+          subject: 'You Purchase Validation Code to Use at Jincor.com',
+          body: initiateBuyTemplate(req.user.name)
         },
         generateCode: {
           length: 6,

@@ -56,7 +56,7 @@ export class UserController {
     'InitiateLoginValidation'
   )
   async initiateLogin(req: Request, res: Response): Promise<void> {
-    res.json(await this.userService.initiateLogin(req.body));
+    res.json(await this.userService.initiateLogin(req.body, req.ip));
   }
 
   /**

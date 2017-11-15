@@ -1,5 +1,5 @@
-export default function(name) {
-return `<!DOCTYPE html>
+export default function (name) {
+  return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <meta charset="utf-8"> <!-- utf-8 works for most cases -->
@@ -198,19 +198,21 @@ return `<!DOCTYPE html>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello ${ name }</p>
+          <p style="margin: 0;">Hello ${ name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Please confirm your email address to get access to the Contributor Account at Jincor.com by putting verification code: <b>{{{CODE}}}</b></p>
+          <p style="margin: 0;">
+            Your password was successfully reset.
+          </p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">If you did not sign up for this account you can ignore this email and the account will be deleted.</p>
+          <p style="margin: 0;">If this was not you, please contact us immediately at <a href="mailto:support@jincor.com">support@jincor.com</a></p>
         </td>
       </tr>
 

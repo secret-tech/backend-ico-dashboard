@@ -198,19 +198,22 @@ return `<!DOCTYPE html>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello ${ name }</p>
+          <p style="margin: 0;">Hello ${ name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Please confirm your email address to get access to the Contributor Account at Jincor.com by putting verification code: <b>{{{CODE}}}</b></p>
+          <p style="margin: 0;">
+            We’ve noticed that you were trying to buy JCR tokens at Jincor.com.
+            Please use the code <b>{{{CODE}}}</b> to proceed.
+          </p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">If you did not sign up for this account you can ignore this email and the account will be deleted.</p>
+          <p style="margin: 0;">If this was not you, please contact us immediately at <a href="mailto:support@jincor.com">support@jincor.com</a></p>
         </td>
       </tr>
 

@@ -4,8 +4,16 @@ import { Web3ClientType, Web3ClientInterface } from './web3.client';
 import { EmailQueueType, EmailQueueInterface } from '../queues/email.queue';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
-import initiateSignUp from '../emails/1_initiate_signup';
-import successSignUp from '../emails/2_success_signup';
+import initiateSignUpTemplate from '../emails/1_initiate_signup';
+import successSignUpTemplate from '../emails/2_success_signup';
+import initiateSignInCodeTemplate from '../emails/3_initiate_signin_code';
+import successSignInTemplate from '../emails/5_success_signin';
+import initiatePasswordResetTemplate from '../emails/6_initiate_password_reset_code';
+import successPasswordResetTemplate from '../emails/8_success_password_reset';
+import inviteTemplate from '../emails/26_invite';
+import initiatePasswordChangeTemplate from '../emails/27_initiate_password_change_code';
+import successPasswordChangeTemplate from '../emails/28_success_password_change';
+
 import {
   UserExists,
   UserNotFound,
@@ -78,7 +86,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: 'Verify your email at Jincor.com',
-        body: initiateSignUp(userData.name, 'https://google.com'),
+        body: initiateSignUpTemplate(userData.name),
       },
       generateCode: {
         length: 6,
@@ -106,9 +114,10 @@ export class UserService implements UserServiceInterface {
    * Save user's data
    *
    * @param loginData user info
+   * @param ip string
    * @return promise
    */
-  async initiateLogin(loginData: InitiateLoginInput): Promise<InitiateLoginResult> {
+  async initiateLogin(loginData: InitiateLoginInput, ip: string): Promise<InitiateLoginResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
       email: loginData.email
     });
@@ -139,7 +148,9 @@ export class UserService implements UserServiceInterface {
         consumer: user.email,
         issuer: 'Jincor',
         template: {
-          body: 'Your login code is {{{CODE}}}'
+          fromEmail: config.email.from.general,
+          subject: 'Jincor.com Login Verification Code',
+          body: initiateSignInCodeTemplate(user.name, new Date().toUTCString(), ip)
         },
         generateCode: {
           length: 6,
@@ -192,9 +203,19 @@ export class UserService implements UserServiceInterface {
       }
     );
 
+    const verifyAuthResult = await this.authClient.verifyUserToken(inputData.accessToken);
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: verifyAuthResult.login
+    });
+
     token.makeVerified();
     await getConnection().getMongoRepository(VerifiedToken).save(token);
-
+    this.emailQueue.addJob({
+      sender: config.email.from.general,
+      subject: 'Jincor.com Successful Login Notification',
+      recipient: user.email,
+      text: successSignInTemplate(user.name, new Date().toUTCString())
+    });
     return transformers.transformVerifiedToken(token);
   }
 
@@ -268,8 +289,8 @@ export class UserService implements UserServiceInterface {
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'You are officially registered for participation in Jincor’s ICO',
-      text: successSignUp(user.name)
+      subject: "You are officially registered for participation in Jincor's ICO",
+      text: successSignUpTemplate(user.name)
     });
 
     return {
@@ -289,14 +310,16 @@ export class UserService implements UserServiceInterface {
         consumer: user.email,
         issuer: 'Jincor',
         template: {
-          body: 'Enter this code to confirm password change: {{{CODE}}}'
+          fromEmail: config.email.from.general,
+          subject: 'Here’s the Code to Change Your Password at Jincor.com',
+          body: initiatePasswordChangeTemplate(user.name)
         },
         generateCode: {
           length: 6,
           symbolSet: ['DIGITS']
         },
         policy: {
-          expiredOn: '01:00:00'
+          expiredOn: '24:00:00'
         }
       }
     );
@@ -321,6 +344,13 @@ export class UserService implements UserServiceInterface {
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
     await getConnection().getMongoRepository(Investor).save(user);
+    this.emailQueue.addJob({
+      sender: config.email.from.general,
+      recipient: user.email,
+      subject: 'Jincor.com Password Change Notification',
+      text: successPasswordChangeTemplate(user.name)
+    });
+
     await this.authClient.createUser({
       email: user.email,
       login: user.email,
@@ -354,14 +384,16 @@ export class UserService implements UserServiceInterface {
         consumer: user.email,
         issuer: 'Jincor',
         template: {
-          body: 'Enter this code to confirm password reset: {{{CODE}}}'
+          fromEmail: config.email.from.general,
+          body: initiatePasswordResetTemplate(user.name),
+          subject: 'Here’s the Code to Reset Your Password at Jincor.com'
         },
         generateCode: {
           length: 6,
           symbolSet: ['DIGITS']
         },
         policy: {
-          expiredOn: '01:00:00'
+          expiredOn: '24:00:00'
         }
       }
     );
@@ -411,6 +443,13 @@ export class UserService implements UserServiceInterface {
     const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
 
     await getConnection().getMongoRepository(VerifiedToken).save(token);
+    this.emailQueue.addJob({
+      sender: config.email.from.general,
+      recipient: user.email,
+      subject: 'Jincor.com Password Reset Notification',
+      text: successPasswordResetTemplate(user.name)
+    });
+
     return loginResult;
   }
 
@@ -428,10 +467,10 @@ export class UserService implements UserServiceInterface {
 
     for (let email of params.emails) {
       this.emailQueue.addJob({
-        sender: 'invitations@jincor.com',
+        sender: config.email.from.referral,
         recipient: email,
-        subject: 'Invitation to join Jincor ICO',
-        text: config.email.inviteTemplate.replace('%name%', user.name).replace('%link%', `http://45.33.52.185/auth/signup/${ user.referralCode }`)
+        subject: `${ user.name } thinks you will like this project…`,
+        text: inviteTemplate(user.name, `${ config.app.frontendUrl }/auth/signup/${ user.referralCode }`)
       });
 
       result.push({

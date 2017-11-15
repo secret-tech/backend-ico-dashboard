@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+export default function (name) {
+return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <meta charset="utf-8"> <!-- utf-8 works for most cases -->
@@ -197,51 +198,29 @@
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello Aidar,</p>
+          <p style="margin: 0;">Hello ${ name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Just wanted to let you know that your friend { } thinks you might find our ICO interesting.</p>
+          <p style="margin: 0;">
+            We’ve noticed that you were trying to reset your password at Jincor.com.<br/>
+            Please use the code <b>{{{CODE}}}</b> to proceed.<br/><br/>
+            This code expires in 24 hours, so be sure to use it right away.
+          </p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Our name is Jincor and we are building a private blockchain, that will be a base for a wholesome, secure, regulatory, compliant, and breezy-to-use product, that will allow any business to work with smart contracts and cryptocurrency payments easily with no legal, technical, or operational complications.</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">We already have a private beta and 30 companies from all around the world testing the basic functionalities. By in November, we are planning to launch a public beta (around 200 companies have already signed up to try it).</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">If that sounds interesting, {referral name} recommends you to register for the upcoming ICO, which starts on 15.11.2017, and access more details about the project.</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: Helvetica, Arial, sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto">
-            <tr>
-              <td style="border-radius: 3px; background: #222222; text-align: center;" class="button-td">
-                <a href="http://www.google.com" style="background: #0080ff; border: 12px solid #0080ff; font-family: Helvetica, Arial, sans-serif; font-size: 17px; line-height: 20px; text-align: center; text-decoration: none; display: block; border-radius: 4px; font-weight: bold;" class="button-a">
-                  &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ffffff;">Register at Jincor.com</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                </a>
-              </td>
-            </tr>
-          </table>
+          <p style="margin: 0;">If this was not you, please contact us immediately at <a href="mailto:support@jincor.com">support@jincor.com</a></p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 13px; line-height: 22px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Have an awesome day,<br/>Jincor Team</p>
+          <p style="margin: 0;">Stay safe,<br/>Jincor Team</p>
         </td>
       </tr>
 
@@ -365,4 +344,5 @@
 
     </center>
 </body>
-</html>
+</html>`;
+}
