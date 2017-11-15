@@ -24,15 +24,15 @@ import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
 import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
-import {KycClient, KycClientType} from "../../services/kyc.client"
+import { KycClient, KycClientType } from '../../services/kyc.client';
 
 const mockKycClient = () => {
   const kycClientMock = TypeMoq.Mock.ofType(KycClient);
   const kycInitResult = {
-    timestamp: "2017-11-09T06:47:31.467Z",
-    authorizationToken: "c87447f8-fa43-4f98-a933-3c88be4e86ea",
-    clientRedirectUrl: "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
-    jumioIdScanReference: "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
+    timestamp: '2017-11-09T06:47:31.467Z',
+    authorizationToken: 'c87447f8-fa43-4f98-a933-3c88be4e86ea',
+    clientRedirectUrl: 'https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea',
+    jumioIdScanReference: '7b58a08e-19cf-4d28-a828-4bb577c6f69a'
   };
 
   kycClientMock.setup(x => x.init(TypeMoq.It.isAny()))

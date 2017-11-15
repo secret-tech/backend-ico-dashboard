@@ -4,17 +4,23 @@ import { controller, httpPost, httpGet } from 'inversify-express-utils';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { KycClientType } from '../services/kyc.client';
 import {
-  JUMIO_SCAN_STATUS_ERROR, JUMIO_SCAN_STATUS_SUCCESS, KycResult,
-  MAX_VERIFICATION_ATTEMPTS, VERIFICATION_STATUS_NO_ID_UPLOADED
+  JUMIO_SCAN_STATUS_ERROR,
+  JUMIO_SCAN_STATUS_SUCCESS,
+  MAX_VERIFICATION_ATTEMPTS,
+  VERIFICATION_STATUS_NO_ID_UPLOADED
 } from '../entities/kyc.result';
-import { getConnection, getMongoManager } from 'typeorm';
+import { getConnection } from 'typeorm';
 import {
-  Investor, KYC_STATUS_FAILED, KYC_STATUS_MAX_ATTEMPTS_REACHED, KYC_STATUS_PENDING,
+  Investor,
+  KYC_STATUS_FAILED,
+  KYC_STATUS_MAX_ATTEMPTS_REACHED,
+  KYC_STATUS_NOT_VERIFIED,
+  KYC_STATUS_PENDING,
   KYC_STATUS_VERIFIED
 } from '../entities/investor';
-import {KycAlreadyVerifiedError, KycMaxAttemptsReached, KycPending} from '../exceptions/exceptions';
+import { KycAlreadyVerifiedError, KycMaxAttemptsReached, KycPending } from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
-import { KycResultRepository } from "../repositories/kyc.result.repository";
+import { KycResultRepository } from '../repositories/kyc.result.repository';
 
 /**
  * KYC controller
@@ -94,6 +100,8 @@ export class KycController {
           } else {
             investor.kycStatus = KYC_STATUS_FAILED;
           }
+        } else {
+          investor.kycStatus = KYC_STATUS_NOT_VERIFIED;
         }
         break;
       default:
