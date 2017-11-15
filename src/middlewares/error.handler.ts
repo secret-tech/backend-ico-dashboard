@@ -7,6 +7,8 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
   switch (err.constructor) {
     case Err.KycMaxAttemptsReached:
       // no break
+    case Err.KycPending:
+      // no break
     case Err.KycAlreadyVerifiedError:
       // no break
     case Err.AuthenticatorError:

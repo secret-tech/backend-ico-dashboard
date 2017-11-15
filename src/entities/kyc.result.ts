@@ -1,6 +1,12 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { Index } from 'typeorm/decorator/Index';
 
+export const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
+export const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
+
+export const VERIFICATION_STATUS_NO_ID_UPLOADED = 'NO_ID_UPLOADED';
+export const MAX_VERIFICATION_ATTEMPTS = 3;
+
 @Entity()
 @Index('jumioIdScanReference', () => ({ jumioIdScanReference: 1 }), { unique: true })
 export class KycResult {

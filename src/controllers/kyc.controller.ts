@@ -3,15 +3,18 @@ import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { KycClientType } from '../services/kyc.client';
-import { KycResult } from '../entities/kyc.result';
+import {
+  JUMIO_SCAN_STATUS_ERROR, JUMIO_SCAN_STATUS_SUCCESS, KycResult,
+  MAX_VERIFICATION_ATTEMPTS, VERIFICATION_STATUS_NO_ID_UPLOADED
+} from '../entities/kyc.result';
 import { getConnection, getMongoManager } from 'typeorm';
-import { Investor, KYC_STATUS_FAILED, KYC_STATUS_VERIFIED } from '../entities/investor';
-import { KycAlreadyVerifiedError, KycMaxAttemptsReached } from '../exceptions/exceptions';
+import {
+  Investor, KYC_STATUS_FAILED, KYC_STATUS_MAX_ATTEMPTS_REACHED, KYC_STATUS_PENDING,
+  KYC_STATUS_VERIFIED
+} from '../entities/investor';
+import {KycAlreadyVerifiedError, KycMaxAttemptsReached, KycPending} from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
-
-const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
-const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
-const MAX_VERIFICATION_ATTEMPTS = 3;
+import { KycResultRepository } from "../repositories/kyc.result.repository";
 
 /**
  * KYC controller
@@ -35,8 +38,13 @@ export class KycController {
       throw new KycAlreadyVerifiedError('Your account is verified already');
     }
 
-    const query = { customerId: req.user.email };
-    const verificationsCount = await getMongoManager().createEntityCursor(KycResult, query).count(false);
+    if (req.user.kycStatus === KYC_STATUS_PENDING) {
+      throw new KycPending('You documents are processing already, please wait for status update');
+    }
+
+    const verificationsCount = await getConnection()
+                                      .getCustomRepository(KycResultRepository)
+                                      .getFailedVerificationsCountByInvestor(req.user);
 
     if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
       throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
@@ -50,7 +58,7 @@ export class KycController {
     'OnlyJumioIp'
   )
   async callback(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const kycRepo = getConnection().getMongoRepository(KycResult);
+    const kycRepo = getConnection().getCustomRepository(KycResultRepository);
     const investorRepo = getConnection().getMongoRepository(Investor);
 
     // express req.body does not inherit from standard JS object so we need this ugly workaround to make typeorm work.
@@ -62,8 +70,8 @@ export class KycController {
       email: verificationResult.customerId
     });
 
-    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED) {
-      // no such user or already verified
+    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_MAX_ATTEMPTS_REACHED) {
+      // no such user/already verified/max attempts reached
       // respond with 200 as I expect that Jumio may try to resend notification in case of failure
       res.status(200).send();
       return;
@@ -85,7 +93,15 @@ export class KycController {
         await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
         break;
       case JUMIO_SCAN_STATUS_ERROR:
-        investor.kycStatus = KYC_STATUS_FAILED;
+        if (verificationResult.verificationStatus !== VERIFICATION_STATUS_NO_ID_UPLOADED) {
+          const verificationsCount = await kycRepo.getFailedVerificationsCountByInvestor(investor);
+
+          if (verificationsCount + 1 >= MAX_VERIFICATION_ATTEMPTS) {
+            investor.kycStatus = KYC_STATUS_MAX_ATTEMPTS_REACHED;
+          } else {
+            investor.kycStatus = KYC_STATUS_FAILED;
+          }
+        }
         break;
       default:
         // something strange is going on, throw

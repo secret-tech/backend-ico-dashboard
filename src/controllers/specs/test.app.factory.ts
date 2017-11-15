@@ -24,6 +24,22 @@ import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
 import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
+import {KycClient, KycClientType} from "../../services/kyc.client"
+
+const mockKycClient = () => {
+  const kycClientMock = TypeMoq.Mock.ofType(KycClient);
+  const kycInitResult = {
+    timestamp: "2017-11-09T06:47:31.467Z",
+    authorizationToken: "c87447f8-fa43-4f98-a933-3c88be4e86ea",
+    clientRedirectUrl: "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
+    jumioIdScanReference: "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
+  };
+
+  kycClientMock.setup(x => x.init(TypeMoq.It.isAny()))
+    .returns((): any => kycInitResult);
+
+  container.rebind<KycClientInterface>(KycClientType).toConstantValue(kycClientMock.object);
+};
 
 const mockEmailQueue = () => {
   const emailMock = TypeMoq.Mock.ofType(EmailQueue);
@@ -266,6 +282,17 @@ export const testAppForInitiateLogin = () => {
 };
 
 export const testAppForVerifyLogin = () => {
+  mockEmailQueue();
+
+  const authMock = TypeMoq.Mock.ofType(AuthClient);
+
+  const verifyTokenResultNotVerified = {
+    login: 'activated@test.com'
+  };
+
+  authMock.setup(x => x.verifyUserToken(TypeMoq.It.isValue('not_verified_token')))
+    .returns(async(): Promise<any> => verifyTokenResultNotVerified);
+
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
 
   const initiateResult: InitiateResult = {
@@ -280,6 +307,7 @@ export const testAppForVerifyLogin = () => {
     .returns(async(): Promise<InitiateResult> => initiateResult);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
+  container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   return buildApp();
 };
 
@@ -292,6 +320,7 @@ export const testAppForDashboard = () => {
   mockAuthMiddleware();
   mockVerifyClient();
   mockWeb3();
+  mockKycClient();
   return buildApp();
 };
 

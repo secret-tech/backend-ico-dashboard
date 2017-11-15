@@ -19,14 +19,18 @@ const getRequest = (customApp, url: string) => {
 
 describe('Kyc', () => {
   describe('GET /kyc/init', () => {
-    it('should init kyc process', (done) => {
+    it('should init kyc process and ignore NO_ID_UPLOADED callbacks', (done) => {
       const token = 'verified_token';
-      done();
-      /*getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+      getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
-        console.log(res.body);
+        expect(res.body).to.deep.eq({
+          timestamp: "2017-11-09T06:47:31.467Z",
+          authorizationToken: "c87447f8-fa43-4f98-a933-3c88be4e86ea",
+          clientRedirectUrl: "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
+          jumioIdScanReference: "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
+        });
         done();
-      });*/
+      });
     });
   });
 
