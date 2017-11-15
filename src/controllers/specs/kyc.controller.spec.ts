@@ -47,6 +47,18 @@ describe('Kyc', () => {
   });
 
   describe('GET /kyc/init', () => {
+    it('should not allow init if investor verification is pending', (done) => {
+      const token = 'kyc_pending_token';
+
+      getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.equal(400);
+        expect(res.body.error).to.eq('You documents are processing already, please wait for status update');
+        done();
+      });
+    });
+  });
+
+  describe('GET /kyc/init', () => {
     it('should not allow init if investor tried 3 times already', (done) => {
       const token = 'kyc_3_failed_token';
 

@@ -34,23 +34,16 @@ export class KycController {
     'AuthMiddleware'
   )
   async init(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
-    if (req.user.kycStatus === KYC_STATUS_VERIFIED) {
-      throw new KycAlreadyVerifiedError('Your account is verified already');
+    switch (req.user.kycStatus) {
+      case KYC_STATUS_VERIFIED:
+        throw new KycAlreadyVerifiedError('Your account is verified already');
+      case KYC_STATUS_PENDING:
+        throw new KycPending('You documents are processing already, please wait for status update');
+      case KYC_STATUS_MAX_ATTEMPTS_REACHED:
+        throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
+      default:
+        res.json(await this.kycClient.init(req.user));
     }
-
-    if (req.user.kycStatus === KYC_STATUS_PENDING) {
-      throw new KycPending('You documents are processing already, please wait for status update');
-    }
-
-    const verificationsCount = await getConnection()
-                                      .getCustomRepository(KycResultRepository)
-                                      .getFailedVerificationsCountByInvestor(req.user);
-
-    if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
-      throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
-    }
-
-    res.json(await this.kycClient.init(req.user));
   }
 
   @httpPost(
