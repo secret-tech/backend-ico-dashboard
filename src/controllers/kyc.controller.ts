@@ -48,7 +48,15 @@ export class KycController {
       case KYC_STATUS_MAX_ATTEMPTS_REACHED:
         throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
       default:
-        res.json(await this.kycClient.init(req.user));
+        const investorRepo = getConnection().getMongoRepository(Investor);
+        try {
+          let initResult = await this.kycClient.init(req.user);
+          req.user.kycStatus = KYC_STATUS_PENDING;
+          investorRepo.save(req.user);
+          res.json(initResult);
+        } catch (e) {
+          throw e;
+        }
     }
   }
 
