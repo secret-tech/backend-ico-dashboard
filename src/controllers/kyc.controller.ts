@@ -73,6 +73,18 @@ export class KycController {
     // for more info check: https://github.com/expressjs/express/issues/3264
     const verificationResult = JSON.parse(JSON.stringify(req.body));
 
+    const existingVerification = await kycRepo.findOne({
+      jumioIdScanReference: verificationResult.jumioIdScanReference
+    });
+
+    if (existingVerification) {
+      // the verification was already processed
+      res.status(200).send();
+      return;
+    }
+
+    await kycRepo.save(kycRepo.create(verificationResult));
+
     const investor = await investorRepo.findOne({
       email: verificationResult.customerId
     });
@@ -80,16 +92,6 @@ export class KycController {
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_MAX_ATTEMPTS_REACHED) {
       // no such user/already verified/max attempts reached
       // respond with 200 as I expect that Jumio may try to resend notification in case of failure
-      res.status(200).send();
-      return;
-    }
-
-    const existingVerification = await kycRepo.findOne({
-      jumioIdScanReference: verificationResult.jumioIdScanReference
-    });
-
-    if (existingVerification) {
-      // the verification was already processed
       res.status(200).send();
       return;
     }
@@ -103,7 +105,7 @@ export class KycController {
         if (verificationResult.verificationStatus !== VERIFICATION_STATUS_NO_ID_UPLOADED) {
           const verificationsCount = await kycRepo.getFailedVerificationsCountByInvestor(investor);
 
-          if (verificationsCount + 1 >= MAX_VERIFICATION_ATTEMPTS) {
+          if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
             investor.kycStatus = KYC_STATUS_MAX_ATTEMPTS_REACHED;
           } else {
             investor.kycStatus = KYC_STATUS_FAILED;
@@ -118,8 +120,6 @@ export class KycController {
     }
 
     await investorRepo.save(investor);
-    await kycRepo.save(kycRepo.create(verificationResult));
-
     res.status(200).send();
   }
 }

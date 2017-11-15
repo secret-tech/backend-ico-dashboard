@@ -10,11 +10,13 @@ export class KycClient implements KycClientInterface {
   apiToken: string;
   apiSecret: string;
   baseUrl: string;
+  defaultTokenLifetime: number;
 
   constructor() {
     this.apiToken = config.kyc.apiToken;
     this.apiSecret = config.kyc.apiSecret;
     this.baseUrl = config.kyc.baseUrl;
+    this.defaultTokenLifetime = config.kyc.defaultTokenLifetime;
 
     request.defaults({
       throwResponseError: true
@@ -37,7 +39,8 @@ export class KycClient implements KycClientInterface {
         successUrl: `${ config.app.frontendUrl }/dashboard/verification/success`,
         errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
-        customerId: investor.email
+        customerId: investor.email,
+        authorizationTokenLifetime: this.defaultTokenLifetime
       }
     });
   }
