@@ -1,7 +1,7 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
-import {NotCorrectVerificationCode} from '../exceptions/exceptions';
+import { NotCorrectVerificationCode } from '../exceptions/exceptions';
 
 const QR = require('qr-image');
 

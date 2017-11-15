@@ -86,7 +86,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: 'Verify your email at Jincor.com',
-        body: initiateSignUpTemplate(userData.name),
+        body: initiateSignUpTemplate(userData.name)
       },
       generateCode: {
         length: 6,
@@ -289,7 +289,7 @@ export class UserService implements UserServiceInterface {
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: "You are officially registered for participation in Jincor's ICO",
+      subject: 'You are officially registered for participation in Jincor\'s ICO',
       text: successSignUpTemplate(user.name)
     });
 

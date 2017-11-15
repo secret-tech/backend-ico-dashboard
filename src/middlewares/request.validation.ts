@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {Response, Request, NextFunction} from 'express';
-import {AuthorizedRequest} from '../requests/authorized.request';
+import { Response, Request, NextFunction } from 'express';
+import { AuthorizedRequest } from '../requests/authorized.request';
 
 const options = {
   allowUnknown: true

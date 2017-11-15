@@ -7,7 +7,7 @@ import { KycResult } from '../entities/kyc.result';
 import { getConnection, getMongoManager } from 'typeorm';
 import { Investor, KYC_STATUS_FAILED, KYC_STATUS_VERIFIED } from '../entities/investor';
 import { KycAlreadyVerifiedError, KycMaxAttemptsReached } from '../exceptions/exceptions';
-import {Web3ClientInterface, Web3ClientType} from "../services/web3.client";
+import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 
 const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
 const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
@@ -23,7 +23,7 @@ const MAX_VERIFICATION_ATTEMPTS = 3;
 export class KycController {
   constructor(
     @inject(KycClientType) private kycClient: KycClientInterface,
-    @inject(Web3ClientType) private web3Client: Web3ClientInterface,
+    @inject(Web3ClientType) private web3Client: Web3ClientInterface
   ) { }
 
   @httpGet(
