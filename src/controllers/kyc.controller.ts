@@ -5,7 +5,7 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { KycClientType } from '../services/kyc.client';
 import {
   JUMIO_SCAN_STATUS_ERROR,
-  JUMIO_SCAN_STATUS_SUCCESS
+  JUMIO_SCAN_STATUS_SUCCESS, KycResult
 } from '../entities/kyc.result';
 import { getConnection } from 'typeorm';
 import {
@@ -15,7 +15,6 @@ import {
 } from '../entities/investor';
 import { KycAlreadyVerifiedError, KycFailedError } from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
-import { KycResultRepository } from '../repositories/kyc.result.repository';
 
 /**
  * KYC controller
@@ -50,7 +49,7 @@ export class KycController {
     'OnlyJumioIp'
   )
   async callback(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const kycRepo = getConnection().getCustomRepository(KycResultRepository);
+    const kycRepo = getConnection().getMongoRepository(KycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
 
     // express req.body does not inherit from standard JS object so we need this ugly workaround to make typeorm work.
