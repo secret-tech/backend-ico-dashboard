@@ -454,7 +454,7 @@ describe('Users', () => {
           ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
           email: 'activated@test.com',
           name: 'ICO investor',
-          kycStatus: 'Not verified',
+          kycStatus: 'not_verified',
           defaultVerificationMethod: 'email'
         });
         done();

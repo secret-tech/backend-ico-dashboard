@@ -6,19 +6,14 @@ import { KycClientType } from '../services/kyc.client';
 import {
   JUMIO_SCAN_STATUS_ERROR,
   JUMIO_SCAN_STATUS_SUCCESS,
-  MAX_VERIFICATION_ATTEMPTS,
-  VERIFICATION_STATUS_NO_ID_UPLOADED
 } from '../entities/kyc.result';
 import { getConnection } from 'typeorm';
 import {
   Investor,
   KYC_STATUS_FAILED,
-  KYC_STATUS_MAX_ATTEMPTS_REACHED,
-  KYC_STATUS_NOT_VERIFIED,
-  KYC_STATUS_PENDING,
   KYC_STATUS_VERIFIED
 } from '../entities/investor';
-import { KycAlreadyVerifiedError, KycMaxAttemptsReached, KycPending } from '../exceptions/exceptions';
+import { KycAlreadyVerifiedError, KycFailedError } from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import { KycResultRepository } from '../repositories/kyc.result.repository';
 
@@ -43,20 +38,10 @@ export class KycController {
     switch (req.user.kycStatus) {
       case KYC_STATUS_VERIFIED:
         throw new KycAlreadyVerifiedError('Your account is verified already');
-      case KYC_STATUS_PENDING:
-        throw new KycPending('You documents are processing already, please wait for status update');
-      case KYC_STATUS_MAX_ATTEMPTS_REACHED:
-        throw new KycMaxAttemptsReached('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
+      case KYC_STATUS_FAILED:
+        throw new KycFailedError('Your account verification failed. Please contact Jincor team');
       default:
-        const investorRepo = getConnection().getMongoRepository(Investor);
-        try {
-          let initResult = await this.kycClient.init(req.user);
-          req.user.kycStatus = KYC_STATUS_PENDING;
-          investorRepo.save(req.user);
-          res.json(initResult);
-        } catch (e) {
-          throw e;
-        }
+        res.json(req.user.kycInitResult);
     }
   }
 
@@ -89,7 +74,7 @@ export class KycController {
       email: verificationResult.customerId
     });
 
-    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_MAX_ATTEMPTS_REACHED) {
+    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached
       // respond with 200 as I expect that Jumio may try to resend notification in case of failure
       res.status(200).send();
@@ -102,17 +87,7 @@ export class KycController {
         await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
         break;
       case JUMIO_SCAN_STATUS_ERROR:
-        if (verificationResult.verificationStatus !== VERIFICATION_STATUS_NO_ID_UPLOADED) {
-          const verificationsCount = await kycRepo.getFailedVerificationsCountByInvestor(investor);
-
-          if (verificationsCount >= MAX_VERIFICATION_ATTEMPTS) {
-            investor.kycStatus = KYC_STATUS_MAX_ATTEMPTS_REACHED;
-          } else {
-            investor.kycStatus = KYC_STATUS_FAILED;
-          }
-        } else {
-          investor.kycStatus = KYC_STATUS_NOT_VERIFIED;
-        }
+        investor.kycStatus = KYC_STATUS_FAILED;
         break;
       default:
         // something strange is going on, throw
