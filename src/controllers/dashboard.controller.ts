@@ -98,7 +98,7 @@ export class DashboardController {
           symbolSet: ['DIGITS']
         },
         policy: {
-          expiredOn: '00:05:00'
+          expiredOn: '01:00:00'
         }
       }
     );
