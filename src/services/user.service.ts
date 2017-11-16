@@ -248,15 +248,14 @@ export class UserService implements UserServiceInterface {
     );
 
     const mnemonic = this.web3Client.generateMnemonic();
-    const salt = '';
+    const salt = bcrypt.genSaltSync();
     const account = this.web3Client.getAccountByMnemonicAndSalt(mnemonic, salt);
 
     user.addEthWallet({
       ticker: 'ETH',
       address: account.address,
       balance: '0',
-      salt,
-      mnemonic
+      salt
     });
 
     if (user.referral) {
