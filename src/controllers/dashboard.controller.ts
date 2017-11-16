@@ -131,7 +131,7 @@ export class DashboardController {
 
     const transactionHash = await this.web3Client.sendTransactionByMnemonic(
       transactionInput,
-      req.user.ethWallet.mnemonic,
+      req.body.mnemonic,
       req.user.ethWallet.salt
     );
 
