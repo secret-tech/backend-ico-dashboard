@@ -5,7 +5,7 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { KycClientType } from '../services/kyc.client';
 import {
   JUMIO_SCAN_STATUS_ERROR,
-  JUMIO_SCAN_STATUS_SUCCESS,
+  JUMIO_SCAN_STATUS_SUCCESS
 } from '../entities/kyc.result';
 import { getConnection } from 'typeorm';
 import {
