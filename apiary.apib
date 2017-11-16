@@ -1,0 +1,701 @@
+FORMAT: 1A
+HOST: http://ico-dashboard:3000/
+
+# Jincor ICO dashboard backend
+
+Almost all operations require 2-factor Authentication.
+To fulfill this requirement most of them are split to 2 endpoints: first (e.g. /user/login/initiate)
+initiates login and generates JWT token. Next this token must be verified using endpoint /user/login/verify.
+
+## Register user [/user]
+
+User's email must be verified after registration. Next step after calling this endpoint is `POST /user/activate` using `verification.id` from response.
+
+### Register new user [POST]
+
++ email `test@test.com` (string, required, email)
++ password `passwordA6` (string, required, min: 6, regex: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$)
++ name `ICO investor` (string, required, min: 3)
++ agreeTos `true` (boolean, equals: true)
++ referral `referral@test.com` (optional, string, base64 encoded email)
+
++ Request (application/json)
+
+        {
+            "email": "ortgma@gmail.com",
+            "name": "ICO investor",
+            "password": "test12A6!@#$%^&*()_-=+|/",
+            "referral": "dGVzdEB0ZXN0LmNvbQ",
+            "agreeTos": true
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "fb10d98f-2a5e-430d-bf2a-c76b42259b74",
+            "email": "ortgma@gmail.com",
+            "name": "ICO investor",
+            "agreeTos": true,
+            "verification": {
+                "id": "3ed09e0a-72e1-417b-a05c-f0f08a5e1ffa",
+                "method": "email"
+            },
+            "isVerified": false,
+            "defaultVerificationMethod": "email",
+            "referralCode": "b3J0Z21hQGdtYWlsLmNvbQ",
+            "referral": "test@test.com"
+        }
+
++ Response 422 (application/json)
+
+        {
+            "error": {
+                "isJoi": true,
+                "name": "ValidationError",
+                "details": [
+                    {
+                        "message": "Not valid referral code",
+                        "path": "referral",
+                        "type": "string.email",
+                        "context": {
+                            "value": "\ufffdm\ufffd",
+                            "key": " "
+                        }
+                    }
+                ],
+                "_object": {
+                    "email": "ortgma111@gmail.com",
+                    "name": "ICO investor",
+                    "password": "PasswordA1",
+                    "agreeTos": true,
+                    "referral": "\ufffdm\ufffd"
+                }
+            },
+            "value": {
+                "email": "ortgma111@gmail.com",
+                "name": "ICO investor",
+                "password": "PasswordA1",
+                "agreeTos": true,
+                "referral": "\ufffdm\ufffd"
+            }
+        }
+
+## Activate a user [/user/activate]
+
+This endpoint response with JWT token so user can be immediately redirected to dashboard.
+JWT token received by `/activate` DOES NOT require verification.
+This endpoint's response also contains VERY important information: mnemonic phrase and private key of
+user's ethereum address. This information should be saved by user. If user loses this he will also LOSE
+access to his wallet of ICO dashboard.
+
+### Activate a user [POST]
+
++ email `test@test.com` (string, required, email)
++ verificationId `bb38971-1f22-4f99-a904-62fb44430ab4` (string, required)
++ code `123456` (string, required)
+
++ Request (application/json)
+
+        {
+            "email": "test@test.com",
+            "verificationId": "5bb38971-1f22-4f99-a904-62fb44430ab4",
+            "code": "327845"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY5NzM5MmVjLTBlYzItNGI3Mi04NmFiLTExMmYxM2ViOWYxNSIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiZjk3MzkyZWMtMGVjMi00YjcyLTg2YWItMTEyZjEzZWI5ZjE1ZGV2aWNlMTUwNzgxNjcyOTk2MCIsImlhdCI6MTUwNzgxNjcyOTk2MCwic3ViIjoiYWU3YzViNzYtNTgyMS00ZGUyLWE2OGYtZGQ0YzAwN2VkODM0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzgxNzMzNDc2MH0.Va8aBa_kDY2sqz2iZRnRWcOCF6cAGU5T69Y3-Ijg9KI",
+            "wallets": [
+                {
+                    "ticker": "ETH",
+                    "address": "0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751",
+                    "balance": "0",
+                    "mnemonic": "skull rain doctor wine stand pigeon roof half laundry tank hero behave",
+                    "privateKey": "0xda2b3f0590d9f0a8e310203e1c7136693d0954420a82ab2cbcfa88eca07b4b31"
+                }
+            ]
+        }
+
+## Initiate login [/user/login/initiate]
+
+The accessToken got from this endpoint response MUST BE ALWAYS verified via `/user/login/verify`.
+Authentication attempts with not verified token will result in 401 response.
+
+### Initiate login [POST]
+
++ email `test@test.com` (string, required, email)
++ password `passwordA6` (string, required)
+
++ Request (application/json)
+
+        {
+            "email": "test@test.com",
+            "password": "test12A6!@#$%^&*()_-=+|/"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "isVerified": false,
+            "verification": {
+                "verificationId": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "consumer": "test@test.com",
+                "expiredOn": 1507720153,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify login [/user/login/verify]
+
++ accessToken `token` (required, string)
++ verification
+    + id (string, required)
+    + code (string, required)
+    + method (string, required)
+
+### Verify login [POST]
+
++ Request (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "verification": {
+                "id": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "code": "544188",
+                "method": "email"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc",
+            "isVerified": true,
+            "verification": {
+                "verificationId": "7fa96769-7bcc-4705-b544-02a83707cfc8",
+                "consumer": "test@test.com",
+                "expiredOn": 1507720153,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Initiate password change [/user/me/changePassword/initiate]
+
+### Initiate password change [POST]
+
++ oldPassword `passwordA1` (string, required)
++ newPassword `passwordA6` (string, required, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
+
++ Request (application/json)
+
+        {
+            "oldPassword": "test12A6!@#$%^&*()_-=+|/",
+            "newPassword": "passwordA1"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "8f9ba03c-e903-459c-adb9-7594865a03a4",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508268673,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify password change [/user/me/changePassword/verify]
+
++ oldPassword (required, string)
++ newPassword (required, string, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+
+### Verify password change [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "oldPassword": "test12A6!@#$%^&*()_-=+|/",
+                "newPassword": "passwordA1",
+                "verification": {
+                    "verificationId": "d65aa8f7-3b8a-4764-a003-1ecd06dda7fd",
+                    "method": "email",
+                    "code": "186198"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJiNWRjOTBjLTM1NTktNDZhNS04MGNhLTA3Mjg0OTczMjdlYiIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiYmI1ZGM5MGMtMzU1OS00NmE1LTgwY2EtMDcyODQ5NzMyN2ViZGV2aWNlMTUwODI2NTEwMjQ1NSIsImlhdCI6MTUwODI2NTEwMjQ1NSwic3ViIjoiOGY5YmEwM2MtZTkwMy00NTljLWFkYjktNzU5NDg2NWEwM2E0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwODI2NTcwNzI1NX0.9HDUMmamSIZX7T0qTKId6oN4XYU7ni7Wx8lQSiIz1S0"
+        }
+
+## Initiate password reset [/user/resetPassword/initiate]
+
+### Initiate password change [POST]
+
++ email `test@test.com` (string, email, required)
+
++ Request (application/json)
+
+        {
+            "email": "test@test.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "8f9ba03c-e903-459c-adb9-7594865a03a4",
+                "consumer": "test@test.com",
+                "expiredOn": 1508268673,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify password reset [/user/resetPassword/verify]
+
++ email (required, email, string)
++ newPassword (required, string, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/)
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify password change [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Accept: application/json
+
+    + body
+
+            {
+                "email": "test@test.com",
+                "password": "PasswordA1",
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "email"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJiNWRjOTBjLTM1NTktNDZhNS04MGNhLTA3Mjg0OTczMjdlYiIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiYmI1ZGM5MGMtMzU1OS00NmE1LTgwY2EtMDcyODQ5NzMyN2ViZGV2aWNlMTUwODI2NTEwMjQ1NSIsImlhdCI6MTUwODI2NTEwMjQ1NSwic3ViIjoiOGY5YmEwM2MtZTkwMy00NTljLWFkYjktNzU5NDg2NWEwM2E0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwODI2NTcwNzI1NX0.9HDUMmamSIZX7T0qTKId6oN4XYU7ni7Wx8lQSiIz1S0"
+        }
+
+## Initiate enable 2FA [/user/enable2fa/initiate]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+### Initiate enable 2fa [GET]
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "61fa7fab-6abd-469c-9196-85680bab577a",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508856803,
+                "totpUri": "otpauth://totp/Jincor:ortgma@gmail.com?secret=PWQGHWHUIXN6RDINTO4XUSFURXMKWWJO&issuer=Jincor&algorithm=SHA1&digits=6&period=30",
+                "status": 200,
+                "method": "google_auth",
+                "qrPngDataUri": "data:image/png;base64,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"
+            }
+        }
+
+## Verify enable 2fa [/user/enable2fa/verify]
+
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify enable 2fa [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "enabled": false
+        }
+
+## Initiate disable 2FA [/user/disable2fa/initiate]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+### Initiate disable 2fa [GET]
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "0e47a5fd-d7f7-43af-b080-3918e49bf211",
+                "consumer": "ortgma@gmail.com",
+                "expiredOn": 1508850911,
+                "status": 200,
+                "method": "google_auth"
+            }
+        }
+
+## Verify disable 2fa [/user/disable2fa/verify]
+
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify disable 2fa [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
+
+
++ Response 200 (application/json)
+
+        {
+            "enabled": false
+        }
+
+## Get user info [/user/me]
+
+### Get user info [GET]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "ethAddress": "0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751",
+            "email": "existing@test.com",
+            "name": "ICO investor",
+            "kycStatus": "Not verified",
+            "defaultVerificationMethod": "email"
+        }
+
+## Invite users [/user/invite]
+
+### Invite users by email [POST]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+    + body
+
+            {
+                "emails": [
+                    "ortgma@gmail.com",
+                    "a_pikulin@mail.ru"
+                ]
+            }
+
++ Response 200 (application/json)
+
+        {
+            "emails": [
+                {
+                    "email": "ortgma@gmail.com",
+                    "invited": true
+                },
+                {
+                    "email": "a_pikulin@mail.ru",
+                    "invited": true
+                }
+            ]
+        }
+
+## Get dashboard info [/dashboard]
+
+### Get dashboard info [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "ethBalance": "1.0001",
+            "jcrTokensSold": "5000",
+            "jcrTokenBalance": "500.00012345678912345",
+            "jcrTokenPrice": {
+                "ETH": "0.005",
+                "USD": "1"
+            },
+            "raised": {
+                "ETH": "2000",
+                "USD": "1000000",
+                "BTC": "100"
+            },
+            "daysLeft": 10
+        }
+
+## Get transaction history [/dashboard/transactions]
+
+### Get transaction history [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "5a003866ee3a9d0ad93aeba3",
+                "transactionHash": "0xe423dd7d40b039e4e30ad7b5520f5905c6ec8c11122c94e3858c70e7983b5d7e",
+                "timestamp": 1509963894,
+                "blockNumber": 2016136,
+                "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
+                "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
+                "ethAmount": "0",
+                "jcrAmount": "1",
+                "status": "confirmed",
+                "type": "jcr_transfer",
+                "direction": "out"
+            },
+            {
+                "id": "5a004158b8442c0e1400fc4f",
+                "transactionHash": "0xcdf4a9dc086bcb3308475ced42b772879fd052822693aee509f81493412d460f",
+                "timestamp": 1509966175,
+                "blockNumber": 2016339,
+                "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
+                "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
+                "ethAmount": "0",
+                "jcrAmount": "1",
+                "status": "confirmed",
+                "type": "jcr_transfer",
+                "direction": "out"
+            },
+            {
+                "id": "5a004dee3663160140d19291",
+                "transactionHash": "0xe5d5ed39bf9eb64d3e56bf4a9d89b7f2bb026fc02c0d149027757936a1e7b6c7",
+                "timestamp": 1509969394,
+                "blockNumber": 2016578,
+                "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
+                "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
+                "ethAmount": "2",
+                "status": "confirmed",
+                "type": "eth_transfer",
+                "direction": "out"
+            },
+            {
+                "id": "5a004e003663160140d19292",
+                "transactionHash": "0x057c0846b7b7fa54c10544c595ec2e476c830220f0ea1fbb52215a3a44deade1",
+                "timestamp": 1509969394,
+                "blockNumber": 2016578,
+                "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
+                "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
+                "ethAmount": "2",
+                "status": "confirmed",
+                "type": "eth_transfer",
+                "direction": "out"
+            },
+            {
+                "id": "5a00669ab21e84067aac8bf6",
+                "transactionHash": "0xb87ef88fe75724ed067413de7c48f4c745cfafa709f42884308663cb53a8e2a0",
+                "timestamp": 1509975754,
+                "from": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA",
+                "to": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
+                "ethAmount": "5",
+                "status": "pending",
+                "type": "eth_transfer",
+                "direction": "in"
+            }
+        ]
+
+## Get referral info [/dashboard/referral]
+
+### Get referral info [GET]
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "data": "dGVzdEB0ZXN0LmNvbQ",
+            "referralCount": 5,
+            "users": [
+                {
+                    "date": 1508241475,
+                    "name": "Investor 1",
+                    "walletAddress": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA",
+                    "tokens": "105"
+                },
+                {
+                    "date": 1508241475,
+                    "name": "Investor 2",
+                    "walletAddress": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eB",
+                    "tokens": "1.01"
+                }
+            ]
+        }
+
+## Initiate investment [/dashboard/invest/initiate]
+
++ ethAmount `1` (required, number, min(1))
+
+### Initiate investment [POST]
+
+
++ Request
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + Body
+
+            {
+                "ethAmount": 1,
+            }
+
++ Response 200 (application/json)
+
+        {
+            "verification": {
+                "verificationId": "a4d642d6-8c96-4435-94b8-9a2bbd501552",
+                "consumer": "test@gmail.com",
+                "expiredOn": 1509387586,
+                "status": 200,
+                "method": "email"
+            }
+        }
+
+## Verify investment [/dashboard/invest/verify]
+
+
++ ethAmount `1` (required, number, min(1))
++ verification
+    + verificationId (string, required)
+    + code (string, required)
+    + method (string, required, in ["email", "google_auth"])
+
+### Verify investment [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+    + body
+
+            {
+                "ethAmount": 1,
+                "verification": {
+                    "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
+                    "code": "813365",
+                    "method": "google_auth"
+                }
+            }
+
+
+
++ Response 200 (application/json)
+
+        {
+            "transactionHash": "0xf33afe0b5b56dfb6584d308d7b5e4c0412041045f3f728708eb90ac6f48e0956",
+            "status": "pending",
+            "type": "token_purchase"
+        }
+
+## Init KYC process [/kyc/init]
+
+### Init KYC process [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer token
+            Accept: application/json
+
+
++ Response 200 (application/json)
+
+        {
+            "timestamp": "2017-11-09T06:47:31.467Z",
+            "authorizationToken": "c87447f8-fa43-4f98-a933-3c88be4e86ea",
+            "clientRedirectUrl": "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
+            "jumioIdScanReference": "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
+        }
+
+
+
+

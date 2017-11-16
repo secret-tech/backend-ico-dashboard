@@ -1,0 +1,107 @@
+version: '2'
+services:
+  ico:
+    image: registry.jincor.com/backend/ico-develop:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+      - 80:3000
+      - 4000:4000
+    volumes:
+      - ./:/usr/src/app
+      - /media/artem/48F0BE6BF0BE5EBE/gethtest:/home/ethereum
+    environment:
+      ORM_ENTITIES_DIR: "src/entities/**/*.ts"
+      ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
+      ORM_MIGRATIONS_DIR: "src/migrations/**/*.ts"
+      API_URL: "https://home.artempikulin.ru"
+      FRONTEND_URL: "https://home.artempikulin.ru"
+      AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNlZGZiMzM4LTJjMGYtNDY2Yi04ZGE3LWQzZWMxYzk5ZTFhMyIsImxvZ2luIjoidGVuYW50OnRlc3RAdGVzdC5jb20iLCJqdGkiOiJjZWRmYjMzOC0yYzBmLTQ2NmItOGRhNy1kM2VjMWM5OWUxYTMxNTEwNjY5NjQ2MDI1IiwiaWF0IjoxNTEwNjY5NjQ2MDI1LCJhdWQiOiJqaW5jb3IuY29tIiwiaXNUZW5hbnQiOnRydWV9.1TRr3A0Ol1ZcbIG7XG9GUaWs78l4x-7A-M0NeV-me00"
+    links:
+      - auth
+      - redis
+      - verify
+      - rpc
+    depends_on:
+      - rpc
+      - mongo
+    tty: true
+    networks:
+      default:
+        ipv4_address: 10.100.0.2
+
+  auth:
+    image: registry.jincor.com/backend/auth:latest
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FORCE_HTTPS: disabled
+      JWT_KEY: "uZrJ!xe*xN?!;oU.u*;QOSM+|=4C?WH?6eWPcK/6AkIXIVGQguSA*r"
+      THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
+      TENANT_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
+    ports:
+      - "3000"
+      - "4000"
+    links:
+      - redis
+    networks:
+      default:
+        ipv4_address: 10.100.0.3
+
+  redis:
+    image: registry.jincor.com/backend/redis:latest
+    ports:
+      - "6379"
+    volumes:
+      - ./storage/redis:/data
+    networks:
+      default:
+        ipv4_address: 10.100.0.4
+
+  rpc:
+    image: registry.jincor.com/backend/ethereum-testrpc:latest
+    build:
+      context: ./
+      dockerfile: rpc.Dockerfile
+    ports:
+      - "8545"
+    volumes:
+      - /media/artem/48F0BE6BF0BE5EBE/gethtest:/home/ethereum
+      - ./passwords:/passwords
+    networks:
+      default:
+        ipv4_address: 10.100.0.5
+
+  verify:
+    image: registry.jincor.com/backend/verify:latest
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
+    links:
+      - auth
+      - redis
+    networks:
+      default:
+        ipv4_address: 10.100.0.6
+
+  mongo:
+    image: registry.jincor.com/backend/mongodb:latest
+    volumes:
+        - ./storage/mongodb:/data/db
+    networks:
+      default:
+        ipv4_address: 10.100.0.7
+    ports:
+      - 27017:27017
+      - 28017:28017
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.100.0.0/16
+          gateway: 10.100.0.1

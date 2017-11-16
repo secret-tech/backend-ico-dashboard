@@ -1,0 +1,11 @@
+{
+    "extends": ["tslint-config-standard"],
+    "rules": {
+        "no-unused-variable": true,
+        "quotemark": [true, "single", "jsx-double"],
+        "semicolon": [true, "always"],
+        "space-before-function-paren": [true, "never"],
+        "member-ordering": [false],
+        "handle-callback-err": [false]
+    }
+}
