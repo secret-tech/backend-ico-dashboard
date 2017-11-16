@@ -196,6 +196,13 @@ const buildApp = () => {
 
   const server = new InversifyExpressServer(container, null, null, newApp);
   server.setErrorConfig((app) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      res.status(404).send({
+        statusCode: 404,
+        error: 'Route is not found'
+      });
+    });
+
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
   });
 
