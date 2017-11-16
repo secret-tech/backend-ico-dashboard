@@ -28,6 +28,7 @@ import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/veri
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
+import { KycClientType } from './kyc.client';
 
 /**
  * UserService
@@ -42,12 +43,14 @@ export class UserService implements UserServiceInterface {
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
    * @param  emailQueue email queue
+   * @param  kycClient kycClient
    */
   constructor(
     @inject(AuthClientType) private authClient: AuthClientInterface,
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(EmailQueueType) private emailQueue: EmailQueueInterface
+    @inject(EmailQueueType) private emailQueue: EmailQueueInterface,
+    @inject(KycClientType) private kycClient: KycClientInterface
   ) { }
 
   /**
@@ -262,6 +265,7 @@ export class UserService implements UserServiceInterface {
       await this.web3Client.addReferralOf(account.address, referral.ethWallet.address);
     }
 
+    user.kycInitResult = await this.kycClient.init(user);
     user.isVerified = true;
     await getConnection().getMongoRepository(Investor).save(user);
 

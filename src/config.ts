@@ -104,6 +104,6 @@ export default {
     apiToken: '68b0d36a-46f4-4336-8f4e-e1f570cea5d9',
     apiSecret: 'w37alAxYV9i5bIsiOF9bROvdzMqNlJGZ',
     baseUrl: 'https://lon.netverify.com/api/netverify/v2/',
-    defaultTokenLifetime: 900
+    defaultTokenLifetime: 5184000 // 60 days - Jumio max allowed value
   }
 };

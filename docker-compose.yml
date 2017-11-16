@@ -16,7 +16,7 @@ services:
       ORM_ENTITIES_DIR: "src/entities/**/*.ts"
       ORM_SUBSCRIBER_DIR: "src/subscriber/**/*.ts"
       ORM_MIGRATIONS_DIR: "src/migrations/**/*.ts"
-      API_URL: "https://home.artempikulin.ru"
+      API_URL: "https://jcrstage.artempikulin.ru"
       FRONTEND_URL: "https://home.artempikulin.ru"
       AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNlZGZiMzM4LTJjMGYtNDY2Yi04ZGE3LWQzZWMxYzk5ZTFhMyIsImxvZ2luIjoidGVuYW50OnRlc3RAdGVzdC5jb20iLCJqdGkiOiJjZWRmYjMzOC0yYzBmLTQ2NmItOGRhNy1kM2VjMWM5OWUxYTMxNTEwNjY5NjQ2MDI1IiwiaWF0IjoxNTEwNjY5NjQ2MDI1LCJhdWQiOiJqaW5jb3IuY29tIiwiaXNUZW5hbnQiOnRydWV9.1TRr3A0Ol1ZcbIG7XG9GUaWs78l4x-7A-M0NeV-me00"
     links:

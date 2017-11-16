@@ -9,8 +9,6 @@ import { Index } from 'typeorm/decorator/Index';
 export const KYC_STATUS_NOT_VERIFIED = 'not_verified';
 export const KYC_STATUS_VERIFIED = 'verified';
 export const KYC_STATUS_FAILED = 'failed';
-export const KYC_STATUS_PENDING = 'pending';
-export const KYC_STATUS_MAX_ATTEMPTS_REACHED = 'max_attempts_reached';
 
 @Entity()
 @Index('email', () => ({ email: 1 }), { unique: true })
@@ -53,6 +51,9 @@ export class Investor {
 
   @Column(type => Invitee)
   invitees: Invitee[];
+
+  @Column()
+  kycInitResult: KycInitResult;
 
   static createInvestor(data: UserData, verification) {
     const user = new Investor();

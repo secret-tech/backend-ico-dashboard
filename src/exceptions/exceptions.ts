@@ -8,6 +8,5 @@ export class ReferralIsNotActivated extends Error {}
 export class InviteIsNotAllowed extends Error {}
 export class AuthenticatorError extends Error {}
 export class KycAlreadyVerifiedError extends Error {}
-export class KycMaxAttemptsReached extends Error {}
-export class KycPending extends Error {}
+export class KycFailedError extends Error {}
 export class NotCorrectVerificationCode extends Error {}

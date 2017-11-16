@@ -94,16 +94,16 @@ describe('Dashboard', () => {
       });
     });
 
-    it('/invest/initiate should require ethAmount to be greater than 1', (done) => {
+    it('/invest/initiate should require ethAmount to be greater than 0.1', (done) => {
       const token = 'verified_token';
       const params = {
-        ethAmount: 0.99,
+        ethAmount: 0.099,
         mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
       };
 
       postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 1');
+        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
       });
     });
@@ -158,12 +158,17 @@ describe('Dashboard', () => {
     it('/invest/verify should require ethAmount to be greater than 1', (done) => {
       const token = 'verified_token';
       const params = {
-        ethAmount: 0.99
+        ethAmount: 0.09,
+        verification: {
+          verificationId: 'id',
+          method: 'email',
+          code: '123456'
+        }
       };
 
       postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 1');
+        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
       });
     });

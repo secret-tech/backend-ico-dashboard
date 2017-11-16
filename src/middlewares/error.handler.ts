@@ -5,9 +5,7 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
   let status;
 
   switch (err.constructor) {
-    case Err.KycMaxAttemptsReached:
-      // no break
-    case Err.KycPending:
+    case Err.KycFailedError:
       // no break
     case Err.KycAlreadyVerifiedError:
       // no break
