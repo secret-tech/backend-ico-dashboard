@@ -19,7 +19,7 @@ const getRequest = (customApp, url: string) => {
 
 describe('Kyc', () => {
   describe('GET /kyc/init', () => {
-    it('should init kyc process and ignore NO_ID_UPLOADED callbacks', (done) => {
+    it('should init kyc process - provide user initiated info', (done) => {
       const token = 'verified_token';
       getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
@@ -47,24 +47,12 @@ describe('Kyc', () => {
   });
 
   describe('GET /kyc/init', () => {
-    it('should not allow init if investor verification is pending', (done) => {
-      const token = 'kyc_pending_token';
-
-      getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
-        expect(res.status).to.equal(400);
-        expect(res.body.error).to.eq('You documents are processing already, please wait for status update');
-        done();
-      });
-    });
-  });
-
-  describe('GET /kyc/init', () => {
-    it('should not allow init if investor tried 3 times already', (done) => {
+    it('should not allow init if investor verification is failed', (done) => {
       const token = 'kyc_3_failed_token';
 
       getRequest(factory.testAppForDashboard(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(400);
-        expect(res.body.error).to.eq('You have tried to pass ID verification at least 3 times. Please contact Jincor team.');
+        expect(res.body.error).to.eq('Your account verification failed. Please contact Jincor team');
         done();
       });
     });

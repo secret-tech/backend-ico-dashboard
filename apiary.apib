@@ -608,6 +608,7 @@ Authentication attempts with not verified token will result in 401 response.
 ## Initiate investment [/dashboard/invest/initiate]
 
 + ethAmount `1` (required, number, min(1))
++ mnemonic `mnemonic` (required, string)
 
 ### Initiate investment [POST]
 
@@ -622,6 +623,7 @@ Authentication attempts with not verified token will result in 401 response.
 
             {
                 "ethAmount": 1,
+                "mnemonic": "mnemonic"
             }
 
 + Response 200 (application/json)
@@ -640,6 +642,7 @@ Authentication attempts with not verified token will result in 401 response.
 
 
 + ethAmount `1` (required, number, min(1))
++ mnemonic `mnemonic` (required, string)
 + verification
     + verificationId (string, required)
     + code (string, required)
@@ -658,6 +661,7 @@ Authentication attempts with not verified token will result in 401 response.
 
             {
                 "ethAmount": 1,
+                "mnemonic": "mnemonic"
                 "verification": {
                     "verificationId": "b41498d8-a9db-4bb5-b338-0e8f47582066",
                     "code": "813365",
@@ -695,7 +699,4 @@ Authentication attempts with not verified token will result in 401 response.
             "clientRedirectUrl": "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
             "jumioIdScanReference": "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
         }
-
-
-
 

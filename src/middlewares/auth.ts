@@ -14,17 +14,13 @@ export class Auth {
 
   async authenticate(req: AuthorizedRequest, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
-      return res.status(401).json({
-        error: 'Not Authorized'
-      });
+      return this.notAuthorized(res);
     }
 
     const parts = req.headers.authorization.split(' ');
 
     if (parts[0] !== 'Bearer') {
-      return res.status(401).json({
-        error: 'Not Authorized'
-      });
+      return this.notAuthorized(res);
     }
 
     const token = parts[1];
@@ -34,9 +30,7 @@ export class Auth {
     });
 
     if (!tokenVerification || !tokenVerification.verified) {
-      return res.status(401).json({
-        error: 'Not Authorized'
-      });
+      return this.notAuthorized(res);
     }
 
     try {
@@ -53,9 +47,14 @@ export class Auth {
 
       return next();
     } catch (e) {
-      return res.status(401).json({
-        error: 'Not Authorized'
-      });
+      return this.notAuthorized(res);
     }
+  }
+
+  notAuthorized(res: Response) {
+    return res.status(401).json({
+      statusCode: 401,
+      error: 'Not Authorized'
+    });
   }
 }
