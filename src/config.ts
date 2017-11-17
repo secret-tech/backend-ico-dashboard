@@ -1,3 +1,4 @@
+require('dotenv').config();
 import 'reflect-metadata';
 
 const {
@@ -11,16 +12,19 @@ const {
   THROTTLER_INTERVAL,
   THROTTLER_MAX,
   THROTTLER_MIN_DIFF,
-  AUTH_HOST,
-  AUTH_PORT,
-  VERIFY_HOST,
-  VERIFY_PORT,
   ORM_ENTITIES_DIR,
   ORM_SUBSCRIBER_DIR,
   ORM_MIGRATIONS_DIR,
   API_URL,
   FRONTEND_URL,
-  AUTH_JWT
+  AUTH_JWT,
+  AUTH_BASE_URL,
+  VERIFY_BASE_URL,
+  MONGO_HOST,
+  MONGO_PORT,
+  MONGO_DATABASE,
+  MONGO_USER,
+  MONGO_PASSWORD
 } = process.env;
 
 export default {
@@ -45,13 +49,11 @@ export default {
     whiteList: THROTTLER_WHITE_LIST ? THROTTLER_WHITE_LIST.split(',') : [] // requests from these IPs won't be throttled
   },
   auth: {
-    port: parseInt(AUTH_PORT, 10) || 3000,
-    host: AUTH_HOST || 'auth',
+    baseUrl: AUTH_BASE_URL || 'http://auth:3000',
     token: AUTH_JWT
   },
   verify: {
-    port: parseInt(VERIFY_PORT, 10) || 3000,
-    host: VERIFY_HOST || 'verify'
+    baseUrl: VERIFY_BASE_URL || 'http://verify:3000'
   },
   email: {
     domain: 'jincor.com',
@@ -59,8 +61,7 @@ export default {
     from: {
       general: 'noreply@jincor.com',
       referral: 'partners@jincor.com'
-    },
-    inviteTemplate: '%name% invites you to join Jincor ICO. Please follow this link to register: %link%'
+    }
   },
   contracts: {
     // old ropsten whitelist: 0x94c4b2ee76ff421cdae95a9affeea7c80d4334e8
@@ -83,11 +84,11 @@ export default {
   },
   typeOrm: {
     type: 'mongodb',
-    host: 'mongo',
-    port: 27017,
-    username: '',
-    password: '',
-    database: 'ico-dashboard',
+    host: MONGO_HOST || 'mongo',
+    port: MONGO_PORT || 27017,
+    username: MONGO_USER || '',
+    password: MONGO_PASSWORD || '',
+    database: MONGO_DATABASE || 'ico-dashboard',
     synchronize: true,
     logging: false,
     entities: [

@@ -9,52 +9,14 @@ services:
       - 3000:3000
       - 80:3000
     links:
-      - auth
-      - redis
-      - verify
       - rpc
     depends_on:
       - rpc
     volumes:
       - /root/ethereum-blockchain:/home/ethereum
-    environment:
-      ORM_ENTITIES_DIR: "dist/entities/**/*.js"
-      ORM_SUBSCRIBER_DIR: "dist/subscriber/**/*.js"
-      ORM_MIGRATIONS_DIR: "dist/migrations/**/*.js"
-      API_URL: "https://jcrstage.artempikulin.ru"
-      FRONTEND_URL: "https://invest.jincor.com"
-      AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjBkNjUyOTE3LTVkZDYtNDFhOC05NDI2LWQ1NjczNzU0Njk5ZSIsImxvZ2luIjoidGVuYW50Omljb0BqaW5jb3IuY29tIiwianRpIjoiMGQ2NTI5MTctNWRkNi00MWE4LTk0MjYtZDU2NzM3NTQ2OTllMTUwOTAxMjUyMzQwMiIsImlhdCI6MTUwOTAxMjUyMzQwMiwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.yWMdW1FZjh8CD8U1snMN1xUj5oqbfe32cNZkMSVqGG4"
     networks:
       default:
         ipv4_address: 10.100.0.2
-
-  auth:
-    image: registry.jincor.com/backend/auth:latest
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      FORCE_HTTPS: disabled
-      JWT_KEY: "uZrJ!xe*xN?!;oU.u*;QOSM+|=4C?WH?6eWPcK/6AkIXIVGQguSA*r"
-      THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
-      TENANT_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
-    ports:
-      - "3000"
-      - "4000"
-    links:
-      - redis
-    networks:
-      default:
-        ipv4_address: 10.100.0.3
-
-  redis:
-    image: registry.jincor.com/backend/redis:latest
-    ports:
-      - "6379"
-    volumes:
-      - ./storage/redis:/data
-    networks:
-      default:
-        ipv4_address: 10.100.0.4
 
   rpc:
     image: registry.jincor.com/backend/ethereum-testrpc:latest
@@ -69,34 +31,6 @@ services:
     networks:
       default:
         ipv4_address: 10.100.0.5
-
-  verify:
-    image: registry.jincor.com/backend/verify:latest
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
-      EMAIL_DRIVER: mailgun
-      MAILGUN_DOMAIN: jincor.com
-      MAILGUN_SECRET: key-176cd97e7ce70c9e75d826792669e53a
-      MAILGUN_API_URI: https://api.mailgun.net/v3/
-    links:
-      - auth
-      - redis
-    networks:
-      default:
-        ipv4_address: 10.100.0.6
-
-  mongo:
-    image: registry.jincor.com/backend/mongodb:latest
-    volumes:
-        - ./storage/mongodb:/data/db
-    networks:
-      default:
-        ipv4_address: 10.100.0.7
-    ports:
-      - "27017"
-      - "28017"
 
 networks:
   default:
