@@ -44,6 +44,20 @@ export class KycClient implements KycClientInterface {
       }
     });
   }
+
+  async getScanReferenceStatus(scanId: string): Promise<KycScanStatus> {
+    return await request.json<KycScanStatus>(`/scans/${ scanId }`, {
+      baseUrl: this.baseUrl,
+      method: 'GET',
+      auth: {
+        user: this.apiToken,
+        password: this.apiSecret
+      },
+      headers: {
+        'User-Agent': 'JINCOR ICO/1.0.0'
+      }
+    });
+  }
 }
 
 const KycClientType = Symbol('KycClientInterface');

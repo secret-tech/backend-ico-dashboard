@@ -2,18 +2,18 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
 import { AuthorizedRequest } from '../requests/authorized.request';
-import { KycClientType } from '../services/kyc.client';
 import {
   JUMIO_SCAN_STATUS_ERROR,
-  JUMIO_SCAN_STATUS_SUCCESS, KycResult
+  JUMIO_SCAN_STATUS_SUCCESS,
+  KycResult
 } from '../entities/kyc.result';
 import { getConnection } from 'typeorm';
 import {
   Investor,
-  KYC_STATUS_FAILED,
+  KYC_STATUS_FAILED, KYC_STATUS_PENDING,
   KYC_STATUS_VERIFIED
 } from '../entities/investor';
-import { KycAlreadyVerifiedError, KycFailedError } from '../exceptions/exceptions';
+import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 
 /**
@@ -25,7 +25,6 @@ import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 )
 export class KycController {
   constructor(
-    @inject(KycClientType) private kycClient: KycClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface
   ) { }
 
@@ -39,6 +38,8 @@ export class KycController {
         throw new KycAlreadyVerifiedError('Your account is verified already');
       case KYC_STATUS_FAILED:
         throw new KycFailedError('Your account verification failed. Please contact Jincor team');
+      case KYC_STATUS_PENDING:
+        throw new KycPendingError('Your account verification is pending. Please wait for status update');
       default:
         res.json(req.user.kycInitResult);
     }

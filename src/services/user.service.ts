@@ -22,7 +22,7 @@ import {
   TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed
 } from '../exceptions/exceptions';
 import config from '../config';
-import { Investor } from '../entities/investor';
+import { Investor, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_PENDING } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
 import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
 import * as transformers from '../transformers/transformers';
@@ -573,6 +573,24 @@ export class UserService implements UserServiceInterface {
 
     return {
       enabled: false
+    };
+  }
+
+  async getUserInfo(user: Investor): Promise<UserInfo> {
+    if (user.kycStatus === KYC_STATUS_NOT_VERIFIED) {
+      const scanStatus = await this.kycClient.getScanReferenceStatus(user.kycInitResult.jumioIdScanReference);
+      if (scanStatus.status === 'PENDING') {
+        user.kycStatus = KYC_STATUS_PENDING;
+        await getConnection().getMongoRepository(Investor).save(user);
+      }
+    }
+
+    return {
+      ethAddress: user.ethWallet.address,
+      email: user.email,
+      name: user.name,
+      kycStatus: user.kycStatus,
+      defaultVerificationMethod: user.defaultVerificationMethod
     };
   }
 }
