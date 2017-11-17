@@ -78,4 +78,7 @@ export class KycResult {
 
   @Column()
   idCheckMRZcode: string;
+
+  @Column()
+  identityVerification: JumioIdentityVerification;
 }

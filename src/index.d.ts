@@ -235,6 +235,12 @@ declare interface KycInitResult {
   clientRedirectUrl: string;
 }
 
+declare interface JumioIdentityVerification {
+  similarity: string;
+  validity: boolean;
+  reason?: string;
+}
+
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;

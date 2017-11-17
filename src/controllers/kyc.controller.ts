@@ -56,6 +56,7 @@ export class KycController {
     // without it we get 'object.hasOwnProperty is not a function' because typeorm using it to create entity
     // for more info check: https://github.com/expressjs/express/issues/3264
     const verificationResult = JSON.parse(JSON.stringify(req.body));
+    verificationResult.identityVerification = JSON.parse(verificationResult.identityVerification);
 
     const existingVerification = await kycRepo.findOne({
       jumioIdScanReference: verificationResult.jumioIdScanReference
@@ -82,8 +83,13 @@ export class KycController {
 
     switch (verificationResult.idScanStatus) {
       case JUMIO_SCAN_STATUS_SUCCESS:
-        investor.kycStatus = KYC_STATUS_VERIFIED;
-        await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
+        if (verificationResult.identityVerification.validity === true) {
+          investor.kycStatus = KYC_STATUS_VERIFIED;
+          await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
+        } else {
+          // face does not match ID, we consider this as failing verification
+          investor.kycStatus = KYC_STATUS_FAILED;
+        }
         break;
       case JUMIO_SCAN_STATUS_ERROR:
         investor.kycStatus = KYC_STATUS_FAILED;
