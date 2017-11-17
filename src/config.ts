@@ -20,11 +20,7 @@ const {
   AUTH_JWT,
   AUTH_BASE_URL,
   VERIFY_BASE_URL,
-  MONGO_HOST,
-  MONGO_PORT,
-  MONGO_DATABASE,
-  MONGO_USER,
-  MONGO_PASSWORD
+  MONGO_URL
 } = process.env;
 
 export default {
@@ -84,13 +80,9 @@ export default {
   },
   typeOrm: {
     type: 'mongodb',
-    host: MONGO_HOST || 'mongo',
-    port: MONGO_PORT || 27017,
-    username: MONGO_USER || '',
-    password: MONGO_PASSWORD || '',
-    database: MONGO_DATABASE || 'ico-dashboard',
     synchronize: true,
     logging: false,
+    url: MONGO_URL,
     entities: [
       ORM_ENTITIES_DIR
     ],

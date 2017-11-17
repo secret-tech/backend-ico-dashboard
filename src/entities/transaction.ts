@@ -1,5 +1,6 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import 'reflect-metadata';
+import { Index } from 'typeorm/decorator/Index';
 
 export const TRANSACTION_STATUS_PENDING = 'pending';
 export const TRANSACTION_STATUS_CONFIRMED = 'confirmed';
@@ -10,6 +11,12 @@ export const JCR_TRANSFER = 'jcr_transfer';
 export const REFERRAL_TRANSFER = 'referral_transfer';
 
 @Entity()
+@Index('hash_type_from_to', () => ({
+  transactionHash: 1,
+  type: 1,
+  from: 1,
+  to: 1
+}), { unique: true })
 export class Transaction {
   @ObjectIdColumn()
   id: ObjectID;
