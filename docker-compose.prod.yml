@@ -22,7 +22,7 @@ services:
       ORM_SUBSCRIBER_DIR: "dist/subscriber/**/*.js"
       ORM_MIGRATIONS_DIR: "dist/migrations/**/*.js"
       API_URL: "https://jcrstage.artempikulin.ru"
-      FRONTEND_URL: "http://45.33.52.185"
+      FRONTEND_URL: "https://invest.jincor.com"
       AUTH_JWT: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjBkNjUyOTE3LTVkZDYtNDFhOC05NDI2LWQ1NjczNzU0Njk5ZSIsImxvZ2luIjoidGVuYW50Omljb0BqaW5jb3IuY29tIiwianRpIjoiMGQ2NTI5MTctNWRkNi00MWE4LTk0MjYtZDU2NzM3NTQ2OTllMTUwOTAxMjUyMzQwMiIsImlhdCI6MTUwOTAxMjUyMzQwMiwiYXVkIjoiamluY29yLmNvbSIsImlzVGVuYW50Ijp0cnVlfQ.yWMdW1FZjh8CD8U1snMN1xUj5oqbfe32cNZkMSVqGG4"
     networks:
       default:
