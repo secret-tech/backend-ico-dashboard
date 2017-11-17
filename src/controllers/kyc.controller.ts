@@ -57,7 +57,12 @@ export class KycController {
     // without it we get 'object.hasOwnProperty is not a function' because typeorm using it to create entity
     // for more info check: https://github.com/expressjs/express/issues/3264
     const verificationResult = JSON.parse(JSON.stringify(req.body));
-    verificationResult.identityVerification = JSON.parse(verificationResult.identityVerification);
+
+    try {
+      verificationResult.identityVerification = JSON.parse(verificationResult.identityVerification);
+    } catch (e) {
+
+    }
 
     await kycRepo.save(kycRepo.create(verificationResult));
 

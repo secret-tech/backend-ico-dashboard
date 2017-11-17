@@ -3,12 +3,14 @@ import { Response, Request, NextFunction, Application } from 'express';
 import * as bodyParser from 'body-parser';
 import config from './config';
 import handle from './middlewares/error.handler';
+const morgan = require('morgan');
 
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { container } from './ioc.container';
 
 const app: Application = express();
 
+app.use(morgan('combined'));
 app.disable('x-powered-by');
 
 app.use((req: Request, res: Response, next: NextFunction) => {
