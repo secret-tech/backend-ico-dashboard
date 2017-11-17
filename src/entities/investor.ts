@@ -12,7 +12,6 @@ export const KYC_STATUS_FAILED = 'failed';
 export const KYC_STATUS_PENDING = 'pending';
 
 @Entity()
-@Index('email', () => ({ email: 1 }), { unique: true })
 export class Investor {
   @ObjectIdColumn()
   id: ObjectID;
