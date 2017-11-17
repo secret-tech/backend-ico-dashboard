@@ -577,14 +577,6 @@ export class UserService implements UserServiceInterface {
   }
 
   async getUserInfo(user: Investor): Promise<UserInfo> {
-    if (user.kycStatus === KYC_STATUS_NOT_VERIFIED) {
-      const scanStatus = await this.kycClient.getScanReferenceStatus(user.kycInitResult.jumioIdScanReference);
-      if (scanStatus.status === 'PENDING') {
-        user.kycStatus = KYC_STATUS_PENDING;
-        await getConnection().getMongoRepository(Investor).save(user);
-      }
-    }
-
     return {
       ethAddress: user.ethWallet.address,
       email: user.email,

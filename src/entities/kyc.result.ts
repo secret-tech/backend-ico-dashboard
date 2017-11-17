@@ -1,11 +1,9 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
-import { Index } from 'typeorm/decorator/Index';
 
 export const JUMIO_SCAN_STATUS_ERROR = 'ERROR';
 export const JUMIO_SCAN_STATUS_SUCCESS = 'SUCCESS';
 
 @Entity()
-@Index('jumioIdScanReference', () => ({ jumioIdScanReference: 1 }), { unique: true })
 export class KycResult {
   @ObjectIdColumn()
   id: ObjectID;

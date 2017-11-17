@@ -40,7 +40,8 @@ export class KycClient implements KycClientInterface {
         errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
         customerId: investor.email,
-        authorizationTokenLifetime: this.defaultTokenLifetime
+        authorizationTokenLifetime: this.defaultTokenLifetime,
+        callbackGranularity: 'onAllSteps'
       }
     });
   }

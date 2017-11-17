@@ -59,16 +59,6 @@ export class KycController {
     const verificationResult = JSON.parse(JSON.stringify(req.body));
     verificationResult.identityVerification = JSON.parse(verificationResult.identityVerification);
 
-    const existingVerification = await kycRepo.findOne({
-      jumioIdScanReference: verificationResult.jumioIdScanReference
-    });
-
-    if (existingVerification) {
-      // the verification was already processed
-      res.status(200).send();
-      return;
-    }
-
     await kycRepo.save(kycRepo.create(verificationResult));
 
     const investor = await investorRepo.findOne({
