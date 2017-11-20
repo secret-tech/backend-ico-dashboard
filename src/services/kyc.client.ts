@@ -49,8 +49,6 @@ export class KycClient implements KycClientInterface {
       }
     };
 
-    console.log(kycOptions);
-
     return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
   }
 

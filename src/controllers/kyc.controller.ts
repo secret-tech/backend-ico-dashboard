@@ -118,7 +118,7 @@ export class KycController {
         break;
       default:
         // something strange is going on, throw
-        console.log('unknown jumio status');
+        console.error('unknown jumio status');
         throw Error('Unknown ID scan status');
     }
 
