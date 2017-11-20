@@ -54,7 +54,7 @@ services:
     image: registry.jincor.com/backend/geth-rpc-ropsten:latest
     build:
       context: ./
-      dockerfile: rpc.Dockerfile
+      dockerfile: rpc.ropsten.Dockerfile
     ports:
       - "8546"
     volumes:

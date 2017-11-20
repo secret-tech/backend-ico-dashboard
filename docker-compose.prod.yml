@@ -22,9 +22,9 @@ services:
     image: registry.jincor.com/backend/ethereum-testrpc:latest
     build:
       context: ./
-      dockerfile: rpc.Dockerfile
+      dockerfile: rpc.mainnet.Dockerfile
     ports:
-      - "8545"
+      - "8546"
     volumes:
       - /root/ethereum-blockchain:/home/ethereum
       - ./passwords:/passwords
