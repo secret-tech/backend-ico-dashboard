@@ -29,7 +29,7 @@ export class KycClient implements KycClientInterface {
     const id = investor.id.toHexString();
     const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
 
-    return await request.json<KycInitResult>('/initiateNetverify', {
+    const kycOptions = {
       baseUrl: this.baseUrl,
       method: 'POST',
       auth: {
@@ -46,9 +46,12 @@ export class KycClient implements KycClientInterface {
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
         customerId: investor.email,
         authorizationTokenLifetime: this.defaultTokenLifetime,
-        callbackGranularity: 'onAllSteps'
       }
-    });
+    };
+
+    console.log(kycOptions);
+
+    return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
   }
 
   async getScanReferenceStatus(scanId: string): Promise<KycScanStatus> {
