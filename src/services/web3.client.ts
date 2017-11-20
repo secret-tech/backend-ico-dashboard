@@ -51,7 +51,11 @@ export class Web3Client implements Web3ClientInterface {
   jcrToken: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
+    if (config.rpc.type === 'ipc') {
+      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+    } else {
+      this.web3 = new Web3(config.rpc.address);
+    }
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);

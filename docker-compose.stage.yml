@@ -1,16 +1,14 @@
 version: '2'
 services:
   ico:
-    image: registry.jincor.com/backend/ico-develop:latest
+    image: registry.jincor.com/backend/ico:latest
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.stage
     ports:
       - 3000:3000
       - 80:3000
       - 4000:4000
-    volumes:
-      - ./:/usr/src/app
     links:
       - auth
       - redis
@@ -56,11 +54,11 @@ services:
     image: registry.jincor.com/backend/geth-rpc-ropsten:latest
     build:
       context: ./
-      dockerfile: rpc.ropsten.Dockerfile
+      dockerfile: rpc.Dockerfile
     ports:
       - "8546"
     volumes:
-      - /media/artem/48F0BE6BF0BE5EBE1/gethtest:/home/ethereum
+      - /root/ethereum-blockchain:/home/ethereum
       - ./passwords:/passwords
     networks:
       default:

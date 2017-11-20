@@ -23,7 +23,9 @@ const {
   MONGO_URL,
   ICO_SC_ADDRESS,
   WHITELIST_SC_ADDRESS,
-  JCR_TOKEN_ADDRESS
+  JCR_TOKEN_ADDRESS,
+  RPC_TYPE,
+  RPC_ADDRESS
 } = process.env;
 
 export default {
@@ -98,5 +100,9 @@ export default {
     apiSecret: 'w37alAxYV9i5bIsiOF9bROvdzMqNlJGZ',
     baseUrl: 'https://lon.netverify.com/api/netverify/v2/',
     defaultTokenLifetime: 5184000 // 60 days - Jumio max allowed value
+  },
+  rpc: {
+    type: RPC_TYPE,
+    address: RPC_ADDRESS
   }
 };
