@@ -45,7 +45,7 @@
     "typemoq": "2.0.1",
     "typeorm": "0.1.1",
     "web-request": "1.0.7",
-    "web3": "1.0.0-beta.24"
+    "web3": "1.0.0-beta.26"
   },
   "devDependencies": {
     "@types/bcrypt-nodejs": "0.0.30",
