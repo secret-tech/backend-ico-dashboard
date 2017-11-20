@@ -85,8 +85,8 @@ services:
       default:
         ipv4_address: 10.100.0.7
     ports:
-      - 27017:27017
-      - 28017:28017
+      - "27017"
+      - "28017"
 
 networks:
   default:
