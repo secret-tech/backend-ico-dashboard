@@ -179,10 +179,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrBalanceOf(address: string): Promise<string> {
-    return (await this.web3.eth.call({
-      to: address,
-      data: this.jcrToken.methods.balanceOf(address).encodeABI()
-    })).toString();
+    return (await this.jcrToken.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
@@ -192,7 +189,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrEthPrice(): Promise<number> {
-    return await this.ico.methods.jcrEthRate().call();
+    return (await this.ico.methods.ethUsdRate().call()) / 100;
   }
 }
 
