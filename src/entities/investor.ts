@@ -5,6 +5,7 @@ import 'reflect-metadata';
 import { Invitee } from './invitee';
 import { InviteIsNotAllowed } from '../exceptions/exceptions';
 import { Index } from 'typeorm/decorator/Index';
+import { base64encode } from '../helpers/helpers';
 
 export const KYC_STATUS_NOT_VERIFIED = 'not_verified';
 export const KYC_STATUS_VERIFIED = 'verified';
@@ -64,7 +65,7 @@ export class Investor {
     user.passwordHash = data.passwordHash;
     user.isVerified = false;
     user.kycStatus = KYC_STATUS_NOT_VERIFIED;
-    user.referralCode = user.base64encode(user.email);
+    user.referralCode = base64encode(user.email);
     user.referral = data.referral;
     user.defaultVerificationMethod = EMAIL_VERIFICATION;
     user.verification = Verification.createVerification({
@@ -124,15 +125,5 @@ export class Investor {
 
   addEthWallet(data: any) {
     this.ethWallet = Wallet.createWallet(data);
-  }
-
-  escape(str: string): string {
-    return str.replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
-
-  base64encode(email: string): string {
-    return this.escape(Buffer.from(email, 'utf8').toString('base64'));
   }
 }

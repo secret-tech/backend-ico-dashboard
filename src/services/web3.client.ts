@@ -64,8 +64,8 @@ export class Web3Client implements Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const gas = input.gas || 300000;
 
-    const gasPrice = this.web3.utils.toWei(input.gasPrice || 21, 'gwei');
-    const value = this.web3.utils.toWei(input.amount);
+    const gasPrice = this.web3.utils.toWei(input.gasPrice || '21', 'gwei');
+    const value = this.web3.utils.toWei(input.amount.toString());
 
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
 
@@ -133,7 +133,7 @@ export class Web3Client implements Web3ClientInterface {
         this.whiteList.methods.addInvestorToWhiteList(address).send({
           from: accounts[0],
           gas: 200000,
-          gasPrice: this.web3.utils.toWei(20, 'gwei')
+          gasPrice: this.web3.utils.toWei('20', 'gwei')
         }).on('transactionHash', hash => {
           resolve(hash);
         }).on('error', error => {

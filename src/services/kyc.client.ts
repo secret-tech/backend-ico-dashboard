@@ -4,6 +4,8 @@ import config from '../config';
 import 'reflect-metadata';
 import { Investor } from '../entities/investor';
 import * as uuid from 'node-uuid';
+import { base64encode } from '../helpers/helpers';
+import * as bcrypt from 'bcrypt-nodejs';
 
 @injectable()
 export class KycClient implements KycClientInterface {
@@ -24,6 +26,9 @@ export class KycClient implements KycClientInterface {
   }
 
   async init(investor: Investor): Promise<KycInitResult> {
+    const id = investor.id.toHexString();
+    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+
     return await request.json<KycInitResult>('/initiateNetverify', {
       baseUrl: this.baseUrl,
       method: 'POST',
@@ -36,7 +41,7 @@ export class KycClient implements KycClientInterface {
       },
       body: {
         merchantIdScanReference: uuid.v4(),
-        successUrl: `${ config.app.frontendUrl }/dashboard/verification/success`,
+        successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
         errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
         customerId: investor.email,

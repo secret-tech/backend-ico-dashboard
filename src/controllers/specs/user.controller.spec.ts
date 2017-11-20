@@ -444,7 +444,7 @@ describe('Users', () => {
   });
 
   describe('GET /user/me', () => {
-    it('should provide user info and update kycStatus to pending depending on Jumio response', (done) => {
+    it('should provide user info', (done) => {
       const token = 'verified_token';
 
       getRequest(factory.testAppForUserMe(), '/user/me').set('Authorization', `Bearer ${ token }`).end((err, res) => {
@@ -454,7 +454,7 @@ describe('Users', () => {
           ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
           email: 'activated@test.com',
           name: 'ICO investor',
-          kycStatus: 'pending',
+          kycStatus: 'not_verified',
           defaultVerificationMethod: 'email'
         });
         done();

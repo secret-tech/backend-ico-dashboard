@@ -25,7 +25,8 @@ const {
   WHITELIST_SC_ADDRESS,
   JCR_TOKEN_ADDRESS,
   RPC_TYPE,
-  RPC_ADDRESS
+  RPC_ADDRESS,
+  ACCESS_LOG
 } = process.env;
 
 export default {
@@ -35,7 +36,8 @@ export default {
     httpsServer: HTTPS_SERVER || 'disabled',
     forceHttps: FORCE_HTTPS || 'disabled',
     apiUrl: API_URL,
-    frontendUrl: FRONTEND_URL
+    frontendUrl: FRONTEND_URL,
+    accessLog: ACCESS_LOG
   },
   redis: {
     port: parseInt(REDIS_PORT, 10) || 6379,

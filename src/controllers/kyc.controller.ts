@@ -10,11 +10,15 @@ import {
 import { getConnection } from 'typeorm';
 import {
   Investor,
-  KYC_STATUS_FAILED, KYC_STATUS_PENDING,
+  KYC_STATUS_FAILED, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_PENDING,
   KYC_STATUS_VERIFIED
 } from '../entities/investor';
 import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../exceptions/exceptions';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
+import { base64decode } from '../helpers/helpers';
+import config from '../config';
+import * as bcrypt from 'bcrypt-nodejs';
+const mongo = require('mongodb');
 
 /**
  * KYC controller
@@ -45,6 +49,28 @@ export class KycController {
     }
   }
 
+  // route to redirect customer on success document upload to update status to pending
+  @httpGet(
+    '/uploaded/:id/:base64hash'
+  )
+  async successUpload(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    const decodedHash = base64decode(req.params.base64hash);
+
+    if (bcrypt.compareSync(req.params.id + config.kyc.apiSecret, decodedHash)) {
+      const investorRepo = getConnection().getMongoRepository(Investor);
+      const investor = await investorRepo.createEntityCursor({
+        _id: new mongo.ObjectId(req.params.id)
+      }).toArray();
+
+      if (investor.length > 0 && investor[0].kycStatus === KYC_STATUS_NOT_VERIFIED) {
+        investor[0].kycStatus = KYC_STATUS_PENDING;
+        await investorRepo.save(investor[0]);
+      }
+    }
+
+    res.redirect(`${ config.app.frontendUrl }/dashboard/verification/success`);
+  }
+
   @httpPost(
     '/callback',
     'OnlyJumioIp'
@@ -61,7 +87,7 @@ export class KycController {
     try {
       verificationResult.identityVerification = JSON.parse(verificationResult.identityVerification);
     } catch (e) {
-
+      // no identityVerification field
     }
 
     await kycRepo.save(kycRepo.create(verificationResult));

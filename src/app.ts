@@ -10,7 +10,10 @@ import { container } from './ioc.container';
 
 const app: Application = express();
 
-app.use(morgan('combined'));
+if (config.app.accessLog === 'true') {
+  app.use(morgan('combined'));
+}
+
 app.disable('x-powered-by');
 
 app.use((req: Request, res: Response, next: NextFunction) => {
