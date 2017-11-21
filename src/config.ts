@@ -26,7 +26,9 @@ const {
   JCR_TOKEN_ADDRESS,
   RPC_TYPE,
   RPC_ADDRESS,
-  ACCESS_LOG
+  ACCESS_LOG,
+  MAILJET_API_KEY,
+  MAILJET_API_SECRET
 } = process.env;
 
 export default {
@@ -60,7 +62,13 @@ export default {
   },
   email: {
     domain: 'jincor.com',
-    secret: 'key-176cd97e7ce70c9e75d826792669e53a',
+    mailgun: {
+      secret: 'key-176cd97e7ce70c9e75d826792669e53a',
+    },
+    mailjet: {
+      apiKey: MAILJET_API_KEY,
+      apiSecret: MAILJET_API_SECRET
+    },
     from: {
       general: 'noreply@jincor.com',
       referral: 'partners@jincor.com'

@@ -284,3 +284,7 @@ declare interface KycClientInterface {
   init(investor: any): Promise<KycInitResult>;
   getScanReferenceStatus(scanId: string): Promise<KycScanStatus>;
 }
+
+declare interface EmailServiceInterface {
+  send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
+}

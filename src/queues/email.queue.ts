@@ -1,7 +1,7 @@
 import * as Bull from 'bull';
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { EmailServiceInterface, EmailServiceType } from '../services/email.service';
+import { EmailServiceType } from '../services/mailgun.service';
 import config from '../config';
 
 export interface EmailQueueInterface {
