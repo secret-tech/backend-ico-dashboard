@@ -4,6 +4,8 @@ import config from '../config';
 import 'reflect-metadata';
 import { Investor } from '../entities/investor';
 import * as uuid from 'node-uuid';
+import { base64encode } from '../helpers/helpers';
+import * as bcrypt from 'bcrypt-nodejs';
 
 @injectable()
 export class KycClient implements KycClientInterface {
@@ -24,7 +26,10 @@ export class KycClient implements KycClientInterface {
   }
 
   async init(investor: Investor): Promise<KycInitResult> {
-    return await request.json<KycInitResult>('/initiateNetverify', {
+    const id = investor.id.toHexString();
+    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+
+    const kycOptions = {
       baseUrl: this.baseUrl,
       method: 'POST',
       auth: {
@@ -36,11 +41,27 @@ export class KycClient implements KycClientInterface {
       },
       body: {
         merchantIdScanReference: uuid.v4(),
-        successUrl: `${ config.app.frontendUrl }/dashboard/verification/success`,
+        successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
         errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
         customerId: investor.email,
-        authorizationTokenLifetime: this.defaultTokenLifetime
+        authorizationTokenLifetime: this.defaultTokenLifetime,
+      }
+    };
+
+    return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+  }
+
+  async getScanReferenceStatus(scanId: string): Promise<KycScanStatus> {
+    return await request.json<KycScanStatus>(`/scans/${ scanId }`, {
+      baseUrl: this.baseUrl,
+      method: 'GET',
+      auth: {
+        user: this.apiToken,
+        password: this.apiSecret
+      },
+      headers: {
+        'User-Agent': 'JINCOR ICO/1.0.0'
       }
     });
   }

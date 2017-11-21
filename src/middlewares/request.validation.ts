@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
+import { base64decode } from '../helpers/helpers';
 
 const options = {
   allowUnknown: true
@@ -13,16 +14,6 @@ const verificationSchema = Joi.object().keys({
 }).required();
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
-
-function unescape(str: string): string {
-  return (str + '==='.slice((str.length + 3) % 4))
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-}
-
-function base64decode(str) {
-  return Buffer.from(unescape(str), 'base64').toString('utf8');
-}
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({

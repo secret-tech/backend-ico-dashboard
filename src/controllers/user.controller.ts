@@ -89,14 +89,8 @@ export class UserController {
     '/me',
     'AuthMiddleware'
   )
-  getMe(req: AuthorizedRequest, res: Response): void {
-    res.json({
-      ethAddress: req.user.ethWallet.address,
-      email: req.user.email,
-      name: req.user.name,
-      kycStatus: req.user.kycStatus,
-      defaultVerificationMethod: req.user.defaultVerificationMethod
-    });
+  async getMe(req: AuthorizedRequest, res: Response): Promise<void> {
+    res.json(await this.userService.getUserInfo(req.user));
   }
 
   @httpPost(

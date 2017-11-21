@@ -1,16 +1,14 @@
 version: '2'
 services:
   ico:
-    image: registry.jincor.com/backend/ico-develop:latest
+    image: registry.jincor.com/backend/ico:latest
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.stage
     ports:
       - 3000:3000
       - 80:3000
       - 4000:4000
-    volumes:
-      - ./:/usr/src/app
     links:
       - auth
       - redis
@@ -60,7 +58,7 @@ services:
     ports:
       - "8546"
     volumes:
-      - /media/artem/48F0BE6BF0BE5EBE1/gethtest:/home/ethereum
+      - /root/ethereum-blockchain:/home/ethereum
       - ./passwords:/passwords
     networks:
       default:
@@ -72,6 +70,10 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
+      EMAIL_DRIVER: mailgun
+      MAILGUN_DOMAIN: jincor.com
+      MAILGUN_SECRET: key-176cd97e7ce70c9e75d826792669e53a
+      MAILGUN_API_URI: https://api.mailgun.net/v3/
     links:
       - auth
       - redis
@@ -87,8 +89,8 @@ services:
       default:
         ipv4_address: 10.100.0.7
     ports:
-      - 27017:27017
-      - 28017:28017
+      - "27017"
+      - "28017"
 
 networks:
   default:

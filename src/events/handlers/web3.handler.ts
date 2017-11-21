@@ -30,8 +30,12 @@ export class Web3Handler implements Web3HandlerInterface {
   constructor(
     txService
   ) {
+    if (config.rpc.type === 'ipc') {
+      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+    } else {
+      this.web3 = new Web3(config.rpc.address);
+    }
     this.txService = txService;
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
 

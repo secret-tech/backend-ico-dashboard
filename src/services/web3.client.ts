@@ -51,7 +51,11 @@ export class Web3Client implements Web3ClientInterface {
   jcrToken: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
+    if (config.rpc.type === 'ipc') {
+      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+    } else {
+      this.web3 = new Web3(config.rpc.address);
+    }
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
@@ -60,8 +64,8 @@ export class Web3Client implements Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const gas = input.gas || 300000;
 
-    const gasPrice = this.web3.utils.toWei(input.gasPrice || 21, 'gwei');
-    const value = this.web3.utils.toWei(input.amount);
+    const gasPrice = this.web3.utils.toWei(input.gasPrice || '21', 'gwei');
+    const value = this.web3.utils.toWei(input.amount.toString());
 
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
 
@@ -129,7 +133,7 @@ export class Web3Client implements Web3ClientInterface {
         this.whiteList.methods.addInvestorToWhiteList(address).send({
           from: accounts[0],
           gas: 200000,
-          gasPrice: this.web3.utils.toWei(20, 'gwei')
+          gasPrice: this.web3.utils.toWei('20', 'gwei')
         }).on('transactionHash', hash => {
           resolve(hash);
         }).on('error', error => {
@@ -175,9 +179,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrBalanceOf(address: string): Promise<string> {
-    return this.web3.utils.fromWei(
-      await this.jcrToken.methods.balanceOf(address).call()
-    ).toString();
+    return (await this.jcrToken.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
@@ -187,7 +189,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrEthPrice(): Promise<number> {
-    return await this.ico.methods.jcrEthRate().call();
+    return (await this.ico.methods.ethUsdRate().call()) / 100;
   }
 }
 

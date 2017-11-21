@@ -9,4 +9,6 @@ export class InviteIsNotAllowed extends Error {}
 export class AuthenticatorError extends Error {}
 export class KycAlreadyVerifiedError extends Error {}
 export class KycFailedError extends Error {}
+export class KycPendingError extends Error {}
 export class NotCorrectVerificationCode extends Error {}
+export class VerificationIsNotFound extends Error {}

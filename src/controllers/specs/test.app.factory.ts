@@ -35,8 +35,15 @@ const mockKycClient = () => {
     jumioIdScanReference: '7b58a08e-19cf-4d28-a828-4bb577c6f69a'
   };
 
+  const scanStatus = {
+    status: 'PENDING'
+  };
+
   kycClientMock.setup(x => x.init(TypeMoq.It.isAny()))
     .returns((): any => kycInitResult);
+
+  kycClientMock.setup(x => x.getScanReferenceStatus(TypeMoq.It.isAny()))
+    .returns((): any => scanStatus);
 
   container.rebind<KycClientInterface>(KycClientType).toConstantValue(kycClientMock.object);
 };
@@ -196,6 +203,13 @@ const buildApp = () => {
 
   const server = new InversifyExpressServer(container, null, null, newApp);
   server.setErrorConfig((app) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      res.status(404).send({
+        statusCode: 404,
+        error: 'Route is not found'
+      });
+    });
+
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
   });
 
@@ -313,6 +327,7 @@ export const testAppForVerifyLogin = () => {
 };
 
 export const testAppForUserMe = () => {
+  mockKycClient();
   mockAuthMiddleware();
   return buildApp();
 };

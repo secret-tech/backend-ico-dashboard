@@ -64,7 +64,11 @@ export class TransactionService implements TransactionServiceInterface {
   web3: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
+    if (config.rpc.type === 'ipc') {
+      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+    } else {
+      this.web3 = new Web3(config.rpc.address);
+    }
   }
 
   async getTransactionsOfUser(user: Investor): Promise<ExtendedTransaction[]> {
