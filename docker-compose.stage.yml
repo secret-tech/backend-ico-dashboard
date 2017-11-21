@@ -65,7 +65,7 @@ services:
         ipv4_address: 10.100.0.5
 
   verify:
-    image: jincort/backend-verify:dev-5d0d8b7
+    image: jincort/backend-verify:dev-4c86424
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
