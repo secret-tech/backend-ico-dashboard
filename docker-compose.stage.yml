@@ -41,7 +41,7 @@ services:
         ipv4_address: 10.100.0.3
 
   redis:
-    image: jincort/backend-verify:dev-5d0d8b7
+    image: registry.jincor.com/backend/redis:latest
     ports:
       - "6379"
     volumes:
@@ -65,7 +65,7 @@ services:
         ipv4_address: 10.100.0.5
 
   verify:
-    image: registry.jincor.com/backend/verify:latest
+    image: jincort/backend-verify:dev-5d0d8b7
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
