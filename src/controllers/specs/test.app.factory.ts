@@ -78,6 +78,9 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.getSoldIcoTokens())
     .returns(async(): Promise<string> => '5000');
 
+  web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<boolean> => true);
+
   const generatedAccount = {
     address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
     privateKey: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA'

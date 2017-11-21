@@ -8,6 +8,7 @@ import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
 import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
 import initiateBuyTemplate from '../emails/12_initiate_buy_jcr_code';
+import {InsufficientEthBalance} from "../exceptions/exceptions";
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -83,6 +84,22 @@ export class DashboardController {
     'InvestValidation'
   )
   async investInitiate(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    const gas = req.body.gas || 150000;
+    const gasPrice = req.body.gasPrice || '20';
+    const amount = req.body.ethAmount.toString();
+
+    const txInput = {
+      from: req.user.ethWallet.address,
+      to: config.contracts.ico.address,
+      amount,
+      gas,
+      gasPrice
+    };
+
+    if (!await this.web3Client.sufficientBalance(txInput)) {
+      throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
+    }
+
     const verificationResult = await this.verificationClient.initiateVerification(
       req.user.defaultVerificationMethod,
       {
@@ -123,14 +140,20 @@ export class DashboardController {
       }
     );
 
-    const transactionInput = {
+    const gas = req.body.gas || 150000;
+    const gasPrice = req.body.gasPrice || '20';
+    const amount = req.body.ethAmount.toString();
+
+    const txInput = {
       from: req.user.ethWallet.address,
       to: config.contracts.ico.address,
-      amount: req.body.ethAmount
+      amount,
+      gas,
+      gasPrice
     };
 
     const transactionHash = await this.web3Client.sendTransactionByMnemonic(
-      transactionInput,
+      txInput,
       req.body.mnemonic,
       req.user.ethWallet.salt
     );
