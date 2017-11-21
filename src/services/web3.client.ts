@@ -173,7 +173,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrBalanceOf(address: string): Promise<string> {
-    return (await this.jcrToken.methods.balanceOf(address).call()).toString();
+    return this.web3.utils.fromWei(await this.jcrToken.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
