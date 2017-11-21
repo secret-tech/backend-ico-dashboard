@@ -1,5 +1,6 @@
 import { Investor } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
+import config from '../config';
 
 export function transformInvestorForAuth(investor: Investor) {
   return {
@@ -39,5 +40,19 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
       expiredOn: token.verification.expiredOn,
       status: 200
     }
+  };
+}
+
+export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
+  const gas = body.gas || 200000;
+  const gasPrice = body.gasPrice || '20';
+  const amount = body.ethAmount.toString();
+
+  return {
+    from: investor.ethWallet.address,
+    to: config.contracts.ico.address,
+    amount,
+    gas,
+    gasPrice
   };
 }

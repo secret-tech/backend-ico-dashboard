@@ -11,6 +11,8 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
       // no break
     case Err.KycPendingError:
       // no break
+    case Err.InsufficientEthBalance:
+      // no break
     case Err.AuthenticatorError:
       status = 400;
       break;

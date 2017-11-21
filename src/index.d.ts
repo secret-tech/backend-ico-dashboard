@@ -255,6 +255,14 @@ declare interface UserInfo {
   defaultVerificationMethod: string;
 }
 
+interface TransactionInput {
+  from: string;
+  to: string;
+  amount: string;
+  gas: number;
+  gasPrice: string;
+}
+
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;

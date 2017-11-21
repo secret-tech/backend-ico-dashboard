@@ -8,14 +8,6 @@ import 'reflect-metadata';
 
 const net = require('net');
 
-interface TransactionInput {
-  from: string;
-  to: string;
-  amount: string;
-  gas: number;
-  gasPrice: string;
-}
-
 export interface Web3ClientInterface {
   web3: any;
 
