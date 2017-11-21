@@ -193,7 +193,7 @@ export class Web3Client implements Web3ClientInterface {
           const BN = this.web3.utils.BN;
           const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice, 'gwei')));
           const total = new BN(this.web3.utils.toWei(input.amount)).add(txFee);
-          resolve(total.gt(new BN(balance)));
+          resolve(total.lte(new BN(balance)));
         })
         .catch((error) => {
           reject(error);

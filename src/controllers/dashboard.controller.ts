@@ -96,7 +96,7 @@ export class DashboardController {
       gasPrice
     };
 
-    if (!await this.web3Client.sufficientBalance(txInput)) {
+    if (!(await this.web3Client.sufficientBalance(txInput))) {
       throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
     }
 
