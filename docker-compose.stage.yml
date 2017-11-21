@@ -70,10 +70,6 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       THROTTLER_WHITE_LIST: "127.0.0.1,10.100.0.2,10.100.0.6"
-      EMAIL_DRIVER: mailgun
-      MAILGUN_DOMAIN: jincor.com
-      MAILGUN_SECRET: key-176cd97e7ce70c9e75d826792669e53a
-      MAILGUN_API_URI: https://api.mailgun.net/v3/
     links:
       - auth
       - redis
