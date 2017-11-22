@@ -2,8 +2,7 @@ require('dotenv').config();
 import 'reflect-metadata';
 
 const {
-  REDIS_HOST,
-  REDIS_PORT,
+  REDIS_URL,
   PORT,
   HTTPS_PORT,
   HTTPS_SERVER,
@@ -28,7 +27,8 @@ const {
   RPC_ADDRESS,
   ACCESS_LOG,
   MAILJET_API_KEY,
-  MAILJET_API_SECRET
+  MAILJET_API_SECRET,
+  WEB3_RESTORE_START_BLOCK
 } = process.env;
 
 export default {
@@ -41,9 +41,11 @@ export default {
     frontendUrl: FRONTEND_URL,
     accessLog: ACCESS_LOG
   },
+  web3: {
+    startBlock: WEB3_RESTORE_START_BLOCK || 1
+  },
   redis: {
-    port: parseInt(REDIS_PORT, 10) || 6379,
-    host: REDIS_HOST || 'redis',
+    url: REDIS_URL || 'redis://redis:6379',
     prefix: 'jincor_ico_dashboard_'
   },
   throttler: {

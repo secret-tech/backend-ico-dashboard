@@ -15,9 +15,13 @@ export class EmailQueue implements EmailQueueInterface {
   constructor(
     @inject(EmailServiceType) private emailService: EmailServiceInterface
   ) {
-    this.queueWrapper = new Bull('email_queue', `redis://${ config.redis.host }:${ config.redis.port }`);
+    this.queueWrapper = new Bull('email_queue', config.redis.url);
     this.queueWrapper.process((job) => {
       return this.process(job);
+    });
+
+    this.queueWrapper.on('error', (error) => {
+      console.error(error);
     });
   }
 

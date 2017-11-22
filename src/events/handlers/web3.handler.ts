@@ -55,11 +55,14 @@ export class Web3Handler implements Web3HandlerInterface {
     this.ico.events.NewReferralTransfer()
       .on('data', (data) => this.processReferralTransfer(data));
 
-    this.queueWrapper = new Bull('check_transaction', `redis://${ config.redis.host }:${ config.redis.port }`);
+    this.queueWrapper = new Bull('check_transaction', config.redis.url);
     this.queueWrapper.process((job) => {
       return this.checkAndRestoreTransactions(job);
     });
-    this.queueWrapper.add({}, {repeat: {cron: '*/5 * * * *'}});
+    this.queueWrapper.add({}, {repeat: {cron: '*/10 * * * *'}});
+    this.queueWrapper.on('error', (error) => {
+      console.error(error);
+    });
   }
 
   async processNewBlockHeaders(data: any): Promise<void> {
@@ -210,7 +213,7 @@ export class Web3Handler implements Web3HandlerInterface {
     }
 
     const currentBlock = await this.web3.eth.getBlockNumber();
-    for (let i = 2015593; i < currentBlock; i++) {
+    for (let i = config.web3.startBlock; i < currentBlock; i++) {
       const blockData = await this.web3.eth.getBlock(i, true);
       const transactions = blockData.transactions;
       for (let transaction of transactions) {
