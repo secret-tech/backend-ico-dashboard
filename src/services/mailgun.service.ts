@@ -47,6 +47,3 @@ export class MailgunService implements EmailServiceInterface {
     });
   }
 }
-
-const EmailServiceType = Symbol('EmailServiceInterface');
-export { EmailServiceType };
