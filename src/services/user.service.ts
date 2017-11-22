@@ -83,13 +83,15 @@ export class UserService implements UserServiceInterface {
       }
     }
 
+    const encodedEmail = encodeURIComponent(email);
+    const link = `${ config.app.frontendUrl }/auth/signup?type=activate&code={{{CODE}}}&verificationId={{{VERIFICATION_ID}}}&email=${ encodedEmail }`;
     const verification = await this.verificationClient.initiateVerification(EMAIL_VERIFICATION, {
       consumer: email,
       issuer: 'Jincor',
       template: {
         fromEmail: config.email.from.general,
         subject: 'Verify your email at Jincor.com',
-        body: initiateSignUpTemplate(userData.name)
+        body: initiateSignUpTemplate(userData.name, link)
       },
       generateCode: {
         length: 6,

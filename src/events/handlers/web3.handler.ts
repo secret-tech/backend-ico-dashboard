@@ -55,7 +55,7 @@ export class Web3Handler implements Web3HandlerInterface {
     this.ico.events.NewReferralTransfer()
       .on('data', (data) => this.processReferralTransfer(data));
 
-    this.queueWrapper = new Bull('check_transaction', 'redis://redis:6379');
+    this.queueWrapper = new Bull('check_transaction', `redis://${ config.redis.host }:${ config.redis.port }`);
     this.queueWrapper.process((job) => {
       return this.checkAndRestoreTransactions(job);
     });

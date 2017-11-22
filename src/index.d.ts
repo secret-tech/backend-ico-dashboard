@@ -255,6 +255,14 @@ declare interface UserInfo {
   defaultVerificationMethod: string;
 }
 
+interface TransactionInput {
+  from: string;
+  to: string;
+  amount: string;
+  gas: number;
+  gasPrice: string;
+}
+
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;
@@ -275,4 +283,8 @@ declare interface UserServiceInterface {
 declare interface KycClientInterface {
   init(investor: any): Promise<KycInitResult>;
   getScanReferenceStatus(scanId: string): Promise<KycScanStatus>;
+}
+
+declare interface EmailServiceInterface {
+  send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
 }
