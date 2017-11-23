@@ -56,7 +56,7 @@ export class Web3Provider {
       }, config.rpc.reconnectTimeout);
     };
 
-    this.web3.setProvider(webSocketProvider);
+    this.web3 = new Web3(webSocketProvider);
   }
 }
 
