@@ -31,7 +31,7 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
 container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
-container.bind<Web3ProviderInterface>(Web3ProviderType).to(Web3Provider).inSingletonScope();
+container.bind<Web3ProviderInterface>(Web3ProviderType).toConstantValue(new Web3Provider());
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
 container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(

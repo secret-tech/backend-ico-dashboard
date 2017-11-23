@@ -20,6 +20,12 @@ export class Web3Provider {
         const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
 
         webSocketProvider.connection.onclose = () => {
+          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.onWsClose();
+        };
+
+        webSocketProvider.connection.onerror = () => {
+          console.log(new Date().toUTCString() + ':Web3 socket connection error');
           this.onWsClose();
         };
 
