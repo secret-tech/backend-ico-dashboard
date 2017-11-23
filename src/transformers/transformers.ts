@@ -44,7 +44,7 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
 }
 
 export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
-  const gas = body.gas || 200000;
+  const gas = body.gas ? body.gas.toString() : '200000';
   const gasPrice = body.gasPrice || '20';
   const amount = body.ethAmount.toString();
 
