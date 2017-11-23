@@ -4,12 +4,8 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import config from '../config';
 
-export interface EmailServiceInterface {
-  send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
-}
-
 @injectable()
-export class EmailService implements EmailServiceInterface {
+export class MailgunService implements EmailServiceInterface {
   private api: any;
 
   /**
@@ -17,7 +13,7 @@ export class EmailService implements EmailServiceInterface {
    */
   constructor() {
     this.api = new Mailgun({
-      apiKey: config.email.secret,
+      apiKey: config.email.mailgun.secret,
       domain: config.email.domain
     });
   }
@@ -51,6 +47,3 @@ export class EmailService implements EmailServiceInterface {
     });
   }
 }
-
-const EmailServiceType = Symbol('EmailServiceInterface');
-export { EmailServiceType };

@@ -1,9 +1,15 @@
 import * as chai from 'chai';
 import * as factory from './test.app.factory';
+import * as bcrypt from 'bcrypt-nodejs';
 require('../../../test/load.fixtures');
+import { base64encode } from '../../helpers/helpers';
+import config from '../../config';
+import { Investor } from '../../entities/investor';
+import { getConnection, ObjectID } from 'typeorm';
+const mongo = require('mongodb');
 
 chai.use(require('chai-http'));
-const {expect, request} = chai;
+const { expect, request } = chai;
 
 const postRequest = (customApp, url: string) => {
   return request(customApp)
@@ -12,9 +18,11 @@ const postRequest = (customApp, url: string) => {
 };
 
 const getRequest = (customApp, url: string) => {
-  return request(customApp)
+  const req = request(customApp)
     .get(url)
-    .set('Accept', 'application/json');
+    .set('Accept', 'application/json') as any;
+
+  return req.redirects(0);
 };
 
 describe('Kyc', () => {
@@ -54,6 +62,23 @@ describe('Kyc', () => {
         expect(res.status).to.equal(400);
         expect(res.body.error).to.eq('Your account verification failed. Please contact Jincor team');
         done();
+      });
+    });
+  });
+
+  describe('GET /uploaded/:id/:base64hash', () => {
+    const id = '59f075eda6cca00fbd486167';
+    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+
+    it('should update investor status to pending', (done) => {
+      getRequest(factory.testAppForDashboard(), `/kyc/uploaded/${ id }/${ hash }`).end((err, res) => {
+        expect(res).redirectTo('https://invest.jincor.com/dashboard/verification/success');
+        const investorRepo = getConnection().getMongoRepository(Investor);
+
+        investorRepo.createEntityCursor({ _id: new mongo.ObjectId(id) }).toArray().then((investors) => {
+          expect(investors[0].kycStatus).to.eq('pending');
+          done();
+        });
       });
     });
   });

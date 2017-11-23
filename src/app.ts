@@ -3,11 +3,16 @@ import { Response, Request, NextFunction, Application } from 'express';
 import * as bodyParser from 'body-parser';
 import config from './config';
 import handle from './middlewares/error.handler';
+const morgan = require('morgan');
 
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { container } from './ioc.container';
 
 const app: Application = express();
+
+if (config.app.accessLog === 'true') {
+  app.use(morgan('combined'));
+}
 
 app.disable('x-powered-by');
 
@@ -52,6 +57,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 let server = new InversifyExpressServer(container, null, null, app);
 server.setErrorConfig((app) => {
+  // 404 handler
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.status(404).send({
+      statusCode: 404,
+      error: 'Route is not found'
+    });
+  });
+
+  // exceptions handler
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => handle(err, req, res, next));
 });
 

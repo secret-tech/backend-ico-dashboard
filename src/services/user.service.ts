@@ -22,7 +22,7 @@ import {
   TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed
 } from '../exceptions/exceptions';
 import config from '../config';
-import { Investor } from '../entities/investor';
+import { Investor, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_PENDING } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
 import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
 import * as transformers from '../transformers/transformers';
@@ -83,13 +83,15 @@ export class UserService implements UserServiceInterface {
       }
     }
 
+    const encodedEmail = encodeURIComponent(email);
+    const link = `${ config.app.frontendUrl }/auth/signup?type=activate&code={{{CODE}}}&verificationId={{{VERIFICATION_ID}}}&email=${ encodedEmail }`;
     const verification = await this.verificationClient.initiateVerification(EMAIL_VERIFICATION, {
       consumer: email,
       issuer: 'Jincor',
       template: {
         fromEmail: config.email.from.general,
         subject: 'Verify your email at Jincor.com',
-        body: initiateSignUpTemplate(userData.name)
+        body: initiateSignUpTemplate(userData.name, link)
       },
       generateCode: {
         length: 6,
@@ -160,7 +162,7 @@ export class UserService implements UserServiceInterface {
           symbolSet: ['DIGITS']
         },
         policy: {
-          expiredOn: '00:05:00'
+          expiredOn: '01:00:00'
         }
       }
     );
@@ -573,6 +575,16 @@ export class UserService implements UserServiceInterface {
 
     return {
       enabled: false
+    };
+  }
+
+  async getUserInfo(user: Investor): Promise<UserInfo> {
+    return {
+      ethAddress: user.ethWallet.address,
+      email: user.email,
+      name: user.name,
+      kycStatus: user.kycStatus,
+      defaultVerificationMethod: user.defaultVerificationMethod
     };
   }
 }

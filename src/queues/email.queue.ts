@@ -1,7 +1,8 @@
 import * as Bull from 'bull';
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { EmailServiceInterface, EmailServiceType } from '../services/email.service';
+import { EmailServiceType } from '../types';
+import config from '../config';
 
 export interface EmailQueueInterface {
   addJob(data: any);
@@ -14,9 +15,13 @@ export class EmailQueue implements EmailQueueInterface {
   constructor(
     @inject(EmailServiceType) private emailService: EmailServiceInterface
   ) {
-    this.queueWrapper = new Bull('email_queue', 'redis://redis:6379');
+    this.queueWrapper = new Bull('email_queue', config.redis.url);
     this.queueWrapper.process((job) => {
       return this.process(job);
+    });
+
+    this.queueWrapper.on('error', (error) => {
+      console.error(error);
     });
   }
 

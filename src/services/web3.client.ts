@@ -1,24 +1,14 @@
-const Web3 = require('web3');
 import { injectable } from 'inversify';
+
+const Web3 = require('web3');
+const net = require('net');
 
 const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
 
-const net = require('net');
-
-interface TransactionInput {
-  from: string;
-  to: string;
-  amount: string;
-  gas?: number;
-  gasPrice?: number;
-}
-
 export interface Web3ClientInterface {
-  web3: any;
-
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
   generateMnemonic(): string;
@@ -40,45 +30,57 @@ export interface Web3ClientInterface {
   getEthCollected(): Promise<string>;
 
   getJcrEthPrice(): Promise<number>;
+
+  sufficientBalance(input: TransactionInput): Promise<boolean>;
 }
 
 /* istanbul ignore next */
 @injectable()
 export class Web3Client implements Web3ClientInterface {
-  web3: any;
   whiteList: any;
   ico: any;
   jcrToken: any;
+  web3: any;
 
   constructor() {
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
-    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
-    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    switch (config.rpc.type) {
+      case 'ipc':
+        this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+        break;
+      case 'ws':
+        const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
+
+        webSocketProvider.connection.onclose = () => {
+          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.onWsClose();
+        };
+
+        this.web3 = new Web3(webSocketProvider);
+        break;
+      case 'http':
+        this.web3 = new Web3(config.rpc.address);
+        break;
+      default:
+        throw Error('Unknown Web3 RPC type!');
+    }
+
+    this.createContracts();
   }
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
-    const gas = input.gas || 300000;
-
-    const gasPrice = this.web3.utils.toWei(input.gasPrice || 21, 'gwei');
-    const value = this.web3.utils.toWei(input.amount);
-
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
 
     const params = {
-      value,
+      value: this.web3.utils.toWei(input.amount.toString()),
       from: input.from,
       to: input.to,
-      gas,
-      gasPrice
+      gas: input.gas,
+      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
     };
 
     return new Promise<string>((resolve, reject) => {
-      this.web3.eth.getBalance(input.from).then(balance => {
-        const BN = this.web3.utils.BN;
-        const txFee = new BN(gas).mul(new BN(gasPrice));
-        const total = new BN(value).add(txFee);
-        if (total.gt(new BN(balance))) {
+      this.sufficientBalance(input).then((sufficient) => {
+        if (!sufficient) {
           reject({
             message: 'Insufficient funds to perform this operation and pay tx fee'
           });
@@ -129,7 +131,7 @@ export class Web3Client implements Web3ClientInterface {
         this.whiteList.methods.addInvestorToWhiteList(address).send({
           from: accounts[0],
           gas: 200000,
-          gasPrice: this.web3.utils.toWei(20, 'gwei')
+          gasPrice: this.web3.utils.toWei('20', 'gwei')
         }).on('transactionHash', hash => {
           resolve(hash);
         }).on('error', error => {
@@ -175,9 +177,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrBalanceOf(address: string): Promise<string> {
-    return this.web3.utils.fromWei(
-      await this.jcrToken.methods.balanceOf(address).call()
-    ).toString();
+    return this.web3.utils.fromWei(await this.jcrToken.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
@@ -187,7 +187,42 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getJcrEthPrice(): Promise<number> {
-    return await this.ico.methods.jcrEthRate().call();
+    return (await this.ico.methods.ethUsdRate().call()) / 100;
+  }
+
+  sufficientBalance(input: TransactionInput): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.web3.eth.getBalance(input.from)
+        .then((balance) => {
+          const BN = this.web3.utils.BN;
+          const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice, 'gwei')));
+          const total = new BN(this.web3.utils.toWei(input.amount)).add(txFee);
+          resolve(total.lte(new BN(balance)));
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  onWsClose() {
+    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
+    webSocketProvider.connection.onclose = () => {
+      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      setTimeout(() => {
+        this.onWsClose();
+      }, config.rpc.reconnectTimeout);
+    };
+
+    this.web3.setProvider(webSocketProvider);
+    this.createContracts();
+  }
+
+  createContracts() {
+    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
+    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
+    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
   }
 }
 

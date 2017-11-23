@@ -1,16 +1,14 @@
 version: '2'
 services:
   ico:
-    image: registry.jincor.com/backend/ico-develop:latest
+    image: registry.jincor.com/backend/ico:latest
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.stage
     ports:
       - 3000:3000
       - 80:3000
       - 4000:4000
-    volumes:
-      - ./:/usr/src/app
     links:
       - auth
       - redis
@@ -19,13 +17,13 @@ services:
     depends_on:
       - rpc
       - mongo
-    tty: true
+    restart: always
     networks:
       default:
         ipv4_address: 10.100.0.2
 
   auth:
-    image: registry.jincor.com/backend/auth:latest
+    image: jincort/backend-auth:production
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -60,14 +58,15 @@ services:
     ports:
       - "8546"
     volumes:
-      - /media/artem/48F0BE6BF0BE5EBE2/gethtest:/home/ethereum
+      - /root/ethereum-blockchain:/home/ethereum
       - ./passwords:/passwords
+    restart: always
     networks:
       default:
         ipv4_address: 10.100.0.5
 
   verify:
-    image: registry.jincor.com/backend/verify:latest
+    image: jincort/backend-verify:dev-4c86424
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -87,8 +86,8 @@ services:
       default:
         ipv4_address: 10.100.0.7
     ports:
-      - 27017:27017
-      - 28017:28017
+      - "27017"
+      - "28017"
 
 networks:
   default:

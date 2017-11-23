@@ -1,7 +1,7 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
-import { NotCorrectVerificationCode } from '../exceptions/exceptions';
+import { NotCorrectVerificationCode, VerificationIsNotFound } from '../exceptions/exceptions';
 
 const QR = require('qr-image');
 
@@ -60,6 +60,10 @@ export class VerificationClient implements VerificationClientInterface {
     } catch (e) {
       if (e.statusCode === 422) {
         throw new NotCorrectVerificationCode('Not correct code');
+      }
+
+      if (e.statusCode === 404) {
+        throw new VerificationIsNotFound('Code was expired or not found. Please retry');
       }
 
       throw e;

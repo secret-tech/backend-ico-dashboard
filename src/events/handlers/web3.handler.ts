@@ -1,7 +1,7 @@
-const Web3 = require('web3');
-const net = require('net');
 import config from '../../config';
 import { injectable } from 'inversify';
+const Web3 = require('web3');
+const net = require('net');
 
 import {
   Transaction,
@@ -31,31 +31,38 @@ export class Web3Handler implements Web3HandlerInterface {
     txService
   ) {
     this.txService = txService;
-    this.web3 = new Web3(new Web3.providers.IpcProvider('/home/ethereum/geth.ipc', net));
-    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
 
-    // process new blocks
-    this.web3.eth.subscribe('newBlockHeaders')
-      .on('data', (data) => this.processNewBlockHeaders(data));
+    switch (config.rpc.type) {
+      case 'ipc':
+        this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+        break;
+      case 'ws':
+        const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
 
-    // process pending transactions
-    this.web3.eth.subscribe('pendingTransactions')
-      .on('data', (txHash) => this.processPendingTransaction(txHash));
+        webSocketProvider.connection.onclose = () => {
+          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.onWsClose();
+        };
 
-    // process JCR transfers
-    this.jcrToken.events.Transfer()
-      .on('data', (data) => this.processJcrTransfer(data));
+        this.web3 = new Web3(webSocketProvider);
+        break;
+      case 'http':
+        this.web3 = new Web3(config.rpc.address);
+        break;
+      default:
+        throw Error('Unknown Web3 RPC type!');
+    }
 
-    // process referral transfers
-    this.ico.events.NewReferralTransfer()
-      .on('data', (data) => this.processReferralTransfer(data));
+    this.attachHandlers();
 
-    this.queueWrapper = new Bull('check_transaction', 'redis://redis:6379');
+    this.queueWrapper = new Bull('check_transaction', config.redis.url);
     this.queueWrapper.process((job) => {
       return this.checkAndRestoreTransactions(job);
     });
-    this.queueWrapper.add({}, {repeat: {cron: '*/5 * * * *'}});
+    this.queueWrapper.add({}, {repeat: {cron: '*/10 * * * *'}});
+    this.queueWrapper.on('error', (error) => {
+      console.error(error);
+    });
   }
 
   async processNewBlockHeaders(data: any): Promise<void> {
@@ -206,7 +213,7 @@ export class Web3Handler implements Web3HandlerInterface {
     }
 
     const currentBlock = await this.web3.eth.getBlockNumber();
-    for (let i = 2015593; i < currentBlock; i++) {
+    for (let i = config.web3.startBlock; i < currentBlock; i++) {
       const blockData = await this.web3.eth.getBlock(i, true);
       const transactions = blockData.transactions;
       for (let transaction of transactions) {
@@ -216,6 +223,41 @@ export class Web3Handler implements Web3HandlerInterface {
     }
 
     return true;
+  }
+
+  onWsClose() {
+    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
+    webSocketProvider.connection.onclose = () => {
+      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      setTimeout(() => {
+        this.onWsClose();
+      }, config.rpc.reconnectTimeout);
+    };
+
+    this.web3.setProvider(webSocketProvider);
+    this.attachHandlers();
+  }
+
+  attachHandlers() {
+    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
+    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+
+    // process new blocks
+    this.web3.eth.subscribe('newBlockHeaders')
+      .on('data', (data) => this.processNewBlockHeaders(data));
+
+    // process pending transactions
+    this.web3.eth.subscribe('pendingTransactions')
+      .on('data', (txHash) => this.processPendingTransaction(txHash));
+
+    // process JCR transfers
+    this.jcrToken.events.Transfer()
+      .on('data', (data) => this.processJcrTransfer(data));
+
+    // process referral transfers
+    this.ico.events.NewReferralTransfer()
+      .on('data', (data) => this.processReferralTransfer(data));
   }
 }
 

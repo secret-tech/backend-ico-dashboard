@@ -3,7 +3,7 @@ import * as factory from './test.app.factory';
 require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));
-const {expect, request} = chai;
+const { expect, request } = chai;
 
 const postRequest = (customApp, url: string) => {
   return request(customApp)

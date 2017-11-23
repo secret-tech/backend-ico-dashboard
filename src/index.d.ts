@@ -235,6 +235,34 @@ declare interface KycInitResult {
   clientRedirectUrl: string;
 }
 
+declare interface KycScanStatus {
+  timestamp: string;
+  scanReference: string;
+  status: string;
+}
+
+declare interface JumioIdentityVerification {
+  similarity: string;
+  validity: boolean;
+  reason?: string;
+}
+
+declare interface UserInfo {
+  ethAddress: string;
+  email: string;
+  name: string;
+  kycStatus: string;
+  defaultVerificationMethod: string;
+}
+
+interface TransactionInput {
+  from: string;
+  to: string;
+  amount: string;
+  gas: number;
+  gasPrice: string;
+}
+
 declare interface UserServiceInterface {
   create(userData: InputUserData): Promise<any>;
   activate(activationData: ActivationUserData): Promise<ActivationResult>;
@@ -249,8 +277,14 @@ declare interface UserServiceInterface {
   verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse>;
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
   invite(user: any, params: any): Promise<InviteResultArray>;
+  getUserInfo(user: any): Promise<UserInfo>;
 }
 
 declare interface KycClientInterface {
   init(investor: any): Promise<KycInitResult>;
+  getScanReferenceStatus(scanId: string): Promise<KycScanStatus>;
+}
+
+declare interface EmailServiceInterface {
+  send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
 }
