@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import { injectable } from 'inversify';
 
 const Web3 = require('web3');
 const net = require('net');

@@ -58,7 +58,7 @@ const mockEmailQueue = () => {
 };
 
 const mockWeb3 = () => {
-  const web3Mock = TypeMoq.Mock.ofInstance(container.get<Web3ClientInterface>(Web3ClientType));
+  const web3Mock = TypeMoq.Mock.ofType(Web3Client);
 
   web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => 'transactionHash');

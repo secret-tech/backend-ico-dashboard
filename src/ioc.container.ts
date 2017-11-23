@@ -18,7 +18,6 @@ import { TransactionService, TransactionServiceInterface, TransactionServiceType
 import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
-import { Web3Provider, Web3ProviderInterface, Web3ProviderType } from './services/web3.provider';
 
 let container = new Container();
 
@@ -31,13 +30,11 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
 container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
-//container.bind<Web3ProviderInterface>(Web3ProviderType).toConstantValue(new Web3Provider());
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
-/*container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
-  container.get<TransactionServiceInterface>(TransactionServiceType),
-  container.get<Web3ProviderInterface>(Web3ProviderType)
-));*/
+container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
+  container.get<TransactionServiceInterface>(TransactionServiceType)
+));
 
 // services
 
