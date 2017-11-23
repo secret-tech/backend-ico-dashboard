@@ -64,9 +64,7 @@ export class Web3Client implements Web3ClientInterface {
         throw Error('Unknown Web3 RPC type!');
     }
 
-    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
-    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    this.createContracts();
   }
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
@@ -217,8 +215,11 @@ export class Web3Client implements Web3ClientInterface {
       }, config.rpc.reconnectTimeout);
     };
 
-    this.web3 = new Web3(webSocketProvider);
+    this.web3.setProvider(webSocketProvider);
+    this.createContracts();
+  }
 
+  createContracts() {
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
