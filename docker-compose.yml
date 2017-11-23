@@ -60,7 +60,7 @@ services:
     ports:
       - "8546"
     volumes:
-      - /media/artem/48F0BE6BF0BE5EBE1/gethtest:/home/ethereum
+      - /media/artem/48F0BE6BF0BE5EBE2/gethtest:/home/ethereum
       - ./passwords:/passwords
     networks:
       default:

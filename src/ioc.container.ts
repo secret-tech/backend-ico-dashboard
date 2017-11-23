@@ -7,7 +7,7 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { MailgunService } from './services/mailgun.service';
-import { EmailServiceType } from "./types";
+import { EmailServiceType } from './types';
 import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';
@@ -18,6 +18,7 @@ import { TransactionService, TransactionServiceInterface, TransactionServiceType
 import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
+import { Web3Provider, Web3ProviderInterface, Web3ProviderType } from './services/web3.provider';
 
 let container = new Container();
 
@@ -30,10 +31,12 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
 container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
+container.bind<Web3ProviderInterface>(Web3ProviderType).to(Web3Provider).inSingletonScope();
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
 container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
-  container.get<TransactionServiceInterface>(TransactionServiceType)
+  container.get<TransactionServiceInterface>(TransactionServiceType),
+  container.get<Web3ProviderInterface>(Web3ProviderType)
 ));
 
 // services

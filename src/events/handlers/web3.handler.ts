@@ -1,5 +1,4 @@
-const Web3 = require('web3');
-const net = require('net');
+import { Web3ProviderInterface } from '../../services/web3.provider';
 import config from '../../config';
 import { injectable } from 'inversify';
 
@@ -21,30 +20,27 @@ export interface Web3HandlerInterface {
 /* istanbul ignore next */
 @injectable()
 export class Web3Handler implements Web3HandlerInterface {
-  web3: any;
   ico: any;
   jcrToken: any;
   private txService: TransactionServiceInterface;
+  private web3Prov: Web3ProviderInterface;
   private queueWrapper: any;
 
   constructor(
-    txService
+    txService,
+    web3Prov
   ) {
-    if (config.rpc.type === 'ipc') {
-      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
-    } else {
-      this.web3 = new Web3(config.rpc.address);
-    }
+    this.web3Prov = web3Prov;
     this.txService = txService;
-    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    this.ico = new this.web3Prov.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
+    this.jcrToken = new this.web3Prov.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
 
     // process new blocks
-    this.web3.eth.subscribe('newBlockHeaders')
+    this.web3Prov.web3.eth.subscribe('newBlockHeaders')
       .on('data', (data) => this.processNewBlockHeaders(data));
 
     // process pending transactions
-    this.web3.eth.subscribe('pendingTransactions')
+    this.web3Prov.web3.eth.subscribe('pendingTransactions')
       .on('data', (txHash) => this.processPendingTransaction(txHash));
 
     // process JCR transfers
@@ -71,10 +67,10 @@ export class Web3Handler implements Web3HandlerInterface {
       return;
     }
 
-    const blockData = await this.web3.eth.getBlock(data.hash, true);
+    const blockData = await this.web3Prov.web3.eth.getBlock(data.hash, true);
     const transactions = blockData.transactions;
     for (let transaction of transactions) {
-      const transactionReceipt = await this.web3.eth.getTransactionReceipt(transaction.hash);
+      const transactionReceipt = await this.web3Prov.web3.eth.getTransactionReceipt(transaction.hash);
       await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
     }
   }
@@ -111,7 +107,7 @@ export class Web3Handler implements Web3HandlerInterface {
 
   // process pending transaction by transaction hash
   async processPendingTransaction(txHash: string): Promise<void> {
-    const data = await this.web3.eth.getTransaction(txHash);
+    const data = await this.web3Prov.web3.eth.getTransaction(txHash);
 
     const tx = await this.txService.getTxByTxData(data);
 
@@ -138,8 +134,8 @@ export class Web3Handler implements Web3HandlerInterface {
       to: data.returnValues.to
     });
 
-    const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
-    const blockData = await this.web3.eth.getBlock(data.blockNumber);
+    const transactionReceipt = await this.web3Prov.web3.eth.getTransactionReceipt(data.transactionHash);
+    const blockData = await this.web3Prov.web3.eth.getBlock(data.blockNumber);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
     const transformedTxData = {
@@ -148,7 +144,7 @@ export class Web3Handler implements Web3HandlerInterface {
       type: JCR_TRANSFER,
       to: data.returnValues.to,
       ethAmount: '0',
-      jcrAmount: this.web3.utils.fromWei(data.returnValues.value).toString(),
+      jcrAmount: this.web3Prov.web3.utils.fromWei(data.returnValues.value).toString(),
       status: status,
       timestamp: blockData.timestamp,
       blockNumber: blockData.number
@@ -179,8 +175,8 @@ export class Web3Handler implements Web3HandlerInterface {
       return;
     }
 
-    const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
-    const blockData = await this.web3.eth.getBlock(data.blockNumber);
+    const transactionReceipt = await this.web3Prov.web3.eth.getTransactionReceipt(data.transactionHash);
+    const blockData = await this.web3Prov.web3.eth.getBlock(data.blockNumber);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
     const transformedTxData = {
@@ -189,7 +185,7 @@ export class Web3Handler implements Web3HandlerInterface {
       type: REFERRAL_TRANSFER,
       to: data.returnValues.referral,
       ethAmount: '0',
-      jcrAmount: this.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
+      jcrAmount: this.web3Prov.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
       status: status,
       timestamp: blockData.timestamp,
       blockNumber: blockData.number
@@ -212,12 +208,12 @@ export class Web3Handler implements Web3HandlerInterface {
       await this.processReferralTransfer(event);
     }
 
-    const currentBlock = await this.web3.eth.getBlockNumber();
+    const currentBlock = await this.web3Prov.web3.eth.getBlockNumber();
     for (let i = config.web3.startBlock; i < currentBlock; i++) {
-      const blockData = await this.web3.eth.getBlock(i, true);
+      const blockData = await this.web3Prov.web3.eth.getBlock(i, true);
       const transactions = blockData.transactions;
       for (let transaction of transactions) {
-        const transactionReceipt = await this.web3.eth.getTransactionReceipt(transaction.hash);
+        const transactionReceipt = await this.web3Prov.web3.eth.getTransactionReceipt(transaction.hash);
         await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
       }
     }
