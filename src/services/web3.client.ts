@@ -230,6 +230,10 @@ export class Web3Client implements Web3ClientInterface {
     };
 
     this.web3 = new Web3(webSocketProvider);
+
+    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
+    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
+    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
   }
 }
 
