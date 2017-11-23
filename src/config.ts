@@ -65,7 +65,7 @@ export default {
   email: {
     domain: 'jincor.com',
     mailgun: {
-      secret: 'key-176cd97e7ce70c9e75d826792669e53a',
+      secret: 'key-176cd97e7ce70c9e75d826792669e53a'
     },
     mailjet: {
       apiKey: MAILJET_API_KEY,
@@ -115,6 +115,7 @@ export default {
   },
   rpc: {
     type: RPC_TYPE,
-    address: RPC_ADDRESS
+    address: RPC_ADDRESS,
+    reconnectTimeout: 5000 // in milliseconds
   }
 };

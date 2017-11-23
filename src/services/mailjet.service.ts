@@ -23,7 +23,7 @@ export class MailjetService implements EmailServiceInterface {
       'FromEmail': sender,
       'Subject': subject,
       'Html-part': text,
-      'Recipients': [{'Email': recipient}],
+      'Recipients': [{'Email': recipient}]
     };
 
     return sendEmail.request(emailData);

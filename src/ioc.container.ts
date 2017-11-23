@@ -7,7 +7,7 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { MailgunService } from './services/mailgun.service';
-import { EmailServiceType } from "./types";
+import { EmailServiceType } from './types';
 import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';

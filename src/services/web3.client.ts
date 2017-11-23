@@ -1,16 +1,14 @@
-const Web3 = require('web3');
 import { injectable } from 'inversify';
+
+const Web3 = require('web3');
+const net = require('net');
 
 const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
 
-const net = require('net');
-
 export interface Web3ClientInterface {
-  web3: any;
-
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
   generateMnemonic(): string;
@@ -39,20 +37,34 @@ export interface Web3ClientInterface {
 /* istanbul ignore next */
 @injectable()
 export class Web3Client implements Web3ClientInterface {
-  web3: any;
   whiteList: any;
   ico: any;
   jcrToken: any;
+  web3: any;
 
   constructor() {
-    if (config.rpc.type === 'ipc') {
-      this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
-    } else {
-      this.web3 = new Web3(config.rpc.address);
+    switch (config.rpc.type) {
+      case 'ipc':
+        this.web3 = new Web3(new Web3.providers.IpcProvider(config.rpc.address, net));
+        break;
+      case 'ws':
+        const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
+
+        webSocketProvider.connection.onclose = () => {
+          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.onWsClose();
+        };
+
+        this.web3 = new Web3(webSocketProvider);
+        break;
+      case 'http':
+        this.web3 = new Web3(config.rpc.address);
+        break;
+      default:
+        throw Error('Unknown Web3 RPC type!');
     }
-    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
-    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+
+    this.createContracts();
   }
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
@@ -192,7 +204,27 @@ export class Web3Client implements Web3ClientInterface {
         });
     });
   }
+
+  onWsClose() {
+    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
+    webSocketProvider.connection.onclose = () => {
+      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      setTimeout(() => {
+        this.onWsClose();
+      }, config.rpc.reconnectTimeout);
+    };
+
+    this.web3.setProvider(webSocketProvider);
+    this.createContracts();
+  }
+
+  createContracts() {
+    this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
+    this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
+    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+  }
 }
 
 const Web3ClientType = Symbol('Web3ClientInterface');
-export { Web3ClientType };
+export {Web3ClientType};
