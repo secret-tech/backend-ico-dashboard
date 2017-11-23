@@ -87,9 +87,7 @@ export class Web3Client implements Web3ClientInterface {
         }
 
         this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-          console.log(transaction);
-          resolve('12345');
-          /*this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
             .on('transactionHash', transactionHash => {
               resolve(transactionHash);
             })
@@ -98,7 +96,7 @@ export class Web3Client implements Web3ClientInterface {
             })
             .catch((error) => {
               reject(error);
-            });*/
+            });
         });
       });
     });
