@@ -55,11 +55,6 @@ export class Web3Client implements Web3ClientInterface {
           this.onWsClose();
         };
 
-        webSocketProvider.connection.onerror = () => {
-          console.log(new Date().toUTCString() + ':Web3 socket connection error');
-          this.onWsClose();
-        };
-
         this.web3 = new Web3(webSocketProvider);
         break;
       case 'http':
@@ -217,13 +212,6 @@ export class Web3Client implements Web3ClientInterface {
     const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
     webSocketProvider.connection.onclose = () => {
       console.log(new Date().toUTCString() + ':Web3 socket connection closed');
-      setTimeout(() => {
-        this.onWsClose();
-      }, config.rpc.reconnectTimeout);
-    };
-
-    webSocketProvider.connection.onerror = () => {
-      console.log(new Date().toUTCString() + ':Web3 socket connection error');
       setTimeout(() => {
         this.onWsClose();
       }, config.rpc.reconnectTimeout);
