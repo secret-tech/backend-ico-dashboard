@@ -43,6 +43,14 @@ export class Web3Provider {
     console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
     const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
     webSocketProvider.connection.onclose = () => {
+      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      setTimeout(() => {
+        this.onWsClose();
+      }, config.rpc.reconnectTimeout);
+    };
+
+    webSocketProvider.connection.onerror = () => {
+      console.log(new Date().toUTCString() + ':Web3 socket connection error');
       setTimeout(() => {
         this.onWsClose();
       }, config.rpc.reconnectTimeout);
