@@ -70,6 +70,8 @@ export class Web3Handler implements Web3HandlerInterface {
   }
 
   async processNewBlockHeaders(data: any): Promise<void> {
+    console.log(data);
+
     if (!data.number) {
       // skip pending blocks
       return;
