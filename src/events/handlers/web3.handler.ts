@@ -264,9 +264,6 @@ export class Web3Handler implements Web3HandlerInterface {
       console.log(error);
       console.log('result received');
       console.log(result);
-    }).then((data) => {
-      console.log('data received');
-      console.log(data);
     });
 
     // process JCR transfers
