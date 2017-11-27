@@ -115,6 +115,8 @@ export class Web3Handler implements Web3HandlerInterface {
 
   // process pending transaction by transaction hash
   async processPendingTransaction(txHash: string): Promise<void> {
+    console.log(txHash);
+
     const data = await this.web3.eth.getTransaction(txHash);
 
     const tx = await this.txService.getTxByTxData(data);
