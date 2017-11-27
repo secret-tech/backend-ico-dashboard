@@ -53,7 +53,11 @@ export class Web3Handler implements Web3HandlerInterface {
         throw Error('Unknown Web3 RPC type!');
     }
 
-    this.attachHandlers();
+    this.createContracts();
+
+    if (config.rpc.type !== 'http') {
+      this.attachHandlers();
+    }
 
     this.queueWrapper = new Bull('check_transaction', config.redis.url);
     this.queueWrapper.process((job) => {
@@ -236,13 +240,16 @@ export class Web3Handler implements Web3HandlerInterface {
     };
 
     this.web3.setProvider(webSocketProvider);
+    this.createContracts();
     this.attachHandlers();
   }
 
-  attachHandlers() {
+  createContracts() {
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+  }
 
+  attachHandlers() {
     // process new blocks
     this.web3.eth.subscribe('newBlockHeaders')
       .on('data', (data) => this.processNewBlockHeaders(data));

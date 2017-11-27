@@ -264,7 +264,8 @@ export class UserService implements UserServiceInterface {
       const referral = await getConnection().getMongoRepository(Investor).findOne({
         email: user.referral
       });
-      await this.web3Client.addReferralOf(account.address, referral.ethWallet.address);
+      // comment this out as we need to refactor this later because of using public node
+      // await this.web3Client.addReferralOf(account.address, referral.ethWallet.address);
     }
 
     user.kycInitResult = await this.kycClient.init(user);
