@@ -108,8 +108,7 @@ export class KycController {
         if (verificationResult.identityVerification.validity === true) {
           investor.kycStatus = KYC_STATUS_VERIFIED;
 
-          // comment this out as we need to refactor this later because of using public node
-          // await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
+          await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
         } else {
           // face does not match ID, we consider this as failing verification
           investor.kycStatus = KYC_STATUS_FAILED;
