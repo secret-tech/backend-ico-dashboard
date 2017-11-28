@@ -1,7 +1,11 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
-import { NotCorrectVerificationCode, VerificationIsNotFound } from '../exceptions/exceptions';
+import {
+  MaxVerificationsAttemptsReached,
+  NotCorrectVerificationCode,
+  VerificationIsNotFound
+} from '../exceptions/exceptions';
 
 const QR = require('qr-image');
 
@@ -59,6 +63,11 @@ export class VerificationClient implements VerificationClientInterface {
       });
     } catch (e) {
       if (e.statusCode === 422) {
+        if (e.body.data.attempts >= config.verify.maxAttempts) {
+          await this.invalidateVerification(method, id);
+          throw new MaxVerificationsAttemptsReached('You have used all attempts to enter code');
+        }
+
         throw new NotCorrectVerificationCode('Not correct code');
       }
 

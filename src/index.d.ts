@@ -106,9 +106,10 @@ declare interface InitiateResult extends Result {
 declare interface ValidationResult extends Result {
   details?: any;
   data?: {
-    verificationId: string,
-    consumer: string,
-    expiredOn: number
+    verificationId: string;
+    consumer: string;
+    expiredOn: number;
+    attempts: number;
   };
 }
 

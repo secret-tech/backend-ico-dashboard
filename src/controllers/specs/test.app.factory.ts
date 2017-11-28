@@ -162,7 +162,8 @@ const mockVerifyClient = () => {
     data: {
       verificationId: 'activated_user_verification',
       consumer: 'activated@test.com',
-      expiredOn: 123456
+      expiredOn: 123456,
+      attempts: 0
     }
   };
 
@@ -171,7 +172,8 @@ const mockVerifyClient = () => {
     data: {
       verificationId: '2fa_user_verification',
       consumer: '2fa@test.com',
-      expiredOn: 123456
+      expiredOn: 123456,
+      attempts: 0
     }
   };
 
@@ -180,7 +182,8 @@ const mockVerifyClient = () => {
     data: {
       verificationId: 'verify_invest',
       consumer: 'activated@test.com',
-      expiredOn: 123456
+      expiredOn: 123456,
+      attempts: 0
     }
   };
 
@@ -239,7 +242,8 @@ export const testAppForSuccessRegistration = () => {
     data: {
       verificationId: '123',
       consumer: 'test@test.com',
-      expiredOn: 123456
+      expiredOn: 123456,
+      attempts: 0
     }
   };
 
