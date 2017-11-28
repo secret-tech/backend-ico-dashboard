@@ -259,12 +259,8 @@ export class Web3Handler implements Web3HandlerInterface {
       .on('data', (data) => this.processNewBlockHeaders(data));
 
     // process pending transactions
-    this.web3.eth.subscribe('pendingTransactions', (error, result) => {
-      console.log('error received');
-      console.log(error);
-      console.log('result received');
-      console.log(result);
-    });
+    this.web3.eth.subscribe('pendingTransactions')
+      .on('data', (txHash) => this.processPendingTransaction(txHash));
 
     // process JCR transfers
     this.jcrToken.events.Transfer()
