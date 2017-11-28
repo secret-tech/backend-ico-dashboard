@@ -107,6 +107,7 @@ export class KycController {
       case JUMIO_SCAN_STATUS_SUCCESS:
         if (verificationResult.identityVerification.validity === true) {
           investor.kycStatus = KYC_STATUS_VERIFIED;
+
           await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
         } else {
           // face does not match ID, we consider this as failing verification
