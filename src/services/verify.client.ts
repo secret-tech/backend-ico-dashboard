@@ -63,6 +63,8 @@ export class VerificationClient implements VerificationClientInterface {
       });
     } catch (e) {
       if (e.statusCode === 422) {
+        console.log(e);
+
         if (e.body.data.attempts >= config.verify.maxAttempts) {
           await this.invalidateVerification(method, id);
           throw new MaxVerificationsAttemptsReached('You have used all attempts to enter code');
