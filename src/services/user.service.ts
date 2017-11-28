@@ -408,7 +408,7 @@ export class UserService implements UserServiceInterface {
     };
   }
 
-  async verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse> {
+  async verifyResetPassword(params: ResetPasswordInput): Promise<ValidationResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
       email: params.email
     });
@@ -439,15 +439,6 @@ export class UserService implements UserServiceInterface {
       sub: params.verification.verificationId
     });
 
-    const loginResult = await this.authClient.loginUser({
-      login: user.email,
-      password: user.passwordHash,
-      deviceId: 'device'
-    });
-
-    const token = VerifiedToken.createVerifiedToken(loginResult.accessToken);
-
-    await getConnection().getMongoRepository(VerifiedToken).save(token);
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
@@ -455,7 +446,7 @@ export class UserService implements UserServiceInterface {
       text: successPasswordResetTemplate(user.name)
     });
 
-    return loginResult;
+    return verificationResult;
   }
 
   async invite(user: Investor, params: any): Promise<InviteResultArray> {

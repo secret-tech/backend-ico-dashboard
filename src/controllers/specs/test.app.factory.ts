@@ -190,7 +190,7 @@ const mockVerifyClient = () => {
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<InitiateResult> => initiateResult);
 
-  verifyMock.setup(x => x.validateVerification('google_auth', 'activated_user_verification', TypeMoq.It.isAny()))
+  verifyMock.setup(x => x.validateVerification(TypeMoq.It.isValue('google_auth'), TypeMoq.It.isValue('activated_user_verification'), TypeMoq.It.isAny()))
     .returns(async(): Promise<ValidationResult> => validationResultToEnable2fa);
 
   verifyMock.setup(x => x.validateVerification('google_auth', '2fa_user_verification', TypeMoq.It.isAny()))
@@ -363,12 +363,8 @@ export function testAppForResetPassword() {
   mockVerifyClient();
   const authMock = TypeMoq.Mock.ofType(AuthClient);
 
-  const loginResult: AccessTokenResponse = {
-    accessToken: 'token'
-  };
-
-  authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
-    .returns(async(): Promise<AccessTokenResponse> => loginResult);
+  authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
+    .returns(async(): Promise<any> => null);
 
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   return buildApp();
