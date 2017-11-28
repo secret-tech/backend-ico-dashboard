@@ -51,14 +51,14 @@ services:
         ipv4_address: 10.100.0.4
 
   rpc:
-    image: registry.jincor.com/backend/geth-rpc-ropsten:latest
+    image: registry.jincor.com/backend/parity-rpc-ropsten:latest
     build:
       context: ./
       dockerfile: rpc.ropsten.Dockerfile
     ports:
       - "8546"
     volumes:
-      - /root/ethereum-blockchain:/home/ethereum
+      - /root/parity:/root/.local/share/io.parity.ethereum
       - ./passwords:/passwords
     restart: always
     networks:
