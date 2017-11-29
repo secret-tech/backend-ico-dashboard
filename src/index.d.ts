@@ -81,12 +81,13 @@ declare interface InitiateData {
     subject?: string;
   };
   generateCode?: {
-    length: number,
-    symbolSet: Array<string>
+    length: number;
+    symbolSet: Array<string>;
   };
   policy: {
-    expiredOn: string
+    expiredOn: string;
   };
+  payload?: any;
 }
 
 declare interface Result {
@@ -109,6 +110,7 @@ declare interface ValidationResult extends Result {
     consumer: string;
     expiredOn: number;
     attempts: number;
+    payload?: any;
   };
 }
 
@@ -121,6 +123,8 @@ declare interface VerificationClientInterface {
   initiateVerification(method: string, data: InitiateData): Promise<InitiateResult>;
   validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult>;
   invalidateVerification(method: string, id: string): Promise<void>;
+  getVerification(method: string, id: string): Promise<ValidationResult>;
+  checkVerificationPayloadAndCode(input: VerificationData, consumer: string, payload: any, removeSecret?: boolean);
 }
 
 declare interface UserData {
@@ -212,12 +216,14 @@ declare interface InviteResultArray {
   emails: Array<InviteResult>;
 }
 
+declare interface VerificationData {
+  verificationId: string;
+  code: string;
+  method: string;
+}
+
 declare interface VerificationInput {
-  verification?: {
-    verificationId: string,
-    code: string,
-    method: string
-  };
+  verification?: VerificationData;
 }
 
 declare interface ResetPasswordInput extends VerificationInput {

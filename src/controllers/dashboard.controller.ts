@@ -16,6 +16,8 @@ const TRANSACTION_STATUS_PENDING = 'pending';
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
+export const INVEST_SCOPE = 'invest';
+
 /**
  * Dashboard controller
  */
@@ -109,6 +111,10 @@ export class DashboardController {
         },
         policy: {
           expiredOn: '01:00:00'
+        },
+        payload: {
+          scope: INVEST_SCOPE,
+          amount: req.body.ethAmount
         }
       }
     );
@@ -125,13 +131,12 @@ export class DashboardController {
     'VerificationRequiredValidation'
   )
   async investVerify(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
-    await this.verificationClient.validateVerification(
-      req.body.verification.method,
-      req.body.verification.verificationId,
-      {
-        code: req.body.verification.code
-      }
-    );
+    const payload = {
+      scope: INVEST_SCOPE,
+      ethAmount: req.body.ethAmount
+    };
+
+    await this.verificationClient.checkVerificationPayloadAndCode(req.body.verification, req.user.email, payload);
 
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
 

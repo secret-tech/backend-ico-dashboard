@@ -22,13 +22,20 @@ import {
   TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed
 } from '../exceptions/exceptions';
 import config from '../config';
-import { Investor, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_PENDING } from '../entities/investor';
+import { Investor } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
 import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
 import { KycClientType } from './kyc.client';
+
+export const ACTIVATE_USER_SCOPE = 'activate_user';
+export const LOGIN_USER_SCOPE = 'login_user';
+export const CHANGE_PASSWORD_SCOPE = 'change_password';
+export const RESET_PASSWORD_SCOPE = 'reset_password';
+export const ENABLE_2FA_SCOPE = 'enable_2fa';
+export const DISABLE_2FA_SCOPE = 'disable_2fa';
 
 /**
  * UserService
@@ -101,6 +108,9 @@ export class UserService implements UserServiceInterface {
       },
       policy: {
         expiredOn: '24:00:00'
+      },
+      payload: {
+        scope: ACTIVATE_USER_SCOPE
       }
     });
 
@@ -163,6 +173,9 @@ export class UserService implements UserServiceInterface {
         },
         policy: {
           expiredOn: '01:00:00'
+        },
+        payload: {
+          scope: LOGIN_USER_SCOPE
         }
       }
     );
@@ -200,18 +213,23 @@ export class UserService implements UserServiceInterface {
       throw new Error('Invalid verification id');
     }
 
-    await this.verificationClient.validateVerification(
-      inputData.verification.method,
-      inputData.verification.id,
-      {
-        code: inputData.verification.code
-      }
-    );
-
     const verifyAuthResult = await this.authClient.verifyUserToken(inputData.accessToken);
+
     const user = await getConnection().getMongoRepository(Investor).findOne({
       email: verifyAuthResult.login
     });
+
+    const inputVerification = {
+      verificationId: inputData.verification.id,
+      code: inputData.verification.code,
+      method: inputData.verification.method
+    };
+
+    const payload = {
+      scope: LOGIN_USER_SCOPE
+    };
+
+    await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, user.email, payload);
 
     token.makeVerified();
     await getConnection().getMongoRepository(VerifiedToken).save(token);
@@ -237,17 +255,16 @@ export class UserService implements UserServiceInterface {
       throw Error('User is activated already');
     }
 
-    if (activationData.verificationId !== user.verification.id) {
-      throw Error('Incorrect verification id');
-    }
+    const inputVerification = {
+      verificationId: activationData.verificationId,
+      method: EMAIL_VERIFICATION,
+      code: activationData.code
+    };
 
-    await this.verificationClient.validateVerification(
-      user.verification.method,
-      activationData.verificationId,
-      {
-        code: activationData.code
-      }
-    );
+    const payload = {
+      scope: ACTIVATE_USER_SCOPE
+    };
+    await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, activationData.email, payload);
 
     const mnemonic = this.web3Client.generateMnemonic();
     const salt = bcrypt.genSaltSync();
@@ -325,6 +342,9 @@ export class UserService implements UserServiceInterface {
         },
         policy: {
           expiredOn: '24:00:00'
+        },
+        payload: {
+          scope: CHANGE_PASSWORD_SCOPE
         }
       }
     );
@@ -339,13 +359,17 @@ export class UserService implements UserServiceInterface {
       throw new InvalidPassword('Invalid password');
     }
 
-    await this.verificationClient.validateVerification(
-      params.verification.method,
-      params.verification.verificationId,
-      {
-        code: params.verification.code
-      }
-    );
+    const payload = {
+      scope: CHANGE_PASSWORD_SCOPE
+    };
+
+    const inputVerification = {
+      verificationId: params.verification.id,
+      code: params.verification.code,
+      method: params.verification.method
+    };
+
+    await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, user.email, payload);
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
     await getConnection().getMongoRepository(Investor).save(user);
@@ -399,6 +423,9 @@ export class UserService implements UserServiceInterface {
         },
         policy: {
           expiredOn: '24:00:00'
+        },
+        payload: {
+          scope: RESET_PASSWORD_SCOPE
         }
       }
     );
@@ -417,17 +444,11 @@ export class UserService implements UserServiceInterface {
       throw new UserNotFound('User is not found');
     }
 
-    const verificationResult = await this.verificationClient.validateVerification(
-      params.verification.method,
-      params.verification.verificationId,
-      {
-        code: params.verification.code
-      }
-    );
+    const payload = {
+      scope: RESET_PASSWORD_SCOPE
+    };
 
-    if (verificationResult.data.consumer !== user.email) {
-      throw new Error('Invalid verification user');
-    }
+    const verificationResult = await this.verificationClient.checkVerificationPayloadAndCode(params.verification, params.email, payload);
 
     user.passwordHash = bcrypt.hashSync(params.password);
     await getConnection().getMongoRepository(Investor).save(user);
@@ -481,7 +502,7 @@ export class UserService implements UserServiceInterface {
     };
   }
 
-  private async initiate2faVerification(user: Investor): Promise<InitiateResult> {
+  private async initiate2faVerification(user: Investor, scope: string): Promise<InitiateResult> {
     return await this.verificationClient.initiateVerification(
       AUTHENTICATOR_VERIFICATION,
       {
@@ -489,6 +510,9 @@ export class UserService implements UserServiceInterface {
         issuer: 'Jincor',
         policy: {
           expiredOn: '01:00:00'
+        },
+        payload: {
+          scope
         }
       }
     );
@@ -500,7 +524,7 @@ export class UserService implements UserServiceInterface {
     }
 
     return {
-      verification: await this.initiate2faVerification(user)
+      verification: await this.initiate2faVerification(user, ENABLE_2FA_SCOPE)
     };
   }
 
@@ -509,17 +533,10 @@ export class UserService implements UserServiceInterface {
       throw new AuthenticatorError('Authenticator is enabled already.');
     }
 
-    const verificationResult = await this.verificationClient.validateVerification(
-      params.verification.method,
-      params.verification.verificationId,
-      {
-        code: params.verification.code
-      }
-    );
-
-    if (verificationResult.data.consumer !== user.email) {
-      throw new Error('Invalid verification user');
-    }
+    const payload = {
+      scope: ENABLE_2FA_SCOPE
+    };
+    await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload);
 
     user.defaultVerificationMethod = AUTHENTICATOR_VERIFICATION;
 
@@ -536,7 +553,7 @@ export class UserService implements UserServiceInterface {
     }
 
     return {
-      verification: await this.initiate2faVerification(user)
+      verification: await this.initiate2faVerification(user, DISABLE_2FA_SCOPE)
     };
   }
 
@@ -545,20 +562,10 @@ export class UserService implements UserServiceInterface {
       throw new AuthenticatorError('Authenticator is disabled already.');
     }
 
-    // TODO: VERY IMPORTANT - this code allows to disable 2FA even if verification was created for another purpose.
-    // TODO: ALSO IMPORTANT - by the way this is true for another requests
-    const verificationResult = await this.verificationClient.validateVerification(
-      params.verification.method,
-      params.verification.verificationId,
-      {
-        code: params.verification.code,
-        removeSecret: true
-      }
-    );
-
-    if (verificationResult.data.consumer !== user.email) {
-      throw new Error('Invalid verification user');
-    }
+    const payload = {
+      scope: DISABLE_2FA_SCOPE
+    };
+    await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload, true);
 
     user.defaultVerificationMethod = EMAIL_VERIFICATION;
 
