@@ -32,6 +32,8 @@ export interface Web3ClientInterface {
   getJcrEthPrice(): Promise<number>;
 
   sufficientBalance(input: TransactionInput): Promise<boolean>;
+
+  getContributionsCount(): Promise<number>;
 }
 
 /* istanbul ignore next */
@@ -223,6 +225,11 @@ export class Web3Client implements Web3ClientInterface {
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+  }
+
+  async getContributionsCount(): Promise<number> {
+    const contributionsEvents = await this.ico.getPastEvents('NewContribution', { fromBlock: config.web3.startBlock });
+    return contributionsEvents.length;
   }
 }
 

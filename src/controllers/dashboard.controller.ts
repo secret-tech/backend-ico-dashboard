@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { VerificationClientType } from '../services/verify.client';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
@@ -56,6 +56,22 @@ export class DashboardController {
         USD: (Number(ethCollected) * currentJcrEthPrice).toString(),
         BTC: '0'
       },
+      // calculate days left and add 1 as Math.floor always rounds to less value
+      daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
+    });
+  }
+
+  @httpGet(
+    '/public'
+  )
+  async publicData(req: Request, res: Response): Promise<void> {
+    const ethCollected = await this.web3Client.getEthCollected();
+    const contributionsCount = await this.web3Client.getContributionsCount();
+
+    res.json({
+      jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
+      ethCollected,
+      contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value
       daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
     });

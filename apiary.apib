@@ -511,6 +511,25 @@ Authentication attempts with not verified token will result in 401 response.
             "daysLeft": 10
         }
 
+## Get public dashboard info [/dashboard/public]
+
+### Get public dashboard info [GET]
+
++ Request
+
+    + Headers
+
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "jcrTokensSold":"0",
+            "ethCollected":"0",
+            "contributionsCount":0,
+            "daysLeft":64
+        }
+
 ## Get transaction history [/dashboard/transactions]
 
 ### Get transaction history [GET]
