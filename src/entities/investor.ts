@@ -46,7 +46,7 @@ export class Investor {
   kycStatus: string;
 
   @Column()
-  source: string;
+  source: any;
 
   @Column(type => Verification)
   verification: Verification;

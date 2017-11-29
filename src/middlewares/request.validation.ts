@@ -21,7 +21,6 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     email: Joi.string().email().required(),
     password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
-    source: Joi.string(),
     referral: Joi.string().email().options({
       language: {
         key: '{{!label}}',

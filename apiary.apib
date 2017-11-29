@@ -27,7 +27,10 @@ User's email must be verified after registration. Next step after calling this e
             "password": "test12A6!@#$%^&*()_-=+|/",
             "referral": "dGVzdEB0ZXN0LmNvbQ",
             "agreeTos": true,
-            "source": "source"
+            "source": {
+              "utm": "utm",
+              "gtm": "gtm"
+            }
         }
 
 + Response 200 (application/json)
@@ -45,7 +48,10 @@ User's email must be verified after registration. Next step after calling this e
             "defaultVerificationMethod": "email",
             "referralCode": "b3J0Z21hQGdtYWlsLmNvbQ",
             "referral": "test@test.com",
-            "source": "source"
+            "source": {
+              "utm": "utm",
+              "gtm": "gtm"
+            }
         }
 
 + Response 422 (application/json)

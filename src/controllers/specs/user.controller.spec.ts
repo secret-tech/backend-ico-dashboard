@@ -29,7 +29,10 @@ describe('Users', () => {
         name: 'ICO investor',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: true,
-        source: 'source'
+        source: {
+          utm: 'utm',
+          gtm: 'gtm'
+        }
       };
 
       postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
@@ -44,7 +47,10 @@ describe('Users', () => {
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');
         expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
-        expect(res.body.source).to.equal('source');
+        expect(res.body.source).to.deep.equal({
+          utm: 'utm',
+          gtm: 'gtm'
+        });
         expect(res.body).to.not.have.property('passwordHash');
         expect(res.body).to.not.have.property('password');
         done();
