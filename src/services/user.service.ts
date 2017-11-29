@@ -363,13 +363,7 @@ export class UserService implements UserServiceInterface {
       scope: CHANGE_PASSWORD_SCOPE
     };
 
-    const inputVerification = {
-      verificationId: params.verification.id,
-      code: params.verification.code,
-      method: params.verification.method
-    };
-
-    await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, user.email, payload);
+    await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload);
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
     await getConnection().getMongoRepository(Investor).save(user);

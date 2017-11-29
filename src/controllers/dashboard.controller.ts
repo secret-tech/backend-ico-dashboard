@@ -114,7 +114,7 @@ export class DashboardController {
         },
         payload: {
           scope: INVEST_SCOPE,
-          amount: req.body.ethAmount
+          amount: req.body.ethAmount.toString()
         }
       }
     );
@@ -133,7 +133,7 @@ export class DashboardController {
   async investVerify(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
     const payload = {
       scope: INVEST_SCOPE,
-      ethAmount: req.body.ethAmount
+      ethAmount: req.body.ethAmount.toString()
     };
 
     await this.verificationClient.checkVerificationPayloadAndCode(req.body.verification, req.user.email, payload);

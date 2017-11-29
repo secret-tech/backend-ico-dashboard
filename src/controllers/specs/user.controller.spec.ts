@@ -502,7 +502,7 @@ describe('Users', () => {
         oldPassword: 'test12A6!@#$%^&*()_-=+|/',
         newPassword: 'PasswordA1#$',
         verification: {
-          id: 'change_password_verification',
+          verificationId: 'change_password_verification',
           code: '123',
           method: 'email'
         }
