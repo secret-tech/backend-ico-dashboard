@@ -114,7 +114,7 @@ export class DashboardController {
         },
         payload: {
           scope: INVEST_SCOPE,
-          amount: req.body.ethAmount.toString()
+          ethAmount: req.body.ethAmount.toString()
         }
       }
     );

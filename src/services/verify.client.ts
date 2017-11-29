@@ -120,9 +120,6 @@ export class VerificationClient implements VerificationClientInterface {
 
     // JSON.stringify is the simplest method to check that 2 objects have same properties
     if (verification.data.consumer !== consumer || JSON.stringify(verification.data.payload) !== JSON.stringify(payload)) {
-      console.error(verification);
-      console.error(consumer);
-      console.error(payload);
       throw new Error('Invalid verification payload');
     }
 
