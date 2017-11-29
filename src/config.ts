@@ -60,7 +60,8 @@ export default {
     token: AUTH_JWT
   },
   verify: {
-    baseUrl: VERIFY_BASE_URL || 'http://verify:3000'
+    baseUrl: VERIFY_BASE_URL || 'http://verify:3000',
+    maxAttempts: 3
   },
   email: {
     domain: 'jincor.com',

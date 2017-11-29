@@ -104,11 +104,11 @@ declare interface InitiateResult extends Result {
 }
 
 declare interface ValidationResult extends Result {
-  details?: any;
   data?: {
-    verificationId: string,
-    consumer: string,
-    expiredOn: number
+    verificationId: string;
+    consumer: string;
+    expiredOn: number;
+    attempts: number;
   };
 }
 
@@ -274,7 +274,7 @@ declare interface UserServiceInterface {
   initiateDisable2fa(user: any): Promise<BaseInitiateResult>;
   verifyDisable2fa(user: any, params: VerificationInput): Promise<Enable2faResult>;
   initiateResetPassword(params: ResetPasswordInput): Promise<BaseInitiateResult>;
-  verifyResetPassword(params: ResetPasswordInput): Promise<AccessTokenResponse>;
+  verifyResetPassword(params: ResetPasswordInput): Promise<ValidationResult>;
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
   invite(user: any, params: any): Promise<InviteResultArray>;
   getUserInfo(user: any): Promise<UserInfo>;

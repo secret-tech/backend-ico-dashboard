@@ -601,7 +601,15 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.accessToken).to.eq('token');
+          expect(res.body).to.deep.eq({
+            status: 200,
+            data: {
+              verificationId: 'activated_user_verification',
+              consumer: 'activated@test.com',
+              expiredOn: 123456,
+              attempts: 0
+            }
+          });
           done();
         });
     });
