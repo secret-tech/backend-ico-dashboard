@@ -6,9 +6,8 @@ services:
       context: ./
       dockerfile: Dockerfile.stage
     ports:
-      - 3000:3000
       - 80:3000
-      - 4000:4000
+      - 443:4000
     links:
       - auth
       - redis

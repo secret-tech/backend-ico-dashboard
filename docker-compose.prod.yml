@@ -6,8 +6,8 @@ services:
       context: ./
       dockerfile: Dockerfile.prod
     ports:
-      - 3000:3000
       - 80:3000
+      - 443:4000
     links:
       - rpc
     depends_on:

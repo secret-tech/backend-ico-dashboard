@@ -16,12 +16,17 @@ createConnection(ormOptions).then(async connection => {
   /**
    * Listen on provided port, on all network interfaces.
    */
-  httpServer.listen(config.app.port);
+  if (config.app.httpServer === 'enabled') {
+    httpServer.listen(config.app.port);
+  }
 
   if (config.app.httpsServer === 'enabled') {
     const httpsOptions = {
-      key: fs.readFileSync(__dirname + '/server.key'),
-      cert: fs.readFileSync(__dirname + '/auth.crt')
+      key: fs.readFileSync(__dirname + '/ico-key.pem'),
+      cert: fs.readFileSync(__dirname + '/ico-crt.pem'),
+      ca: fs.readFileSync(__dirname + '/cloudflare.ca'),
+      requestCert: true,
+      rejectUnauthorized: true
     };
     const httpsServer = https.createServer(httpsOptions, app);
     httpsServer.listen(config.app.httpsPort);
