@@ -22,9 +22,9 @@ createConnection(ormOptions).then(async connection => {
 
   if (config.app.httpsServer === 'enabled') {
     const httpsOptions = {
-      key: fs.readFileSync(__dirname + '/ico-key.pem'),
-      cert: fs.readFileSync(__dirname + '/ico-crt.pem'),
-      ca: fs.readFileSync(__dirname + '/cloudflare.ca'),
+      key: fs.readFileSync(__dirname + '/../certs/ico-key.pem'),
+      cert: fs.readFileSync(__dirname + '/../certs/ico-crt.pem'),
+      ca: fs.readFileSync(__dirname + '/../certs/cloudflare.ca'),
       requestCert: true,
       rejectUnauthorized: true
     };
