@@ -25,7 +25,8 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
     defaultVerificationMethod: investor.defaultVerificationMethod,
     referralCode: investor.referralCode,
     kycStatus: investor.kycStatus,
-    referral: investor.referral
+    referral: investor.referral,
+    source: investor.source
   };
 }
 
