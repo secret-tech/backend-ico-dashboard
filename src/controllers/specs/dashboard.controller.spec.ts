@@ -35,9 +35,9 @@ describe('Dashboard', () => {
           raised: {
             ETH: '2000',
             USD: '400000',
-            BTC: '100'
+            BTC: '0'
           },
-          daysLeft: 10
+          daysLeft: Math.floor((1517443200 - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
         });
         done();
       });

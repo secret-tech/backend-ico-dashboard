@@ -9,5 +9,6 @@ WORKDIR /usr/src/app
 
 RUN npm i
 RUN npm run build
+RUN cp -r src/certs dist/
 
 CMD npm run serve

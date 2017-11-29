@@ -14,6 +14,7 @@ import { transformReqBodyToInvestInput } from '../transformers/transformers';
 const TRANSACTION_STATUS_PENDING = 'pending';
 
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
+const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
 /**
  * Dashboard controller
@@ -51,9 +52,10 @@ export class DashboardController {
       raised: {
         ETH: ethCollected,
         USD: (Number(ethCollected) * currentJcrEthPrice).toString(),
-        BTC: '100'
+        BTC: '0'
       },
-      daysLeft: 10
+      // calculate days left and add 1 as Math.floor always rounds to less value
+      daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
     });
   }
 

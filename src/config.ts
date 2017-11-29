@@ -3,6 +3,7 @@ import 'reflect-metadata';
 
 const {
   REDIS_URL,
+  HTTP_SERVER,
   PORT,
   HTTPS_PORT,
   HTTPS_SERVER,
@@ -35,6 +36,7 @@ export default {
   app: {
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
+    httpServer: HTTP_SERVER || 'enabled',
     httpsServer: HTTPS_SERVER || 'disabled',
     forceHttps: FORCE_HTTPS || 'disabled',
     apiUrl: API_URL,

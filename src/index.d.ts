@@ -129,6 +129,7 @@ declare interface UserData {
   agreeTos: boolean;
   referral?: string;
   passwordHash?: string;
+  source?: any;
 }
 
 declare interface InputUserData extends UserData {
