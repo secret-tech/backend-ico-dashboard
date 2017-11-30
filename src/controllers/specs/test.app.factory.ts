@@ -25,6 +25,15 @@ import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
 import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
 import { KycClient, KycClientType } from '../../services/kyc.client';
+import {
+  ACTIVATE_USER_SCOPE,
+  CHANGE_PASSWORD_SCOPE,
+  DISABLE_2FA_SCOPE,
+  ENABLE_2FA_SCOPE,
+  LOGIN_USER_SCOPE,
+  RESET_PASSWORD_SCOPE
+} from '../../services/user.service';
+import { INVEST_SCOPE } from '../dashboard.controller';
 
 const mockKycClient = () => {
   const kycClientMock = TypeMoq.Mock.ofType(KycClient);
@@ -147,7 +156,8 @@ const mockAuthMiddleware = () => {
 };
 
 const mockVerifyClient = () => {
-  const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
+  const verifyMock = TypeMoq.Mock.ofInstance(container.get<VerificationClientInterface>(VerificationClientType));
+  verifyMock.callBase = true;
 
   const initiateResult: InitiateResult = {
     status: 200,
@@ -160,20 +170,26 @@ const mockVerifyClient = () => {
   const validationResultToEnable2fa: ValidationResult = {
     status: 200,
     data: {
-      verificationId: 'activated_user_verification',
+      verificationId: 'enable_2fa_verification',
       consumer: 'activated@test.com',
       expiredOn: 123456,
-      attempts: 0
+      attempts: 0,
+      payload: {
+        scope: ENABLE_2FA_SCOPE
+      }
     }
   };
 
   const validationResultToDisable2fa: ValidationResult = {
     status: 200,
     data: {
-      verificationId: '2fa_user_verification',
+      verificationId: 'disable_2fa_verification',
       consumer: '2fa@test.com',
       expiredOn: 123456,
-      attempts: 0
+      attempts: 0,
+      payload: {
+        scope: DISABLE_2FA_SCOPE
+      }
     }
   };
 
@@ -183,21 +199,110 @@ const mockVerifyClient = () => {
       verificationId: 'verify_invest',
       consumer: 'activated@test.com',
       expiredOn: 123456,
-      attempts: 0
+      attempts: 0,
+      payload: {
+        scope: INVEST_SCOPE,
+        ethAmount: 1
+      }
+    }
+  };
+
+  const validationResultChangePassword: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: 'change_password_verification',
+      consumer: 'activated@test.com',
+      expiredOn: 123456,
+      attempts: 0,
+      payload: {
+        scope: CHANGE_PASSWORD_SCOPE
+      }
+    }
+  };
+
+  const validationResultResetPassword: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: 'reset_password_verification',
+      consumer: 'activated@test.com',
+      expiredOn: 123456,
+      attempts: 0,
+      payload: {
+        scope: RESET_PASSWORD_SCOPE
+      }
+    }
+  };
+
+  const validationResultActivateUser: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: 'activated_user_verification',
+      consumer: 'existing@test.com',
+      expiredOn: 123456,
+      attempts: 0,
+      payload: {
+        scope: ACTIVATE_USER_SCOPE
+      }
+    }
+  };
+
+  const validationResultVerifyLogin: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: 'verify_login_verification',
+      consumer: 'activated@test.com',
+      expiredOn: 123456,
+      attempts: 0,
+      payload: {
+        scope: LOGIN_USER_SCOPE
+      }
     }
   };
 
   verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<InitiateResult> => initiateResult);
 
-  verifyMock.setup(x => x.validateVerification(TypeMoq.It.isValue('google_auth'), TypeMoq.It.isValue('activated_user_verification'), TypeMoq.It.isAny()))
+  verifyMock.setup(x => x.validateVerification('google_auth', 'enable_2fa_verification', TypeMoq.It.isAny()))
     .returns(async(): Promise<ValidationResult> => validationResultToEnable2fa);
 
-  verifyMock.setup(x => x.validateVerification('google_auth', '2fa_user_verification', TypeMoq.It.isAny()))
+  verifyMock.setup(x => x.getVerification('google_auth', 'enable_2fa_verification'))
+    .returns(async(): Promise<ValidationResult> => validationResultToEnable2fa);
+
+  verifyMock.setup(x => x.validateVerification('google_auth', 'disable_2fa_verification', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultToDisable2fa);
+
+  verifyMock.setup(x => x.getVerification('google_auth', 'disable_2fa_verification'))
     .returns(async(): Promise<ValidationResult> => validationResultToDisable2fa);
 
   verifyMock.setup(x => x.validateVerification('email', 'verify_invest', TypeMoq.It.isAny()))
     .returns(async(): Promise<ValidationResult> => validationResultToVerifyInvestment);
+
+  verifyMock.setup(x => x.getVerification('email', 'verify_invest'))
+    .returns(async(): Promise<ValidationResult> => validationResultToVerifyInvestment);
+
+  verifyMock.setup(x => x.validateVerification('email', 'change_password_verification', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultChangePassword);
+
+  verifyMock.setup(x => x.getVerification('email', 'change_password_verification'))
+    .returns(async(): Promise<ValidationResult> => validationResultChangePassword);
+
+  verifyMock.setup(x => x.validateVerification('email', 'reset_password_verification', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultResetPassword);
+
+  verifyMock.setup(x => x.getVerification('email', 'reset_password_verification'))
+    .returns(async(): Promise<ValidationResult> => validationResultResetPassword);
+
+  verifyMock.setup(x => x.validateVerification('email', 'activate_user_verification', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultActivateUser);
+
+  verifyMock.setup(x => x.getVerification('email', 'activate_user_verification'))
+    .returns(async(): Promise<ValidationResult> => validationResultActivateUser);
+
+  verifyMock.setup(x => x.validateVerification('email', 'verify_login_verification', TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResultVerifyLogin);
+
+  verifyMock.setup(x => x.getVerification('email', 'verify_login_verification'))
+    .returns(async(): Promise<ValidationResult> => validationResultVerifyLogin);
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
 };

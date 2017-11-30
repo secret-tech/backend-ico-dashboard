@@ -88,6 +88,50 @@ export class VerificationClient implements VerificationClientInterface {
       method: 'DELETE'
     });
   }
+
+  async getVerification(method: string, id: string): Promise<ValidationResult> {
+    try {
+      return await request.json<ValidationResult>(`/methods/${ method }/verifiers/${ id }`, {
+        baseUrl: this.baseUrl,
+        auth: {
+          bearer: this.tenantToken
+        },
+        method: 'GET'
+      });
+    } catch (e) {
+      if (e.statusCode === 404) {
+        throw new VerificationIsNotFound('Code was expired or not found. Please retry');
+      }
+
+      throw e;
+    }
+  }
+
+  async checkVerificationPayloadAndCode(
+    inputVerification: VerificationData,
+    consumer: string,
+    payload: any,
+    removeSecret?: boolean
+  ): Promise<ValidationResult> {
+    const verification = await this.getVerification(
+      inputVerification.method,
+      inputVerification.verificationId
+    );
+
+    // JSON.stringify is the simplest method to check that 2 objects have same properties
+    if (verification.data.consumer !== consumer || JSON.stringify(verification.data.payload) !== JSON.stringify(payload)) {
+      throw new Error('Invalid verification payload');
+    }
+
+    return await this.validateVerification(
+      inputVerification.method,
+      inputVerification.verificationId,
+      {
+        code: inputVerification.code,
+        removeSecret
+      }
+    );
+  }
 }
 
 const VerificationClientType = Symbol('VerificationClientInterface');

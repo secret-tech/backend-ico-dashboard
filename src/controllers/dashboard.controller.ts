@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { VerificationClientType } from '../services/verify.client';
 import { inject, injectable } from 'inversify';
 import { controller, httpPost, httpGet } from 'inversify-express-utils';
@@ -15,6 +15,8 @@ const TRANSACTION_STATUS_PENDING = 'pending';
 
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
+
+export const INVEST_SCOPE = 'invest';
 
 /**
  * Dashboard controller
@@ -54,6 +56,22 @@ export class DashboardController {
         USD: (Number(ethCollected) * currentJcrEthPrice).toString(),
         BTC: '0'
       },
+      // calculate days left and add 1 as Math.floor always rounds to less value
+      daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
+    });
+  }
+
+  @httpGet(
+    '/public'
+  )
+  async publicData(req: Request, res: Response): Promise<void> {
+    const ethCollected = await this.web3Client.getEthCollected();
+    const contributionsCount = await this.web3Client.getContributionsCount();
+
+    res.json({
+      jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
+      ethCollected,
+      contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value
       daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
     });
@@ -109,6 +127,10 @@ export class DashboardController {
         },
         policy: {
           expiredOn: '01:00:00'
+        },
+        payload: {
+          scope: INVEST_SCOPE,
+          ethAmount: req.body.ethAmount.toString()
         }
       }
     );
@@ -125,13 +147,12 @@ export class DashboardController {
     'VerificationRequiredValidation'
   )
   async investVerify(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
-    await this.verificationClient.validateVerification(
-      req.body.verification.method,
-      req.body.verification.verificationId,
-      {
-        code: req.body.verification.code
-      }
-    );
+    const payload = {
+      scope: INVEST_SCOPE,
+      ethAmount: req.body.ethAmount.toString()
+    };
+
+    await this.verificationClient.checkVerificationPayloadAndCode(req.body.verification, req.user.email, payload);
 
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
 

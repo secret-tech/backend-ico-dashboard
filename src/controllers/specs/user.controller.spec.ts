@@ -154,7 +154,7 @@ describe('Users', () => {
     it('should activate user', (done) => {
       const activateParams = {
         email: 'existing@test.com',
-        verificationId: '123',
+        verificationId: 'activate_user_verification',
         code: '123456'
       };
 
@@ -359,7 +359,7 @@ describe('Users', () => {
       const params = {
         accessToken: 'not_verified_token',
         verification: {
-          id: '123',
+          id: 'verify_login_verification',
           code: '123',
           method: 'email'
         }
@@ -372,7 +372,7 @@ describe('Users', () => {
           isVerified: true,
           verification: {
             status: 200,
-            verificationId: '123',
+            verificationId: 'verify_login_verification',
             attempts: 1,
             expiredOn: 124545,
             method: 'email'
@@ -502,8 +502,9 @@ describe('Users', () => {
         oldPassword: 'test12A6!@#$%^&*()_-=+|/',
         newPassword: 'PasswordA1#$',
         verification: {
-          id: '123',
-          code: '123'
+          verificationId: 'change_password_verification',
+          code: '123',
+          method: 'email'
         }
       };
 
@@ -599,8 +600,8 @@ describe('Users', () => {
         email: 'activated@test.com',
         password: 'PasswordA1',
         verification: {
-          verificationId: 'activated_user_verification',
-          method: 'google_auth',
+          verificationId: 'reset_password_verification',
+          method: 'email',
           code: '123456'
         }
       };
@@ -612,10 +613,13 @@ describe('Users', () => {
           expect(res.body).to.deep.eq({
             status: 200,
             data: {
-              verificationId: 'activated_user_verification',
+              verificationId: 'reset_password_verification',
               consumer: 'activated@test.com',
               expiredOn: 123456,
-              attempts: 0
+              attempts: 0,
+              payload: {
+                scope: 'reset_password'
+              }
             }
           });
           done();
@@ -805,7 +809,7 @@ describe('Users', () => {
       const token = 'verified_token';
       const params = {
         verification: {
-          verificationId: 'activated_user_verification',
+          verificationId: 'enable_2fa_verification',
           code: '123',
           method: 'google_auth'
         }
@@ -909,7 +913,7 @@ describe('Users', () => {
       const token = 'verified_token_2fa_user';
       const params = {
         verification: {
-          verificationId: '2fa_user_verification',
+          verificationId: 'disable_2fa_verification',
           code: '123',
           method: 'google_auth'
         }
