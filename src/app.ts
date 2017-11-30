@@ -14,6 +14,15 @@ if (config.app.accessLog === 'true') {
   app.use(morgan('combined'));
 }
 
+if (process.env.ENVIRONMENT === 'production') {
+  app.use((req: any, res: Response, next: NextFunction) => {
+    if (!req.client.authorized && req.path !== '/dashboard/public') {
+      return res.status(401).send({error: 'Invalid client certificate'});
+    }
+    next();
+  });
+}
+
 app.disable('x-powered-by');
 
 app.use((req: Request, res: Response, next: NextFunction) => {
