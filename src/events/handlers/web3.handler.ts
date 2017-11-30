@@ -79,7 +79,9 @@ export class Web3Handler implements Web3HandlerInterface {
     const transactions = blockData.transactions;
     for (let transaction of transactions) {
       const transactionReceipt = await this.web3.eth.getTransactionReceipt(transaction.hash);
-      await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
+      if (transactionReceipt) {
+        await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
+      }
     }
   }
 
@@ -143,29 +145,31 @@ export class Web3Handler implements Web3HandlerInterface {
     });
 
     const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
-    const blockData = await this.web3.eth.getBlock(data.blockNumber);
-    const status = this.txService.getTxStatusByReceipt(transactionReceipt);
+    if (transactionReceipt) {
+      const blockData = await this.web3.eth.getBlock(data.blockNumber);
+      const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
-    const transformedTxData = {
-      transactionHash: data.transactionHash,
-      from: data.returnValues.from,
-      type: JCR_TRANSFER,
-      to: data.returnValues.to,
-      ethAmount: '0',
-      jcrAmount: this.web3.utils.fromWei(data.returnValues.value).toString(),
-      status: status,
-      timestamp: blockData.timestamp,
-      blockNumber: blockData.number
-    };
-
-    if (tx) {
-      await txRepo.updateOne({
+      const transformedTxData = {
         transactionHash: data.transactionHash,
-        type: JCR_TRANSFER
-      }, transformedTxData);
-    } else {
-      const newTx = txRepo.create(transformedTxData);
-      await txRepo.save(newTx);
+        from: data.returnValues.from,
+        type: JCR_TRANSFER,
+        to: data.returnValues.to,
+        ethAmount: '0',
+        jcrAmount: this.web3.utils.fromWei(data.returnValues.value).toString(),
+        status: status,
+        timestamp: blockData.timestamp,
+        blockNumber: blockData.number
+      };
+
+      if (tx) {
+        await txRepo.updateOne({
+          transactionHash: data.transactionHash,
+          type: JCR_TRANSFER
+        }, transformedTxData);
+      } else {
+        const newTx = txRepo.create(transformedTxData);
+        await txRepo.save(newTx);
+      }
     }
   }
 
@@ -184,23 +188,26 @@ export class Web3Handler implements Web3HandlerInterface {
     }
 
     const transactionReceipt = await this.web3.eth.getTransactionReceipt(data.transactionHash);
-    const blockData = await this.web3.eth.getBlock(data.blockNumber);
-    const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
-    const transformedTxData = {
-      transactionHash: data.transactionHash,
-      from: data.returnValues.investor,
-      type: REFERRAL_TRANSFER,
-      to: data.returnValues.referral,
-      ethAmount: '0',
-      jcrAmount: this.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
-      status: status,
-      timestamp: blockData.timestamp,
-      blockNumber: blockData.number
-    };
+    if (transactionReceipt) {
+      const blockData = await this.web3.eth.getBlock(data.blockNumber);
+      const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
-    const newTx = txRepo.create(transformedTxData);
-    await txRepo.save(newTx);
+      const transformedTxData = {
+        transactionHash: data.transactionHash,
+        from: data.returnValues.investor,
+        type: REFERRAL_TRANSFER,
+        to: data.returnValues.referral,
+        ethAmount: '0',
+        jcrAmount: this.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
+        status: status,
+        timestamp: blockData.timestamp,
+        blockNumber: blockData.number
+      };
+
+      const newTx = txRepo.create(transformedTxData);
+      await txRepo.save(newTx);
+    }
   }
 
   async checkAndRestoreTransactions(job: any): Promise<boolean> {
@@ -222,7 +229,9 @@ export class Web3Handler implements Web3HandlerInterface {
       const transactions = blockData.transactions;
       for (let transaction of transactions) {
         const transactionReceipt = await this.web3.eth.getTransactionReceipt(transaction.hash);
-        await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
+        if (transactionReceipt) {
+          await this.saveConfirmedTransaction(transaction, blockData, transactionReceipt);
+        }
       }
     }
 
