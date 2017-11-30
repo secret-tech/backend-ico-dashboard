@@ -202,7 +202,7 @@ const mockVerifyClient = () => {
       attempts: 0,
       payload: {
         scope: INVEST_SCOPE,
-        ethAmount: 1
+        ethAmount: '1'
       }
     }
   };

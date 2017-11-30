@@ -26,7 +26,7 @@ createConnection(ormOptions).then(async connection => {
       cert: fs.readFileSync(__dirname + '/../certs/ico-crt.pem'),
       ca: fs.readFileSync(__dirname + '/../certs/cloudflare.ca'),
       requestCert: true,
-      rejectUnauthorized: true
+      rejectUnauthorized: false
     };
     const httpsServer = https.createServer(httpsOptions, app);
     httpsServer.listen(config.app.httpsPort);
