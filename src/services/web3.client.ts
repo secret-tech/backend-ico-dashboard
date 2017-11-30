@@ -19,7 +19,9 @@ export interface Web3ClientInterface {
 
   addReferralOf(address: string, referral: string): any;
 
-  isAllowed(account: string): any;
+  isAllowed(account: string): Promise<boolean>;
+
+  getReferralOf(account: string): Promise<string>;
 
   getEthBalance(address: string): Promise<string>;
 
@@ -162,8 +164,12 @@ export class Web3Client implements Web3ClientInterface {
     });
   }
 
-  async isAllowed(address: string) {
-    return await this.whiteList.methods.investorWhiteList(address).call();
+  async isAllowed(address: string): Promise<boolean> {
+    return await this.whiteList.methods.isAllowed(address).call();
+  }
+
+  async getReferralOf(address: string): Promise<string> {
+    return await this.whiteList.methods.getReferralOf(address).call();
   }
 
   async getEthBalance(address: string): Promise<string> {
