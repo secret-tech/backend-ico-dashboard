@@ -161,14 +161,12 @@ export class Web3Handler implements Web3HandlerInterface {
         blockNumber: blockData.number
       };
 
-      if (tx) {
-        await txRepo.updateOne({
-          transactionHash: data.transactionHash,
-          type: JCR_TRANSFER
-        }, transformedTxData);
-      } else {
+      if (!tx) {
         const newTx = txRepo.create(transformedTxData);
         await txRepo.save(newTx);
+      } else if (tx.status === TRANSACTION_STATUS_PENDING) {
+        tx.status = status;
+        await txRepo.save(tx);
       }
     }
   }
