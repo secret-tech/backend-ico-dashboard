@@ -131,35 +131,50 @@ export class Web3Client implements Web3ClientInterface {
 
   addAddressToWhiteList(address: string) {
     return new Promise((resolve, reject) => {
-      this.web3.eth.getAccounts().then(accounts => {
-        this.whiteList.methods.addInvestorToWhiteList(address).send({
-          from: accounts[0],
-          gas: 200000,
-          gasPrice: this.web3.utils.toWei('20', 'gwei')
-        }).on('transactionHash', hash => {
-          resolve(hash);
-        }).on('error', error => {
-          reject(error);
-        }).catch((error) => {
-          reject(error);
-        });
+      const params = {
+        value: '0',
+        to: this.whiteList.options.address,
+        gas: 200000,
+        gasPrice: this.web3.utils.toWei('20', 'gwei'),
+        data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
+      };
+
+      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
 
   addReferralOf(address: string, referral: string) {
     return new Promise((resolve, reject) => {
-      this.web3.eth.getAccounts().then(accounts => {
-        this.whiteList.methods.addReferralOf(address, referral).send({
-          from: accounts[0],
-          gas: 200000
-        }).on('transactionHash', hash => {
-          resolve(hash);
-        }).on('error', error => {
-          reject(error);
-        }).catch((error) => {
-          reject(error);
-        });
+      const params = {
+        value: '0',
+        to: this.whiteList.options.address,
+        gas: 200000,
+        gasPrice: this.web3.utils.toWei('20', 'gwei'),
+        data: this.whiteList.methods.addReferralOf(address, referral).encodeABI()
+      };
+
+      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
