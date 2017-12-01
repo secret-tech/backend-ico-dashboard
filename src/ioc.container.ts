@@ -7,13 +7,14 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { MailgunService } from './services/mailgun.service';
-import { EmailServiceType } from './types';
+import { EmailServiceType, Web3QueueType } from './types';
 import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';
 import * as express from 'express';
 import * as validation from './middlewares/request.validation';
 import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/handlers/web3.handler';
+import { Web3QueueInterface, Web3Queue } from './queues/web3.queue';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
 import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
@@ -21,6 +22,7 @@ import { MailjetService } from './services/mailjet.service';
 
 let container = new Container();
 
+// services
 if (process.env.MAIL_DRIVER === 'mailjet') {
   container.bind<EmailServiceInterface>(EmailServiceType).to(MailjetService).inSingletonScope();
 } else {
@@ -32,11 +34,12 @@ container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope
 
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
+container.bind<Web3QueueInterface>(Web3QueueType).toConstantValue(new Web3Queue(
+  container.get<Web3ClientInterface>(Web3ClientType)
+));
 container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Handler(
   container.get<TransactionServiceInterface>(TransactionServiceType)
 ));
-
-// services
 
 container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient(config.auth.baseUrl));
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient(config.verify.baseUrl));

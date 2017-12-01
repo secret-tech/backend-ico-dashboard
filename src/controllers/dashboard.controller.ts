@@ -8,8 +8,10 @@ import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
 import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
 import initiateBuyTemplate from '../emails/12_initiate_buy_jcr_code';
-import { InsufficientEthBalance } from '../exceptions/exceptions';
+import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/exceptions';
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
+import { Investor } from '../entities/investor';
+import { getConnection } from 'typeorm';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -105,7 +107,27 @@ export class DashboardController {
     'InvestValidation'
   )
   async investInitiate(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    const account = this.web3Client.getAccountByMnemonicAndSalt(req.body.mnemonic, req.user.ethWallet.salt);
+    if (account.address !== req.user.ethWallet.address) {
+      throw new IncorrectMnemonic('Not correct mnemonic phrase');
+    }
+
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
+
+    if (req.user.referral) {
+      const referral = await getConnection().mongoManager.findOne(Investor, {
+        email: req.user.referral
+      });
+
+      const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
+      if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
+        throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+      }
+    }
+
+    if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
+      throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+    }
 
     if (!(await this.web3Client.sufficientBalance(txInput))) {
       throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
@@ -147,6 +169,26 @@ export class DashboardController {
     'VerificationRequiredValidation'
   )
   async investVerify(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    const account = this.web3Client.getAccountByMnemonicAndSalt(req.body.mnemonic, req.user.ethWallet.salt);
+    if (account.address !== req.user.ethWallet.address) {
+      throw new IncorrectMnemonic('Not correct mnemonic phrase');
+    }
+
+    if (req.user.referral) {
+      const referral = await getConnection().mongoManager.findOne(Investor, {
+        email: req.user.referral
+      });
+
+      const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
+      if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
+        throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+      }
+    }
+
+    if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
+      throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+    }
+
     const payload = {
       scope: INVEST_SCOPE,
       ethAmount: req.body.ethAmount.toString()
