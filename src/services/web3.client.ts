@@ -36,6 +36,8 @@ export interface Web3ClientInterface {
   sufficientBalance(input: TransactionInput): Promise<boolean>;
 
   getContributionsCount(): Promise<number>;
+
+  getCurrentGasPrice(): Promise<string>;
 }
 
 /* istanbul ignore next */
@@ -73,7 +75,6 @@ export class Web3Client implements Web3ClientInterface {
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
-
     const params = {
       value: this.web3.utils.toWei(input.amount.toString()),
       from: input.from,
@@ -135,7 +136,6 @@ export class Web3Client implements Web3ClientInterface {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
-        gasPrice: this.web3.utils.toWei('20', 'gwei'),
         data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
       };
 
@@ -160,7 +160,6 @@ export class Web3Client implements Web3ClientInterface {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
-        gasPrice: this.web3.utils.toWei('20', 'gwei'),
         data: this.whiteList.methods.addReferralOf(address, referral).encodeABI()
       };
 
@@ -249,8 +248,12 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getContributionsCount(): Promise<number> {
-    const contributionsEvents = await this.ico.getPastEvents('NewContribution', { fromBlock: config.web3.startBlock });
+    const contributionsEvents = await this.ico.getPastEvents('NewContribution', {fromBlock: config.web3.startBlock});
     return contributionsEvents.length;
+  }
+
+  async getCurrentGasPrice(): Promise<string> {
+    return this.web3.utils.fromWei(await this.web3.eth.getGasPrice(), 'gwei');
   }
 }
 

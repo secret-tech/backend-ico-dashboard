@@ -46,7 +46,6 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
 
 export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
   const gas = body.gas ? body.gas.toString() : '200000';
-  const gasPrice = body.gasPrice || '20';
   const amount = body.ethAmount.toString();
 
   return {
@@ -54,6 +53,6 @@ export function transformReqBodyToInvestInput(body: any, investor: Investor): Tr
     to: config.contracts.ico.address,
     amount,
     gas,
-    gasPrice
+    gasPrice: body.gasPrice
   };
 }
