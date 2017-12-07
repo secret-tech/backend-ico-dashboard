@@ -226,8 +226,8 @@ export class Web3Client implements Web3ClientInterface {
       this.web3.eth.getBalance(input.from)
         .then((balance) => {
           const BN = this.web3.utils.BN;
-          const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice, 'gwei')));
-          const total = new BN(this.web3.utils.toWei(input.amount)).add(txFee);
+          const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice.toString(), 'gwei')));
+          const total = new BN(this.web3.utils.toWei(input.amount.toString())).add(txFee);
           resolve(total.lte(new BN(balance)));
         })
         .catch((error) => {
