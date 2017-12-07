@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 80:3000
+      - 3000:3000
       - 443:4000
     volumes:
       - ./:/usr/src/app

@@ -36,6 +36,8 @@ export interface Web3ClientInterface {
   sufficientBalance(input: TransactionInput): Promise<boolean>;
 
   getContributionsCount(): Promise<number>;
+
+  getCurrentGasPrice(): Promise<string>;
 }
 
 /* istanbul ignore next */
@@ -73,44 +75,33 @@ export class Web3Client implements Web3ClientInterface {
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
+    const params = {
+      value: this.web3.utils.toWei(input.amount.toString()),
+      from: input.from,
+      to: input.to,
+      gas: input.gas,
+      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
+    };
 
     return new Promise<string>((resolve, reject) => {
-      this.web3.getGasPrice().then((price) => {
-        let gasPrice;
-        if (input.gasPrice) {
-          gasPrice = this.web3.utils.toWei(input.gasPrice, 'gwei');
-        } else {
-          gasPrice = price;
-          input.gasPrice = this.web3.utils.fromWei(price, 'gwei').toString();
+      this.sufficientBalance(input).then((sufficient) => {
+        if (!sufficient) {
+          reject({
+            message: 'Insufficient funds to perform this operation and pay tx fee'
+          });
         }
 
-        const params = {
-          value: this.web3.utils.toWei(input.amount.toString()),
-          from: input.from,
-          to: input.to,
-          gas: input.gas,
-          gasPrice
-        };
-
-        this.sufficientBalance(input).then((sufficient) => {
-          if (!sufficient) {
-            reject({
-              message: 'Insufficient funds to perform this operation and pay tx fee'
+        this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
+          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+            .on('transactionHash', transactionHash => {
+              resolve(transactionHash);
+            })
+            .on('error', (error) => {
+              reject(error);
+            })
+            .catch((error) => {
+              reject(error);
             });
-          }
-
-          this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-            this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
-              .on('transactionHash', transactionHash => {
-                resolve(transactionHash);
-              })
-              .on('error', (error) => {
-                reject(error);
-              })
-              .catch((error) => {
-                reject(error);
-              });
-          });
         });
       });
     });
@@ -226,8 +217,8 @@ export class Web3Client implements Web3ClientInterface {
       this.web3.eth.getBalance(input.from)
         .then((balance) => {
           const BN = this.web3.utils.BN;
-          const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice.toString(), 'gwei')));
-          const total = new BN(this.web3.utils.toWei(input.amount.toString())).add(txFee);
+          const txFee = new BN(input.gas).mul(new BN(this.web3.utils.toWei(input.gasPrice, 'gwei')));
+          const total = new BN(this.web3.utils.toWei(input.amount)).add(txFee);
           resolve(total.lte(new BN(balance)));
         })
         .catch((error) => {
@@ -257,8 +248,12 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getContributionsCount(): Promise<number> {
-    const contributionsEvents = await this.ico.getPastEvents('NewContribution', { fromBlock: config.web3.startBlock });
+    const contributionsEvents = await this.ico.getPastEvents('NewContribution', {fromBlock: config.web3.startBlock});
     return contributionsEvents.length;
+  }
+
+  async getCurrentGasPrice(): Promise<string> {
+    return this.web3.utils.fromWei(await this.web3.eth.getGasPrice(), 'gwei');
   }
 }
 

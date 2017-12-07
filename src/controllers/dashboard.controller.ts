@@ -112,7 +112,14 @@ export class DashboardController {
       throw new IncorrectMnemonic('Not correct mnemonic phrase');
     }
 
+    if (!req.body.gasPrice) {
+      req.body.gasPrice = await this.web3Client.getCurrentGasPrice();
+    }
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
+
+    if (!(await this.web3Client.sufficientBalance(txInput))) {
+      throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
+    }
 
     if (req.user.referral) {
       const referral = await getConnection().mongoManager.findOne(Investor, {
@@ -127,10 +134,6 @@ export class DashboardController {
 
     if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
       throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
-    }
-
-    if (!(await this.web3Client.sufficientBalance(txInput))) {
-      throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
     }
 
     const verificationResult = await this.verificationClient.initiateVerification(
@@ -196,6 +199,9 @@ export class DashboardController {
 
     await this.verificationClient.checkVerificationPayloadAndCode(req.body.verification, req.user.email, payload);
 
+    if (!req.body.gasPrice) {
+      req.body.gasPrice = await this.web3Client.getCurrentGasPrice();
+    }
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
 
     const transactionHash = await this.web3Client.sendTransactionByMnemonic(
