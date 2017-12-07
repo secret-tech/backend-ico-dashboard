@@ -81,7 +81,7 @@ export class Web3Client implements Web3ClientInterface {
           gasPrice = this.web3.utils.toWei(input.gasPrice, 'gwei');
         } else {
           gasPrice = price;
-          input.gasPrice = this.web3.utils.fromWei(price, 'gwei');
+          input.gasPrice = this.web3.utils.fromWei(price, 'gwei').toString();
         }
 
         const params = {
