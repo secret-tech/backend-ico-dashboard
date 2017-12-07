@@ -74,33 +74,43 @@ export class Web3Client implements Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
 
-    const params = {
-      value: this.web3.utils.toWei(input.amount.toString()),
-      from: input.from,
-      to: input.to,
-      gas: input.gas,
-      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
-    };
-
     return new Promise<string>((resolve, reject) => {
-      this.sufficientBalance(input).then((sufficient) => {
-        if (!sufficient) {
-          reject({
-            message: 'Insufficient funds to perform this operation and pay tx fee'
-          });
+      this.web3.getGasPrice().then((price) => {
+        let gasPrice;
+        if (input.gasPrice) {
+          gasPrice = this.web3.utils.toWei(input.gasPrice, 'gwei');
+        } else {
+          gasPrice = price;
+          input.gasPrice = this.web3.utils.fromWei(price, 'gwei');
         }
 
-        this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
-            .on('transactionHash', transactionHash => {
-              resolve(transactionHash);
-            })
-            .on('error', (error) => {
-              reject(error);
-            })
-            .catch((error) => {
-              reject(error);
+        const params = {
+          value: this.web3.utils.toWei(input.amount.toString()),
+          from: input.from,
+          to: input.to,
+          gas: input.gas,
+          gasPrice
+        };
+
+        this.sufficientBalance(input).then((sufficient) => {
+          if (!sufficient) {
+            reject({
+              message: 'Insufficient funds to perform this operation and pay tx fee'
             });
+          }
+
+          this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
+            this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+              .on('transactionHash', transactionHash => {
+                resolve(transactionHash);
+              })
+              .on('error', (error) => {
+                reject(error);
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          });
         });
       });
     });
@@ -135,7 +145,6 @@ export class Web3Client implements Web3ClientInterface {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
-        gasPrice: this.web3.utils.toWei('20', 'gwei'),
         data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
       };
 
@@ -160,7 +169,6 @@ export class Web3Client implements Web3ClientInterface {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
-        gasPrice: this.web3.utils.toWei('20', 'gwei'),
         data: this.whiteList.methods.addReferralOf(address, referral).encodeABI()
       };
 
