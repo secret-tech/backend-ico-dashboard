@@ -247,4 +247,14 @@ describe('Dashboard', () => {
       });
     });
   });
+
+  describe('GET /investTxFee', () => {
+    it('should get expected tx fee', (done) => {
+
+      getRequest(factory.buildApp(), '/dashboard/investTxFee').end((err, res) => {
+        expect(res.status).to.equal(200);
+        done();
+      });
+    });
+  });
 });

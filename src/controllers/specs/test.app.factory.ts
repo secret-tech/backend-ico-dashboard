@@ -310,7 +310,7 @@ const mockVerifyClient = () => {
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
 };
 
-const buildApp = () => {
+export const buildApp = () => {
   const newApp = express();
   newApp.use(bodyParser.json());
   newApp.use(bodyParser.urlencoded({ extended: false }));

@@ -45,7 +45,7 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
 }
 
 export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
-  const gas = body.gas ? body.gas.toString() : '200000';
+  const gas = body.gas ? body.gas.toString() : config.web3.defaultInvestGas;
   const amount = body.ethAmount.toString();
 
   return {
