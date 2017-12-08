@@ -8,8 +8,6 @@ const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
 
-export const DEFAULT_GAS_INVEST = '130000';
-
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
@@ -262,7 +260,7 @@ export class Web3Client implements Web3ClientInterface {
 
   async investmentFee(): Promise<any> {
     const gasPrice = await this.getCurrentGasPrice();
-    const gas = DEFAULT_GAS_INVEST;
+    const gas = config.web3.defaultInvestGas;
     const BN = this.web3.utils.BN;
 
     return {

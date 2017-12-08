@@ -45,7 +45,8 @@ export default {
     accessLog: ACCESS_LOG
   },
   web3: {
-    startBlock: WEB3_RESTORE_START_BLOCK || 1
+    startBlock: WEB3_RESTORE_START_BLOCK || 1,
+    defaultInvestGas: '130000'
   },
   redis: {
     url: REDIS_URL || 'redis://redis:6379',
