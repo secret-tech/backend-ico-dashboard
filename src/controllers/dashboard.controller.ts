@@ -79,6 +79,13 @@ export class DashboardController {
     });
   }
 
+  @httpGet(
+    '/investTxFee'
+  )
+  async getCurrentInvestFee(req: Request, res: Response): Promise<void> {
+    res.json(await this.web3Client.investmentFee());
+  }
+
   /**
    * Get referral data
    */

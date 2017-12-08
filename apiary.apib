@@ -530,6 +530,24 @@ Authentication attempts with not verified token will result in 401 response.
             "daysLeft":64
         }
 
+## Get expected token purchase fee [/dashboard/investTxFee]
+
+### Get expected token purchase fee [GET]
+
++ Request
+
+    + Headers
+
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "gasPrice": "47",
+            "gas": "130000",
+            "expectedTxFee": "0.00611"
+        }
+
 ## Get transaction history [/dashboard/transactions]
 
 ### Get transaction history [GET]

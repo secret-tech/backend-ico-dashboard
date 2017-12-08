@@ -1,6 +1,7 @@
 import { Investor } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
 import config from '../config';
+import { DEFAULT_GAS_INVEST } from '../services/web3.client';
 
 export function transformInvestorForAuth(investor: Investor) {
   return {
@@ -45,7 +46,7 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
 }
 
 export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
-  const gas = body.gas ? body.gas.toString() : '200000';
+  const gas = body.gas ? body.gas.toString() : DEFAULT_GAS_INVEST;
   const amount = body.ethAmount.toString();
 
   return {
