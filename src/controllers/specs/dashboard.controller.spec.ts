@@ -57,7 +57,7 @@ describe('Dashboard', () => {
             {
               date: 1509885929,
               name: 'ICO investor',
-              walletAddress: '0x10Adc25E5356AD3D00544Af41B824d47fE6dB428',
+              walletAddress: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF',
               tokens: '10'
             }
           ]
