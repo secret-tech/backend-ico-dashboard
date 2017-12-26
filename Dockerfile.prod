@@ -11,4 +11,11 @@ RUN npm i
 RUN npm run build
 RUN cp -r src/certs dist/
 
+RUN apk add --update --no-cache git python make g++ && \
+    npm install && \
+    npm run build && \
+    npm prune --production && \
+    apk del --purge git python make g++ && \
+    rm -rf ./src
+
 CMD npm run serve
