@@ -112,17 +112,9 @@ export class TransactionService implements TransactionServiceInterface {
 
     for (let referral of referrals) {
       const transactions = await getMongoManager().createEntityCursor(Transaction, {
-        '$and': [
-          {
-            'to': user.ethWallet.address
-          },
-          {
-            'from': referral.ethWallet.address
-          },
-          {
-            'type': REFERRAL_TRANSFER
-          }
-        ]
+        'to': user.ethWallet.address,
+        'from': referral.ethWallet.address,
+        'type': REFERRAL_TRANSFER
       }).toArray();
 
       if (transactions.length === 0) {
