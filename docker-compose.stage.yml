@@ -4,7 +4,7 @@ services:
     image: registry.jincor.com/backend/ico-stage:latest
     build:
       context: ./
-      dockerfile: Dockerfile.stage
+      dockerfile: Dockerfile.prod
     ports:
       - 80:3000
       - 443:4000
