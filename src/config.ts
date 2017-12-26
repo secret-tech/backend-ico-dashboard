@@ -30,7 +30,11 @@ const {
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
-  WL_OWNER_PK
+  WL_OWNER_PK,
+  KYC_TOKEN,
+  KYC_SECRET,
+  KYC_BASE_URL,
+  KYC_TOKEN_LIFETIME
 } = process.env;
 
 export default {
@@ -114,10 +118,10 @@ export default {
     ]
   },
   kyc: {
-    apiToken: '68b0d36a-46f4-4336-8f4e-e1f570cea5d9',
-    apiSecret: 'w37alAxYV9i5bIsiOF9bROvdzMqNlJGZ',
-    baseUrl: 'https://lon.netverify.com/api/netverify/v2/',
-    defaultTokenLifetime: 5184000 // 60 days - Jumio max allowed value
+    apiToken: KYC_TOKEN,
+    apiSecret: KYC_SECRET,
+    baseUrl: KYC_BASE_URL,
+    defaultTokenLifetime: KYC_TOKEN_LIFETIME || 5184000 // 60 days - Jumio max allowed value
   },
   rpc: {
     type: RPC_TYPE,
