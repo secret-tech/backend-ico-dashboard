@@ -58,7 +58,6 @@ services:
       - "8546"
     volumes:
       - /root/parity:/root/.local/share/io.parity.ethereum
-      - ./passwords:/passwords
     restart: always
     networks:
       default:
