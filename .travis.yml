@@ -10,8 +10,8 @@ script:
 - docker-compose up -d
 - docker-compose exec ico npm i
 - docker-compose exec ico npm test
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif ["$TRAVIS_BRANCH"
-  == "develop"]; then echo "stage"; else echo "dev-$(git rev-parse --short HEAD)"
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif [ "$TRAVIS_BRANCH"
+  == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse --short HEAD)"
   ; fi`
 - "./build.sh $TAG"
 env:
