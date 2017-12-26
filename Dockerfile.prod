@@ -1,14 +1,10 @@
 FROM mhart/alpine-node:8.6
 
-RUN apk update && apk upgrade && apk add git && apk add python && apk add make && apk add g++
-
 RUN mkdir -p /usr/src/app
 ADD . /usr/src/app
 
 WORKDIR /usr/src/app
 
-RUN npm i
-RUN npm run build
 RUN cp -r src/certs dist/
 
 RUN apk add --update --no-cache git python make g++ && \
