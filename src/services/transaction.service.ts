@@ -104,43 +104,40 @@ export class TransactionService implements TransactionServiceInterface {
   }
 
   async getReferralIncome(user: Investor): Promise<ReferralResult> {
-    const transactions = await getMongoManager().createEntityCursor(Transaction, {
-      '$and': [
-        {
-          'to': user.ethWallet.address
-        },
-        {
-          'type': REFERRAL_TRANSFER
-        }
-      ]
+    const referrals = await getMongoManager().createEntityCursor(Investor, {
+      referral: user.email
     }).toArray();
 
     let users = [];
 
-    for (let transaction of transactions) {
-      const referral = await getMongoManager().createEntityCursor(Investor, {
-        'ethWallet.address': transaction.from
+    for (let referral of referrals) {
+      const transactions = await getMongoManager().createEntityCursor(Transaction, {
+        'to': user.ethWallet.address,
+        'from': referral.ethWallet.address,
+        'type': REFERRAL_TRANSFER
       }).toArray();
 
-      if (referral.length === 0) {
-        throw Error('Referral is not found');
+      if (transactions.length === 0) {
+        users.push({
+          tokens: 0,
+          walletAddress: referral.ethWallet.address,
+          name: referral.name
+        });
+      } else {
+        for (let transaction of transactions) {
+          users.push({
+            date: transaction.timestamp,
+            tokens: transaction.jcrAmount,
+            walletAddress: transaction.from,
+            name: referral.name
+          });
+        }
       }
-
-      users.push({
-        date: transaction.timestamp,
-        tokens: transaction.jcrAmount,
-        walletAddress: transaction.from,
-        name: referral[0].name
-      });
     }
-
-    const referralCount = await getMongoManager().createEntityCursor(Investor, {
-      referral: user.email
-    }).count(false);
 
     return {
       data: user.referralCode,
-      referralCount,
+      referralCount: referrals.length,
       users
     };
   }
