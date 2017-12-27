@@ -5,6 +5,7 @@ ADD . /usr/src/app
 
 WORKDIR /usr/src/app
 
+RUN mkdir -p /usr/src/app/dist
 RUN cp -r src/certs dist/
 
 RUN apk add --update --no-cache git python make g++ && \
