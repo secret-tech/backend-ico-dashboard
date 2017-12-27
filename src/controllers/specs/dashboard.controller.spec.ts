@@ -35,9 +35,9 @@ describe('Dashboard', () => {
           raised: {
             ETH: '2000',
             USD: '400000',
-            BTC: '100'
+            BTC: '0'
           },
-          daysLeft: 10
+          daysLeft: Math.floor((1517443200 - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
         });
         done();
       });
@@ -57,7 +57,7 @@ describe('Dashboard', () => {
             {
               date: 1509885929,
               name: 'ICO investor',
-              walletAddress: '0x10Adc25E5356AD3D00544Af41B824d47fE6dB428',
+              walletAddress: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF',
               tokens: '10'
             }
           ]
@@ -243,6 +243,16 @@ describe('Dashboard', () => {
     it('should require authorization', (done) => {
       getRequest(factory.testAppForDashboard(), '/dashboard/transactions').end((err, res) => {
         expect(res.status).to.equal(401);
+        done();
+      });
+    });
+  });
+
+  describe('GET /investTxFee', () => {
+    it('should get expected tx fee', (done) => {
+
+      getRequest(factory.buildApp(), '/dashboard/investTxFee').end((err, res) => {
+        expect(res.status).to.equal(200);
         done();
       });
     });

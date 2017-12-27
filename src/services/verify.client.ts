@@ -1,7 +1,11 @@
 import * as request from 'web-request';
 import { injectable } from 'inversify';
 import config from '../config';
-import { NotCorrectVerificationCode, VerificationIsNotFound } from '../exceptions/exceptions';
+import {
+  MaxVerificationsAttemptsReached,
+  NotCorrectVerificationCode,
+  VerificationIsNotFound
+} from '../exceptions/exceptions';
 
 const QR = require('qr-image');
 
@@ -59,6 +63,11 @@ export class VerificationClient implements VerificationClientInterface {
       });
     } catch (e) {
       if (e.statusCode === 422) {
+        if (e.response.body.data.attempts >= config.verify.maxAttempts) {
+          await this.invalidateVerification(method, id);
+          throw new MaxVerificationsAttemptsReached('You have used all attempts to enter code');
+        }
+
         throw new NotCorrectVerificationCode('Not correct code');
       }
 
@@ -78,6 +87,50 @@ export class VerificationClient implements VerificationClientInterface {
       },
       method: 'DELETE'
     });
+  }
+
+  async getVerification(method: string, id: string): Promise<ValidationResult> {
+    try {
+      return await request.json<ValidationResult>(`/methods/${ method }/verifiers/${ id }`, {
+        baseUrl: this.baseUrl,
+        auth: {
+          bearer: this.tenantToken
+        },
+        method: 'GET'
+      });
+    } catch (e) {
+      if (e.statusCode === 404) {
+        throw new VerificationIsNotFound('Code was expired or not found. Please retry');
+      }
+
+      throw e;
+    }
+  }
+
+  async checkVerificationPayloadAndCode(
+    inputVerification: VerificationData,
+    consumer: string,
+    payload: any,
+    removeSecret?: boolean
+  ): Promise<ValidationResult> {
+    const verification = await this.getVerification(
+      inputVerification.method,
+      inputVerification.verificationId
+    );
+
+    // JSON.stringify is the simplest method to check that 2 objects have same properties
+    if (verification.data.consumer !== consumer || JSON.stringify(verification.data.payload) !== JSON.stringify(payload)) {
+      throw new Error('Invalid verification payload');
+    }
+
+    return await this.validateVerification(
+      inputVerification.method,
+      inputVerification.verificationId,
+      {
+        code: inputVerification.code,
+        removeSecret
+      }
+    );
   }
 }
 

@@ -25,7 +25,8 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
     defaultVerificationMethod: investor.defaultVerificationMethod,
     referralCode: investor.referralCode,
     kycStatus: investor.kycStatus,
-    referral: investor.referral
+    referral: investor.referral,
+    source: investor.source
   };
 }
 
@@ -44,8 +45,7 @@ export function transformVerifiedToken(token: VerifiedToken): VerifyLoginResult 
 }
 
 export function transformReqBodyToInvestInput(body: any, investor: Investor): TransactionInput {
-  const gas = body.gas ? body.gas.toString() : '200000';
-  const gasPrice = body.gasPrice || '20';
+  const gas = body.gas ? body.gas.toString() : config.web3.defaultInvestGas;
   const amount = body.ethAmount.toString();
 
   return {
@@ -53,6 +53,6 @@ export function transformReqBodyToInvestInput(body: any, investor: Investor): Tr
     to: config.contracts.ico.address,
     amount,
     gas,
-    gasPrice
+    gasPrice: body.gasPrice
   };
 }

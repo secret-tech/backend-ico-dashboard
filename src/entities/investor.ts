@@ -45,6 +45,9 @@ export class Investor {
   @Column()
   kycStatus: string;
 
+  @Column()
+  source: any;
+
   @Column(type => Verification)
   verification: Verification;
 
@@ -73,6 +76,7 @@ export class Investor {
       method: EMAIL_VERIFICATION
     });
     user.invitees = [];
+    user.source = data.source;
     return user;
   }
 

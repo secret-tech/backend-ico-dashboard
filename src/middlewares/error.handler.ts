@@ -34,6 +34,10 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
       // no break
     case Err.InviteIsNotAllowed:
       // no break
+    case Err.MaxVerificationsAttemptsReached:
+      // no break
+    case Err.IncorrectMnemonic:
+      // no break
     case Err.ReferralIsNotActivated:
       status = 422;
       break;

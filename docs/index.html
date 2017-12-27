@@ -1,0 +1,725 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jincor ICO dashboard backend</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"><style>@import url('https://fonts.googleapis.com/css?family=Roboto:400,700|Inconsolata|Raleway:200');.hljs-comment,.hljs-title{color:#8e908c}.hljs-variable,.hljs-attribute,.hljs-tag,.hljs-regexp,.ruby .hljs-constant,.xml .hljs-tag .hljs-title,.xml .hljs-pi,.xml .hljs-doctype,.html .hljs-doctype,.css .hljs-id,.css .hljs-class,.css .hljs-pseudo{color:#c82829}.hljs-number,.hljs-preprocessor,.hljs-pragma,.hljs-built_in,.hljs-literal,.hljs-params,.hljs-constant{color:#f5871f}.ruby .hljs-class .hljs-title,.css .hljs-rules .hljs-attribute{color:#eab700}.hljs-string,.hljs-value,.hljs-inheritance,.hljs-header,.ruby .hljs-symbol,.xml .hljs-cdata{color:#718c00}.css .hljs-hexcolor{color:#3e999f}.hljs-function,.python .hljs-decorator,.python .hljs-title,.ruby .hljs-function .hljs-title,.ruby .hljs-title .hljs-keyword,.perl .hljs-sub,.javascript .hljs-title,.coffeescript .hljs-title{color:#4271ae}.hljs-keyword,.javascript .hljs-function{color:#8959a8}.hljs{display:block;background:white;color:#4d4d4c;padding:.5em}.coffeescript .javascript,.javascript .xml,.tex .hljs-formula,.xml .javascript,.xml .vbscript,.xml .css,.xml .hljs-cdata{opacity:.5}.right .hljs-comment{color:#969896}.right .css .hljs-class,.right .css .hljs-id,.right .css .hljs-pseudo,.right .hljs-attribute,.right .hljs-regexp,.right .hljs-tag,.right .hljs-variable,.right .html .hljs-doctype,.right .ruby .hljs-constant,.right .xml .hljs-doctype,.right .xml .hljs-pi,.right .xml .hljs-tag .hljs-title{color:#c66}.right .hljs-built_in,.right .hljs-constant,.right .hljs-literal,.right .hljs-number,.right .hljs-params,.right .hljs-pragma,.right .hljs-preprocessor{color:#de935f}.right .css .hljs-rule .hljs-attribute,.right .ruby .hljs-class .hljs-title{color:#f0c674}.right .hljs-header,.right .hljs-inheritance,.right .hljs-name,.right .hljs-string,.right .hljs-value,.right .ruby .hljs-symbol,.right .xml .hljs-cdata{color:#b5bd68}.right .css .hljs-hexcolor,.right .hljs-title{color:#8abeb7}.right .coffeescript .hljs-title,.right .hljs-function,.right .javascript .hljs-title,.right .perl .hljs-sub,.right .python .hljs-decorator,.right .python .hljs-title,.right .ruby .hljs-function .hljs-title,.right .ruby .hljs-title .hljs-keyword{color:#81a2be}.right .hljs-keyword,.right .javascript .hljs-function{color:#b294bb}.right .hljs{display:block;overflow-x:auto;background:#1d1f21;color:#c5c8c6;padding:.5em;-webkit-text-size-adjust:none}.right .coffeescript .javascript,.right .javascript .xml,.right .tex .hljs-formula,.right .xml .css,.right .xml .hljs-cdata,.right .xml .javascript,.right .xml .vbscript{opacity:.5}.hljs-comment,.hljs-quote{color:#7e7777}.hljs-attribute,.hljs-link,.hljs-name,.hljs-regexp,.hljs-selector-class,.hljs-selector-id,.hljs-tag,.hljs-template-variable,.hljs-variable{color:#ca4949}.hljs-built_in,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-type{color:#b45a3c}.hljs-bullet,.hljs-string,.hljs-symbol{color:#4b8b8b}.hljs-section,.hljs-title{color:#7272ca}.hljs-keyword,.hljs-selector-tag{color:#8464c4}.hljs-addition,.hljs-deletion{color:#1b1818;display:inline-block;width:100%}.hljs-deletion{background-color:#ca4949}.hljs-addition{background-color:#4b8b8b}.hljs{display:block;overflow-x:auto;background:#1b1818;color:#8a8585;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}.right .hljs-comment,.right .hljs-quote{color:#7e7777}.right .hljs-attribute,.right .hljs-link,.right .hljs-name,.right .hljs-regexp,.right .hljs-selector-class,.right .hljs-selector-id,.right .hljs-tag,.right .hljs-template-variable,.right .hljs-variable{color:#ca4949}.right .hljs-built_in,.right .hljs-literal,.right .hljs-meta,.right .hljs-number,.right .hljs-params,.right .hljs-type{color:#b45a3c}.right .hljs-bullet,.right .hljs-string,.right .hljs-symbol{color:#4b8b8b}.right .hljs-section,.right .hljs-title{color:#7272ca}.right .hljs-keyword,.right .hljs-selector-tag{color:#8464c4}.right .hljs-addition,.right .hljs-deletion{color:#1b1818;display:inline-block;width:100%}.right .hljs-deletion{background-color:#ca4949}.right .hljs-addition{background-color:#4b8b8b}.right .hljs{display:block;overflow-x:auto;background:#1b1818;color:#8a8585;padding:.5em}.right .hljs-emphasis{font-style:italic}.right .hljs-strong{font-weight:700}body{color:#888;background:#060606;font:400 14px / 1.42 'Roboto',Helvetica,sans-serif}header{border-bottom:1px solid #3c3c3c;margin-bottom:12px}h1,h2,h3,h4,h5{color:white;margin:12px 0}h1 .permalink,h2 .permalink,h3 .permalink,h4 .permalink,h5 .permalink{margin-left:0;opacity:0;transition:opacity .25s ease}h1:hover .permalink,h2:hover .permalink,h3:hover .permalink,h4:hover .permalink,h5:hover .permalink{opacity:1}.triple h1 .permalink,.triple h2 .permalink,.triple h3 .permalink,.triple h4 .permalink,.triple h5 .permalink{opacity:.15}.triple h1:hover .permalink,.triple h2:hover .permalink,.triple h3:hover .permalink,.triple h4:hover .permalink,.triple h5:hover .permalink{opacity:.15}h1{font:200 36px 'Raleway',Helvetica,sans-serif;font-size:36px}h2{font:200 36px 'Raleway',Helvetica,sans-serif;font-size:30px}h3{font-size:100%;text-transform:uppercase}h5{font-size:100%;font-weight:normal}p{margin:0 0 10px}p.choices{line-height:1.6}a{color:#2a9fd6;text-decoration:none}li p{margin:0}hr.split{border:0;height:1px;width:100%;padding-left:6px;margin:12px auto;background-image:linear-gradient(to right, rgba(136,136,136,0) 20%, rgba(136,136,136,0.2) 51.4%, rgba(136,136,136,0.2) 51.4%, rgba(136,136,136,0) 80%)}dl dt{float:left;width:130px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}dl dd{margin-left:150px}blockquote{color:rgba(136,136,136,0.5);font-size:15.5px;padding:10px 20px;margin:12px 0;border-left:5px solid #282828}blockquote p:last-child{margin-bottom:0}pre{background-color:#1b1b1b;padding:12px;border:1px solid #282828;border-radius:6px;overflow:auto}pre code{color:#888;background-color:transparent;padding:0;border:none}code{color:#ddd;background-color:#444;font:'Inconsolata',monospace;padding:1px 4px;border:1px solid #282828;border-radius:3px}ul,ol{padding-left:2em}table{border-collapse:collapse;border-spacing:0;margin-bottom:12px}table tr:nth-child(2n){background-color:#010101}table th,table td{padding:6px 12px;border:1px solid #000}.text-muted{opacity:.5}.note,.warning{padding:.3em 1em;margin:1em 0;border-radius:2px;font-size:90%}.note h1,.warning h1,.note h2,.warning h2,.note h3,.warning h3,.note h4,.warning h4,.note h5,.warning h5,.note h6,.warning h6{font-family:200 36px 'Raleway',Helvetica,sans-serif;font-size:135%;font-weight:500}.note p,.warning p{margin:.5em 0}.note{color:#888;background-color:#191e10;border-left:4px solid #77b300}.note h1,.note h2,.note h3,.note h4,.note h5,.note h6{color:#77b300}.warning{color:#888;background-color:#1b1010;border-left:4px solid #900}.warning h1,.warning h2,.warning h3,.warning h4,.warning h5,.warning h6{color:#900}header{margin-top:24px}nav{position:fixed;top:24px;bottom:0;overflow-y:auto}nav .resource-group{padding:0}nav .resource-group .heading{position:relative}nav .resource-group .heading .chevron{position:absolute;top:12px;right:12px;opacity:.5}nav .resource-group .heading a{display:block;color:#888;opacity:.7;border-left:2px solid transparent;margin:0}nav .resource-group .heading a:hover{text-decoration:none;background-color:bad-color;border-left:2px solid #888}nav ul{list-style-type:none;padding-left:0}nav ul a{display:block;font-size:13px;color:rgba(136,136,136,0.7);padding:8px 12px;border-top:1px solid #2a2a2a;border-left:2px solid transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}nav ul a:hover{text-decoration:none;background-color:bad-color;border-left:2px solid #888}nav ul>li{margin:0}nav ul>li:first-child{margin-top:-12px}nav ul>li:last-child{margin-bottom:-12px}nav ul ul a{padding-left:24px}nav ul ul li{margin:0}nav ul ul li:first-child{margin-top:0}nav ul ul li:last-child{margin-bottom:0}nav>div>div>ul>li:first-child>a{border-top:none}.preload *{transition:none !important}.pull-left{float:left}.pull-right{float:right}.badge{display:inline-block;float:right;min-width:10px;min-height:14px;padding:3px 7px;font-size:12px;color:#fff;background-color:#3c3c3c;border-radius:10px;margin:-2px 0}.badge.get{color:white;background-color:#9933cc}.badge.head{color:white;background-color:#9933cc}.badge.options{color:white;background-color:#9933cc}.badge.put{color:white;background-color:#ff8800}.badge.patch{color:white;background-color:#ff8800}.badge.post{color:white;background-color:#77b300}.badge.delete{color:white;background-color:#cc0000}.collapse-button{float:right}.collapse-button .close{display:none;color:#2a9fd6;cursor:pointer}.collapse-button .open{color:#2a9fd6;cursor:pointer}.collapse-button.show .close{display:inline}.collapse-button.show .open{display:none}.collapse-content{max-height:0;overflow:hidden;transition:max-height .3s ease-in-out}nav{width:220px}.container{max-width:940px;margin-left:auto;margin-right:auto}.container .row .content{margin-left:244px;width:696px}.container .row:after{content:'';display:block;clear:both}.container-fluid nav{width:22%}.container-fluid .row .content{margin-left:24%}.container-fluid.triple nav{width:16.5%;padding-right:1px}.container-fluid.triple .row .content{position:relative;margin-left:16.5%;padding-left:24px}.middle:before,.middle:after{content:'';display:table}.middle:after{clear:both}.middle{box-sizing:border-box;width:51.5%;padding-right:12px}.right{box-sizing:border-box;float:right;width:48.5%;padding-left:12px}.right a{color:#2a9fd6}.right h1,.right h2,.right h3,.right h4,.right h5,.right p,.right div{color:#888}.right pre{background-color:#222;border:1px solid #222}.right pre code{color:#888}.right .description{margin-top:12px}.triple .resource-heading{font-size:125%}.definition{margin-top:12px;margin-bottom:12px}.definition .method{font-weight:bold}.definition .method.get{color:#8a2eb8}.definition .method.head{color:#8a2eb8}.definition .method.options{color:#8a2eb8}.definition .method.post{color:#89b82e}.definition .method.put{color:#b8772e}.definition .method.patch{color:#b8772e}.definition .method.delete{color:#b82e2e}.definition .uri{word-break:break-all;word-wrap:break-word}.definition .hostname{opacity:.5}.example-names{background-color:#eee;padding:12px;border-radius:6px}.example-names .tab-button{cursor:pointer;color:#888;border:1px solid #ddd;padding:6px;margin-left:12px}.example-names .tab-button.active{background-color:#c8c8c8}.right .example-names{background-color:#101010}.right .example-names .tab-button{color:#888;border:1px solid #060606;border-radius:6px}.right .example-names .tab-button.active{background-color:#2a2a2a}#nav-background{position:fixed;left:0;top:0;bottom:0;width:16.5%;padding-right:14.4px;background-color:#060606;border-right:1px solid #060606;z-index:-1}#right-panel-background{position:absolute;right:-12px;top:-12px;bottom:-12px;width:48.6%;background-color:#1a1a1a;z-index:-1}@media (max-width:1200px){nav{width:198px}.container{max-width:840px}.container .row .content{margin-left:224px;width:606px}}@media (max-width:992px){nav{width:169.4px}.container{max-width:720px}.container .row .content{margin-left:194px;width:526px}}@media (max-width:768px){nav{display:none}.container{width:95%;max-width:none}.container .row .content,.container-fluid .row .content,.container-fluid.triple .row .content{margin-left:auto;margin-right:auto;width:95%}#nav-background{display:none}#right-panel-background{width:48.6%}}.back-to-top{position:fixed;z-index:1;bottom:0;right:24px;padding:4px 8px;color:rgba(136,136,136,0.5);background-color:#3c3c3c;text-decoration:none !important;border-top:1px solid #2a2a2a;border-left:1px solid #2a2a2a;border-right:1px solid #2a2a2a;border-top-left-radius:3px;border-top-right-radius:3px}.resource-group{padding:12px;margin-bottom:12px;background-color:#222;border:1px solid #2a2a2a;border-radius:6px}.resource-group h2.group-heading,.resource-group .heading a{padding:12px;margin:-12px -12px 12px -12px;background-color:#3c3c3c;border-bottom:1px solid #2a2a2a;border-top-left-radius:6px;border-top-right-radius:6px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.triple .content .resource-group{padding:0;border:none}.triple .content .resource-group h2.group-heading,.triple .content .resource-group .heading a{margin:0 0 12px 0;border:1px solid #2a2a2a}nav .resource-group .heading a{padding:12px;margin-bottom:0}nav .resource-group .collapse-content{padding:0}.action{margin-bottom:12px;padding:12px 12px 0 12px;overflow:hidden;border:1px solid transparent;border-radius:6px}.action h4.action-heading{padding:6px 12px;margin:-12px -12px 12px -12px;border-bottom:1px solid transparent;border-top-left-radius:6px;border-top-right-radius:6px;overflow:hidden}.action h4.action-heading .name{float:right;font-weight:normal;padding:6px 0}.action h4.action-heading .method{padding:6px 12px;margin-right:12px;border-radius:3px;display:inline-block}.action h4.action-heading .method.get{color:#fff;background-color:#5c1f7a}.action h4.action-heading .method.head{color:#fff;background-color:#5c1f7a}.action h4.action-heading .method.options{color:#fff;background-color:#5c1f7a}.action h4.action-heading .method.put{color:#fff;background-color:#995200}.action h4.action-heading .method.patch{color:#fff;background-color:#995200}.action h4.action-heading .method.post{color:#fff;background-color:#334d00}.action h4.action-heading .method.delete{color:#fff;background-color:#600}.action h4.action-heading code{color:#ddd;background-color:#2b2b2b;border-color:transparent;font-weight:normal;word-break:break-all;display:inline-block;margin-top:2px}.action dl.inner{padding-bottom:2px}.action .title{border-bottom:1px solid #222;margin:0 -12px -1px -12px;padding:12px}.action.get{border-color:#7a29a3}.action.get h4.action-heading{color:#5c1f7a;background:#9933cc;border-bottom-color:#7a29a3}.action.head{border-color:#7a29a3}.action.head h4.action-heading{color:#5c1f7a;background:#9933cc;border-bottom-color:#7a29a3}.action.options{border-color:#7a29a3}.action.options h4.action-heading{color:#5c1f7a;background:#9933cc;border-bottom-color:#7a29a3}.action.post{border-color:#558000}.action.post h4.action-heading{color:#334d00;background:#77b300;border-bottom-color:#558000}.action.put{border-color:#cc6d00}.action.put h4.action-heading{color:#995200;background:#ff8800;border-bottom-color:#cc6d00}.action.patch{border-color:#cc6d00}.action.patch h4.action-heading{color:#995200;background:#ff8800;border-bottom-color:#cc6d00}.action.delete{border-color:#900}.action.delete h4.action-heading{color:#600;background:#cc0000;border-bottom-color:#900}</style></head><body class="preload"><div id="nav-background"></div><div class="container-fluid triple"><div class="row"><nav><div class="resource-group"><div class="heading"><div class="chevron"><i class="open fa fa-angle-down"></i></div><a href="#">Resource Group</a></div><div class="collapse-content"><ul><li><a href="#register-user-post"><span class="badge post"><i class="fa fa-plus"></i></span>Register new user</a></li><li><a href="#activate-a-user-post"><span class="badge post"><i class="fa fa-plus"></i></span>Activate a user</a></li><li><a href="#initiate-login-post"><span class="badge post"><i class="fa fa-plus"></i></span>Initiate login</a></li><li><a href="#verify-login-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify login</a></li><li><a href="#initiate-password-change-post"><span class="badge post"><i class="fa fa-plus"></i></span>Initiate password change</a></li><li><a href="#verify-password-change-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify password change</a></li><li><a href="#initiate-password-reset-post"><span class="badge post"><i class="fa fa-plus"></i></span>Initiate password change</a></li><li><a href="#verify-password-reset-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify password change</a></li><li><a href="#initiate-enable-2fa-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Initiate enable 2fa</a></li><li><a href="#verify-enable-2fa-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify enable 2fa</a></li><li><a href="#initiate-disable-2fa-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Initiate disable 2fa</a></li><li><a href="#verify-disable-2fa-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify disable 2fa</a></li><li><a href="#get-user-info-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get user info</a></li><li><a href="#invite-users-post"><span class="badge post"><i class="fa fa-plus"></i></span>Invite users by email</a></li><li><a href="#get-dashboard-info-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get dashboard info</a></li><li><a href="#get-public-dashboard-info-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get public dashboard info</a></li><li><a href="#get-expected-token-purchase-fee-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get expected token purchase fee</a></li><li><a href="#get-transaction-history-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get transaction history</a></li><li><a href="#get-referral-info-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Get referral info</a></li><li><a href="#initiate-investment-post"><span class="badge post"><i class="fa fa-plus"></i></span>Initiate investment</a></li><li><a href="#verify-investment-post"><span class="badge post"><i class="fa fa-plus"></i></span>Verify investment</a></li><li><a href="#init-kyc-process-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Init KYC process</a></li></ul></div></div><p style="text-align: center; word-wrap: break-word;"><a href="http://ico-dashboard:3000/">http://ico-dashboard:3000/</a></p></nav><div class="content"><div id="right-panel-background"></div><div class="middle"><header><h1 id="top">Jincor ICO dashboard backend</h1></header></div><div class="right"><h5>API Endpoint</h5><a href="http://ico-dashboard:3000/">http://ico-dashboard:3000/</a></div><div class="middle"><p>Almost all operations require 2-factor Authentication.
+To fulfill this requirement most of them are split to 2 endpoints: first (e.g. /user/login/initiate)
+initiates login and generates JWT token. Next this token must be verified using endpoint /user/login/verify.</p>
+</div><div class="middle"><section id="" class="resource-group"><h2 class="group-heading">Resource Group <a href="#" class="permalink">&para;</a></h2></section></div><div class="middle"><div id="register-user" class="resource"><h3 class="resource-heading">Register user <a href="#register-user" class="permalink">&para;</a></h3><p>User’s email must be verified after registration. Next step after calling this endpoint is <code>POST /user/activate</code> using <code>verification.id</code> from response.</p>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ICO investor"</span></span>,
+  "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"test12A6!@#$%^&amp;*()_-=+|/"</span></span>,
+  "<span class="hljs-attribute">referral</span>": <span class="hljs-value"><span class="hljs-string">"dGVzdEB0ZXN0LmNvbQ"</span></span>,
+  "<span class="hljs-attribute">agreeTos</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+  "<span class="hljs-attribute">source</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">utm</span>": <span class="hljs-value"><span class="hljs-string">"utm"</span></span>,
+    "<span class="hljs-attribute">gtm</span>": <span class="hljs-value"><span class="hljs-string">"gtm"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span><span class="tab-button">422</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"fb10d98f-2a5e-430d-bf2a-c76b42259b74"</span></span>,
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ICO investor"</span></span>,
+  "<span class="hljs-attribute">agreeTos</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"3ed09e0a-72e1-417b-a05c-f0f08a5e1ffa"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">isVerified</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+  "<span class="hljs-attribute">defaultVerificationMethod</span>": <span class="hljs-value"><span class="hljs-string">"email"</span></span>,
+  "<span class="hljs-attribute">referralCode</span>": <span class="hljs-value"><span class="hljs-string">"b3J0Z21hQGdtYWlsLmNvbQ"</span></span>,
+  "<span class="hljs-attribute">referral</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+  "<span class="hljs-attribute">source</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">utm</span>": <span class="hljs-value"><span class="hljs-string">"utm"</span></span>,
+    "<span class="hljs-attribute">gtm</span>": <span class="hljs-value"><span class="hljs-string">"gtm"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">isJoi</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ValidationError"</span></span>,
+    "<span class="hljs-attribute">details</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Not valid referral code"</span></span>,
+        "<span class="hljs-attribute">path</span>": <span class="hljs-value"><span class="hljs-string">"referral"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string.email"</span></span>,
+        "<span class="hljs-attribute">context</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">value</span>": <span class="hljs-value"><span class="hljs-string">"�m�"</span></span>,
+          "<span class="hljs-attribute">key</span>": <span class="hljs-value"><span class="hljs-string">" "</span>
+        </span>}
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">_object</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"ortgma111@gmail.com"</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ICO investor"</span></span>,
+      "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"PasswordA1"</span></span>,
+      "<span class="hljs-attribute">agreeTos</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+      "<span class="hljs-attribute">referral</span>": <span class="hljs-value"><span class="hljs-string">"�m�"</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">value</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"ortgma111@gmail.com"</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ICO investor"</span></span>,
+    "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"PasswordA1"</span></span>,
+    "<span class="hljs-attribute">agreeTos</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+    "<span class="hljs-attribute">referral</span>": <span class="hljs-value"><span class="hljs-string">"�m�"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="register-user-post" class="action post"><h4 class="action-heading"><div class="name">Register new user</div><a href="#register-user-post" class="method post">POST</a><code class="uri">/user</code></h4><ul>
+<li>
+<p>email <code>test@test.com</code> (string, required, email)</p>
+</li>
+<li>
+<p>password <code>passwordA6</code> (string, required, min: 6, regex: ^(?=.<em>[a-z])(?=.</em>[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$)</p>
+</li>
+<li>
+<p>name <code>ICO investor</code> (string, required, min: 3)</p>
+</li>
+<li>
+<p>agreeTos <code>true</code> (boolean, equals: true)</p>
+</li>
+<li>
+<p>referral <code>referral@test.com</code> (optional, string, base64 encoded email)</p>
+</li>
+</ul>
+</div></div><hr class="split"><div class="middle"><div id="activate-a-user" class="resource"><h3 class="resource-heading">Activate a user <a href="#activate-a-user" class="permalink">&para;</a></h3><p>This endpoint response with JWT token so user can be immediately redirected to dashboard.
+JWT token received by <code>/activate</code> DOES NOT require verification.
+This endpoint’s response also contains VERY important information: mnemonic phrase and private key of
+user’s ethereum address. This information should be saved by user. If user loses this he will also LOSE
+access to his wallet of ICO dashboard.</p>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/activate</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+  "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"5bb38971-1f22-4f99-a904-62fb44430ab4"</span></span>,
+  "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"327845"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">accessToken</span>": <span class="hljs-value"><span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY5NzM5MmVjLTBlYzItNGI3Mi04NmFiLTExMmYxM2ViOWYxNSIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiZjk3MzkyZWMtMGVjMi00YjcyLTg2YWItMTEyZjEzZWI5ZjE1ZGV2aWNlMTUwNzgxNjcyOTk2MCIsImlhdCI6MTUwNzgxNjcyOTk2MCwic3ViIjoiYWU3YzViNzYtNTgyMS00ZGUyLWE2OGYtZGQ0YzAwN2VkODM0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzgxNzMzNDc2MH0.Va8aBa_kDY2sqz2iZRnRWcOCF6cAGU5T69Y3-Ijg9KI"</span></span>,
+  "<span class="hljs-attribute">wallets</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">ticker</span>": <span class="hljs-value"><span class="hljs-string">"ETH"</span></span>,
+      "<span class="hljs-attribute">address</span>": <span class="hljs-value"><span class="hljs-string">"0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751"</span></span>,
+      "<span class="hljs-attribute">balance</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+      "<span class="hljs-attribute">mnemonic</span>": <span class="hljs-value"><span class="hljs-string">"skull rain doctor wine stand pigeon roof half laundry tank hero behave"</span></span>,
+      "<span class="hljs-attribute">privateKey</span>": <span class="hljs-value"><span class="hljs-string">"0xda2b3f0590d9f0a8e310203e1c7136693d0954420a82ab2cbcfa88eca07b4b31"</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="activate-a-user-post" class="action post"><h4 class="action-heading"><div class="name">Activate a user</div><a href="#activate-a-user-post" class="method post">POST</a><code class="uri">/user/activate</code></h4><ul>
+<li>
+<p>email <code>test@test.com</code> (string, required, email)</p>
+</li>
+<li>
+<p>verificationId <code>bb38971-1f22-4f99-a904-62fb44430ab4</code> (string, required)</p>
+</li>
+<li>
+<p>code <code>123456</code> (string, required)</p>
+</li>
+</ul>
+</div></div><hr class="split"><div class="middle"><div id="initiate-login" class="resource"><h3 class="resource-heading">Initiate login <a href="#initiate-login" class="permalink">&para;</a></h3><p>The accessToken got from this endpoint response MUST BE ALWAYS verified via <code>/user/login/verify</code>.
+Authentication attempts with not verified token will result in 401 response.</p>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/login/initiate</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+  "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"test12A6!@#$%^&amp;*()_-=+|/"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">accessToken</span>": <span class="hljs-value"><span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc"</span></span>,
+  "<span class="hljs-attribute">isVerified</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"7fa96769-7bcc-4705-b544-02a83707cfc8"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1507720153</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="initiate-login-post" class="action post"><h4 class="action-heading"><div class="name">Initiate login</div><a href="#initiate-login-post" class="method post">POST</a><code class="uri">/user/login/initiate</code></h4><ul>
+<li>
+<p>email <code>test@test.com</code> (string, required, email)</p>
+</li>
+<li>
+<p>password <code>passwordA6</code> (string, required)</p>
+</li>
+</ul>
+</div></div><hr class="split"><div class="middle"><div id="verify-login" class="resource"><h3 class="resource-heading">Verify login <a href="#verify-login" class="permalink">&para;</a></h3><ul>
+<li>
+<p>accessToken <code>token</code> (required, string)</p>
+</li>
+<li>
+<p>verification</p>
+<ul>
+<li>id (string, required)</li>
+<li>code (string, required)</li>
+<li>method (string, required)</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/login/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">accessToken</span>": <span class="hljs-value"><span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc"</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"7fa96769-7bcc-4705-b544-02a83707cfc8"</span></span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"544188"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">accessToken</span>": <span class="hljs-value"><span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhYTQzMzA0LTNhMTEtNDNkNy05NjNhLTRmNDA0OTY2MDVmMyIsImxvZ2luIjoidGVzdEB0ZXN0LmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiM2FhNDMzMDQtM2ExMS00M2Q3LTk2M2EtNGY0MDQ5NjYwNWYzZGV2aWNlMTUwNzcxOTg1MzcwNiIsImlhdCI6MTUwNzcxOTg1MzcwNiwic3ViIjoiNWJiMzg5NzEtMWYyMi00Zjk5LWE5MDQtNjJmYjQ0NDMwYWI0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwNzcyMDQ1ODUwNn0.vaZtMpPlPZDSLCVpMMC2dpCvbSram9mXNBPAaxSupKc"</span></span>,
+  "<span class="hljs-attribute">isVerified</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"7fa96769-7bcc-4705-b544-02a83707cfc8"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1507720153</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-login-post" class="action post"><h4 class="action-heading"><div class="name">Verify login</div><a href="#verify-login-post" class="method post">POST</a><code class="uri">/user/login/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="initiate-password-change" class="resource"><h3 class="resource-heading">Initiate password change <a href="#initiate-password-change" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/me/changePassword/initiate</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">oldPassword</span>": <span class="hljs-value"><span class="hljs-string">"test12A6!@#$%^&amp;*()_-=+|/"</span></span>,
+  "<span class="hljs-attribute">newPassword</span>": <span class="hljs-value"><span class="hljs-string">"passwordA1"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"8f9ba03c-e903-459c-adb9-7594865a03a4"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1508268673</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="initiate-password-change-post" class="action post"><h4 class="action-heading"><div class="name">Initiate password change</div><a href="#initiate-password-change-post" class="method post">POST</a><code class="uri">/user/me/changePassword/initiate</code></h4><ul>
+<li>
+<p>oldPassword <code>passwordA1</code> (string, required)</p>
+</li>
+<li>
+<p>newPassword <code>passwordA6</code> (string, required, regex: /^(?=.<em>[a-z])(?=.</em>[A-Z])(?=.<em>\d)[a-zA-Z0\d!&quot;#$%&amp;’()</em>+,-./:;&lt;=&gt;?@[]^_`{|}~]{8,}$/)</p>
+</li>
+</ul>
+</div></div><hr class="split"><div class="middle"><div id="verify-password-change" class="resource"><h3 class="resource-heading">Verify password change <a href="#verify-password-change" class="permalink">&para;</a></h3><ul>
+<li>
+<p>oldPassword (required, string)</p>
+</li>
+<li>
+<p>newPassword (required, string, regex: /^(?=.<em>[a-z])(?=.</em>[A-Z])(?=.<em>\d)[a-zA-Z0\d!&quot;#$%&amp;’()</em>+,-./:;&lt;=&gt;?@[]^_`{|}~]{8,}$/)</p>
+</li>
+<li>
+<p>verification</p>
+<ul>
+<li>verificationId (string, required)</li>
+<li>code (string, required)</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/me/changePassword/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">oldPassword</span>": <span class="hljs-value"><span class="hljs-string">"test12A6!@#$%^&amp;*()_-=+|/"</span></span>,
+  "<span class="hljs-attribute">newPassword</span>": <span class="hljs-value"><span class="hljs-string">"passwordA1"</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"d65aa8f7-3b8a-4764-a003-1ecd06dda7fd"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span></span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"186198"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">accessToken</span>": <span class="hljs-value"><span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJiNWRjOTBjLTM1NTktNDZhNS04MGNhLTA3Mjg0OTczMjdlYiIsImxvZ2luIjoib3J0Z21hQGdtYWlsLmNvbSIsImRldmljZUlkIjoiZGV2aWNlIiwianRpIjoiYmI1ZGM5MGMtMzU1OS00NmE1LTgwY2EtMDcyODQ5NzMyN2ViZGV2aWNlMTUwODI2NTEwMjQ1NSIsImlhdCI6MTUwODI2NTEwMjQ1NSwic3ViIjoiOGY5YmEwM2MtZTkwMy00NTljLWFkYjktNzU5NDg2NWEwM2E0IiwiYXVkIjoiamluY29yLmNvbSIsImV4cCI6MTUwODI2NTcwNzI1NX0.9HDUMmamSIZX7T0qTKId6oN4XYU7ni7Wx8lQSiIz1S0"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-password-change-post" class="action post"><h4 class="action-heading"><div class="name">Verify password change</div><a href="#verify-password-change-post" class="method post">POST</a><code class="uri">/user/me/changePassword/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="initiate-password-reset" class="resource"><h3 class="resource-heading">Initiate password reset <a href="#initiate-password-reset" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/resetPassword/initiate</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"8f9ba03c-e903-459c-adb9-7594865a03a4"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1508268673</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="initiate-password-reset-post" class="action post"><h4 class="action-heading"><div class="name">Initiate password change</div><a href="#initiate-password-reset-post" class="method post">POST</a><code class="uri">/user/resetPassword/initiate</code></h4><ul>
+<li>email <code>test@test.com</code> (string, email, required)</li>
+</ul>
+</div></div><hr class="split"><div class="middle"><div id="verify-password-reset" class="resource"><h3 class="resource-heading">Verify password reset <a href="#verify-password-reset" class="permalink">&para;</a></h3><ul>
+<li>
+<p>email (required, email, string)</p>
+</li>
+<li>
+<p>newPassword (required, string, regex: /^(?=.<em>[a-z])(?=.</em>[A-Z])(?=.<em>\d)[a-zA-Z0\d!&quot;#$%&amp;’()</em>+,-./:;&lt;=&gt;?@[]^_`{|}~]{8,}$/)</p>
+</li>
+<li>
+<p>verification</p>
+<ul>
+<li>verificationId (string, required)</li>
+<li>code (string, required)</li>
+<li>method (string, required, in [“email”, “google_auth”])</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/resetPassword/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+  "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"PasswordA1"</span></span>,
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"b41498d8-a9db-4bb5-b338-0e8f47582066"</span></span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"813365"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+  "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"631dbfce-c5cb-4892-baa8-25e618e224a1"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"test@test.com"</span></span>,
+    "<span class="hljs-attribute">attempts</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1511981452</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-password-reset-post" class="action post"><h4 class="action-heading"><div class="name">Verify password change</div><a href="#verify-password-reset-post" class="method post">POST</a><code class="uri">/user/resetPassword/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="initiate-enable-2fa" class="resource"><h3 class="resource-heading">Initiate enable 2FA <a href="#initiate-enable-2fa" class="permalink">&para;</a></h3><ul>
+<li>Request
+<ul>
+<li>
+<p>Headers</p>
+<pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span>
+  <span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/enable2fa/initiate</span></div><div class="tabs"><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"61fa7fab-6abd-469c-9196-85680bab577a"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1508856803</span></span>,
+    "<span class="hljs-attribute">totpUri</span>": <span class="hljs-value"><span class="hljs-string">"otpauth://totp/Jincor:ortgma@gmail.com?secret=PWQGHWHUIXN6RDINTO4XUSFURXMKWWJO&amp;issuer=Jincor&amp;algorithm=SHA1&amp;digits=6&amp;period=30"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"google_auth"</span></span>,
+    "<span class="hljs-attribute">qrPngDataUri</span>": <span class="hljs-value"><span class="hljs-string">"data:image/png;base64,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"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div><div class="middle"><div id="initiate-enable-2fa-get" class="action get"><h4 class="action-heading"><div class="name">Initiate enable 2fa</div><a href="#initiate-enable-2fa-get" class="method get">GET</a><code class="uri">/user/enable2fa/initiate</code></h4></div></div><hr class="split"><div class="middle"><div id="verify-enable-2fa" class="resource"><h3 class="resource-heading">Verify enable 2fa <a href="#verify-enable-2fa" class="permalink">&para;</a></h3><ul>
+<li>verification
+<ul>
+<li>verificationId (string, required)</li>
+<li>code (string, required)</li>
+<li>method (string, required, in [“email”, “google_auth”])</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/enable2fa/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"b41498d8-a9db-4bb5-b338-0e8f47582066"</span></span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"813365"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"google_auth"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">enabled</span>": <span class="hljs-value"><span class="hljs-literal">false</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-enable-2fa-post" class="action post"><h4 class="action-heading"><div class="name">Verify enable 2fa</div><a href="#verify-enable-2fa-post" class="method post">POST</a><code class="uri">/user/enable2fa/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="initiate-disable-2fa" class="resource"><h3 class="resource-heading">Initiate disable 2FA <a href="#initiate-disable-2fa" class="permalink">&para;</a></h3><ul>
+<li>Request
+<ul>
+<li>
+<p>Headers</p>
+<pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span>
+  <span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/disable2fa/initiate</span></div><div class="tabs"><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"0e47a5fd-d7f7-43af-b080-3918e49bf211"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1508850911</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"google_auth"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div><div class="middle"><div id="initiate-disable-2fa-get" class="action get"><h4 class="action-heading"><div class="name">Initiate disable 2fa</div><a href="#initiate-disable-2fa-get" class="method get">GET</a><code class="uri">/user/disable2fa/initiate</code></h4></div></div><hr class="split"><div class="middle"><div id="verify-disable-2fa" class="resource"><h3 class="resource-heading">Verify disable 2fa <a href="#verify-disable-2fa" class="permalink">&para;</a></h3><ul>
+<li>verification
+<ul>
+<li>verificationId (string, required)</li>
+<li>code (string, required)</li>
+<li>method (string, required, in [“email”, “google_auth”])</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/disable2fa/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"b41498d8-a9db-4bb5-b338-0e8f47582066"</span></span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"813365"</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"google_auth"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">enabled</span>": <span class="hljs-value"><span class="hljs-literal">false</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-disable-2fa-post" class="action post"><h4 class="action-heading"><div class="name">Verify disable 2fa</div><a href="#verify-disable-2fa-post" class="method post">POST</a><code class="uri">/user/disable2fa/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="get-user-info" class="resource"><h3 class="resource-heading">Get user info <a href="#get-user-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/me</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">ethAddress</span>": <span class="hljs-value"><span class="hljs-string">"0xdb369b56BA7b07cF287f611Fbf0DAA4A8a4C2751"</span></span>,
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"existing@test.com"</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ICO investor"</span></span>,
+  "<span class="hljs-attribute">kycStatus</span>": <span class="hljs-value"><span class="hljs-string">"Not verified"</span></span>,
+  "<span class="hljs-attribute">defaultVerificationMethod</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-user-info-get" class="action get"><h4 class="action-heading"><div class="name">Get user info</div><a href="#get-user-info-get" class="method get">GET</a><code class="uri">/user/me</code></h4></div></div><hr class="split"><div class="middle"><div id="invite-users" class="resource"><h3 class="resource-heading">Invite users <a href="#invite-users" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/user/invite</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">emails</span>": <span class="hljs-value">[
+    <span class="hljs-string">"ortgma@gmail.com"</span>,
+    <span class="hljs-string">"a_pikulin@mail.ru"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">emails</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"ortgma@gmail.com"</span></span>,
+      "<span class="hljs-attribute">invited</span>": <span class="hljs-value"><span class="hljs-literal">true</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"a_pikulin@mail.ru"</span></span>,
+      "<span class="hljs-attribute">invited</span>": <span class="hljs-value"><span class="hljs-literal">true</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="invite-users-post" class="action post"><h4 class="action-heading"><div class="name">Invite users by email</div><a href="#invite-users-post" class="method post">POST</a><code class="uri">/user/invite</code></h4></div></div><hr class="split"><div class="middle"><div id="get-dashboard-info" class="resource"><h3 class="resource-heading">Get dashboard info <a href="#get-dashboard-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">ethBalance</span>": <span class="hljs-value"><span class="hljs-string">"1.0001"</span></span>,
+  "<span class="hljs-attribute">jcrTokensSold</span>": <span class="hljs-value"><span class="hljs-string">"5000"</span></span>,
+  "<span class="hljs-attribute">jcrTokenBalance</span>": <span class="hljs-value"><span class="hljs-string">"500.00012345678912345"</span></span>,
+  "<span class="hljs-attribute">jcrTokenPrice</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">ETH</span>": <span class="hljs-value"><span class="hljs-string">"0.005"</span></span>,
+    "<span class="hljs-attribute">USD</span>": <span class="hljs-value"><span class="hljs-string">"1"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">raised</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">ETH</span>": <span class="hljs-value"><span class="hljs-string">"2000"</span></span>,
+    "<span class="hljs-attribute">USD</span>": <span class="hljs-value"><span class="hljs-string">"1000000"</span></span>,
+    "<span class="hljs-attribute">BTC</span>": <span class="hljs-value"><span class="hljs-string">"100"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">daysLeft</span>": <span class="hljs-value"><span class="hljs-number">10</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-dashboard-info-get" class="action get"><h4 class="action-heading"><div class="name">Get dashboard info</div><a href="#get-dashboard-info-get" class="method get">GET</a><code class="uri">/dashboard</code></h4></div></div><hr class="split"><div class="middle"><div id="get-public-dashboard-info" class="resource"><h3 class="resource-heading">Get public dashboard info <a href="#get-public-dashboard-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/public</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">jcrTokensSold</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+  "<span class="hljs-attribute">ethCollected</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+  "<span class="hljs-attribute">contributionsCount</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+  "<span class="hljs-attribute">daysLeft</span>": <span class="hljs-value"><span class="hljs-number">64</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-public-dashboard-info-get" class="action get"><h4 class="action-heading"><div class="name">Get public dashboard info</div><a href="#get-public-dashboard-info-get" class="method get">GET</a><code class="uri">/dashboard/public</code></h4></div></div><hr class="split"><div class="middle"><div id="get-expected-token-purchase-fee" class="resource"><h3 class="resource-heading">Get expected token purchase fee <a href="#get-expected-token-purchase-fee" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/investTxFee</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">gasPrice</span>": <span class="hljs-value"><span class="hljs-string">"47"</span></span>,
+  "<span class="hljs-attribute">gas</span>": <span class="hljs-value"><span class="hljs-string">"130000"</span></span>,
+  "<span class="hljs-attribute">expectedTxFee</span>": <span class="hljs-value"><span class="hljs-string">"0.00611"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-expected-token-purchase-fee-get" class="action get"><h4 class="action-heading"><div class="name">Get expected token purchase fee</div><a href="#get-expected-token-purchase-fee-get" class="method get">GET</a><code class="uri">/dashboard/investTxFee</code></h4></div></div><hr class="split"><div class="middle"><div id="get-transaction-history" class="resource"><h3 class="resource-heading">Get transaction history <a href="#get-transaction-history" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/transactions</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a003866ee3a9d0ad93aeba3"</span></span>,
+    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe423dd7d40b039e4e30ad7b5520f5905c6ec8c11122c94e3858c70e7983b5d7e"</span></span>,
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509963894</span></span>,
+    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016136</span></span>,
+    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+    "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004158b8442c0e1400fc4f"</span></span>,
+    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xcdf4a9dc086bcb3308475ced42b772879fd052822693aee509f81493412d460f"</span></span>,
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509966175</span></span>,
+    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016339</span></span>,
+    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+    "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004dee3663160140d19291"</span></span>,
+    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe5d5ed39bf9eb64d3e56bf4a9d89b7f2bb026fc02c0d149027757936a1e7b6c7"</span></span>,
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
+    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
+    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004e003663160140d19292"</span></span>,
+    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0x057c0846b7b7fa54c10544c595ec2e476c830220f0ea1fbb52215a3a44deade1"</span></span>,
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
+    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
+    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a00669ab21e84067aac8bf6"</span></span>,
+    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xb87ef88fe75724ed067413de7c48f4c745cfafa709f42884308663cb53a8e2a0"</span></span>,
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509975754</span></span>,
+    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA"</span></span>,
+    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"5"</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"in"</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-transaction-history-get" class="action get"><h4 class="action-heading"><div class="name">Get transaction history</div><a href="#get-transaction-history-get" class="method get">GET</a><code class="uri">/dashboard/transactions</code></h4></div></div><hr class="split"><div class="middle"><div id="get-referral-info" class="resource"><h3 class="resource-heading">Get referral info <a href="#get-referral-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/referral</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">data</span>": <span class="hljs-value"><span class="hljs-string">"dGVzdEB0ZXN0LmNvbQ"</span></span>,
+  "<span class="hljs-attribute">referralCount</span>": <span class="hljs-value"><span class="hljs-number">5</span></span>,
+  "<span class="hljs-attribute">users</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">date</span>": <span class="hljs-value"><span class="hljs-number">1508241475</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Investor 1"</span></span>,
+      "<span class="hljs-attribute">walletAddress</span>": <span class="hljs-value"><span class="hljs-string">"0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA"</span></span>,
+      "<span class="hljs-attribute">tokens</span>": <span class="hljs-value"><span class="hljs-string">"105"</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">date</span>": <span class="hljs-value"><span class="hljs-number">1508241475</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Investor 2"</span></span>,
+      "<span class="hljs-attribute">walletAddress</span>": <span class="hljs-value"><span class="hljs-string">"0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eB"</span></span>,
+      "<span class="hljs-attribute">tokens</span>": <span class="hljs-value"><span class="hljs-string">"1.01"</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-referral-info-get" class="action get"><h4 class="action-heading"><div class="name">Get referral info</div><a href="#get-referral-info-get" class="method get">GET</a><code class="uri">/dashboard/referral</code></h4></div></div><hr class="split"><div class="middle"><div id="initiate-investment" class="resource"><h3 class="resource-heading">Initiate investment <a href="#initiate-investment" class="permalink">&para;</a></h3><ul>
+<li>
+<p>ethAmount <code>1</code> (required, number, min(1))</p>
+</li>
+<li>
+<p>mnemonic <code>mnemonic</code> (required, string)</p>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/invest/initiate</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">mnemonic</span>": <span class="hljs-value"><span class="hljs-string">"mnemonic"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">verification</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"a4d642d6-8c96-4435-94b8-9a2bbd501552"</span></span>,
+    "<span class="hljs-attribute">consumer</span>": <span class="hljs-value"><span class="hljs-string">"test@gmail.com"</span></span>,
+    "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1509387586</span></span>,
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-number">200</span></span>,
+    "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"email"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="initiate-investment-post" class="action post"><h4 class="action-heading"><div class="name">Initiate investment</div><a href="#initiate-investment-post" class="method post">POST</a><code class="uri">/dashboard/invest/initiate</code></h4></div></div><hr class="split"><div class="middle"><div id="verify-investment" class="resource"><h3 class="resource-heading">Verify investment <a href="#verify-investment" class="permalink">&para;</a></h3><ul>
+<li>
+<p>ethAmount <code>1</code> (required, number, min(1))</p>
+</li>
+<li>
+<p>mnemonic <code>mnemonic</code> (required, string)</p>
+</li>
+<li>
+<p>verification</p>
+<ul>
+<li>verificationId (string, required)</li>
+<li>code (string, required)</li>
+<li>method (string, required, in [“email”, “google_auth”])</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/invest/verify</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">mnemonic</span>": <span class="hljs-value"><span class="hljs-string">"mnemonic"</span>
+    <span class="hljs-string">"verification"</span>: {
+        "<span class="hljs-attribute">verificationId</span>": <span class="hljs-value"><span class="hljs-string">"b41498d8-a9db-4bb5-b338-0e8f47582066"</span></span>,
+        "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"813365"</span></span>,
+        "<span class="hljs-attribute">method</span>": <span class="hljs-value"><span class="hljs-string">"google_auth"</span>
+    </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xf33afe0b5b56dfb6584d308d7b5e4c0412041045f3f728708eb90ac6f48e0956"</span></span>,
+  "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"token_purchase"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="verify-investment-post" class="action post"><h4 class="action-heading"><div class="name">Verify investment</div><a href="#verify-investment-post" class="method post">POST</a><code class="uri">/dashboard/invest/verify</code></h4></div></div><hr class="split"><div class="middle"><div id="init-kyc-process" class="resource"><h3 class="resource-heading">Init KYC process <a href="#init-kyc-process" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/kyc/init</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-string">"2017-11-09T06:47:31.467Z"</span></span>,
+  "<span class="hljs-attribute">authorizationToken</span>": <span class="hljs-value"><span class="hljs-string">"c87447f8-fa43-4f98-a933-3c88be4e86ea"</span></span>,
+  "<span class="hljs-attribute">clientRedirectUrl</span>": <span class="hljs-value"><span class="hljs-string">"https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea"</span></span>,
+  "<span class="hljs-attribute">jumioIdScanReference</span>": <span class="hljs-value"><span class="hljs-string">"7b58a08e-19cf-4d28-a828-4bb577c6f69a"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="init-kyc-process-get" class="action get"><h4 class="action-heading"><div class="name">Init KYC process</div><a href="#init-kyc-process-get" class="method get">GET</a><code class="uri">/kyc/init</code></h4></div></div><hr class="split"><div class="middle"><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 26 Dec 2017</p></div></div></div></div><script>/* eslint-env browser */
+/* eslint quotes: [2, "single"] */
+'use strict';
+
+/*
+  Determine if a string ends with another string.
+*/
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+/*
+  Get a list of direct child elements by class name.
+*/
+function childrenByClass(element, name) {
+  var filtered = [];
+
+  for (var i = 0; i < element.children.length; i++) {
+    var child = element.children[i];
+    var classNames = child.className.split(' ');
+    if (classNames.indexOf(name) !== -1) {
+      filtered.push(child);
+    }
+  }
+
+  return filtered;
+}
+
+/*
+  Get an array [width, height] of the window.
+*/
+function getWindowDimensions() {
+  var w = window,
+      d = document,
+      e = d.documentElement,
+      g = d.body,
+      x = w.innerWidth || e.clientWidth || g.clientWidth,
+      y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+  return [x, y];
+}
+
+/*
+  Collapse or show a request/response example.
+*/
+function toggleCollapseButton(event) {
+    var button = event.target.parentNode;
+    var content = button.parentNode.nextSibling;
+    var inner = content.children[0];
+
+    if (button.className.indexOf('collapse-button') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+        // Currently showing, so let's hide it
+        button.className = 'collapse-button';
+        content.style.maxHeight = '0px';
+    } else {
+        // Currently hidden, so let's show it
+        button.className = 'collapse-button show';
+        content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+function toggleTabButton(event) {
+    var i, index;
+    var button = event.target;
+
+    // Get index of the current button.
+    var buttons = childrenByClass(button.parentNode, 'tab-button');
+    for (i = 0; i < buttons.length; i++) {
+        if (buttons[i] === button) {
+            index = i;
+            button.className = 'tab-button active';
+        } else {
+            buttons[i].className = 'tab-button';
+        }
+    }
+
+    // Hide other tabs and show this one.
+    var tabs = childrenByClass(button.parentNode.parentNode, 'tab');
+    for (i = 0; i < tabs.length; i++) {
+        if (i === index) {
+            tabs[i].style.display = 'block';
+        } else {
+            tabs[i].style.display = 'none';
+        }
+    }
+}
+
+/*
+  Collapse or show a navigation menu. It will not be hidden unless it
+  is currently selected or `force` has been passed.
+*/
+function toggleCollapseNav(event, force) {
+    var heading = event.target.parentNode;
+    var content = heading.nextSibling;
+    var inner = content.children[0];
+
+    if (heading.className.indexOf('heading') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+      // Currently showing, so let's hide it, but only if this nav item
+      // is already selected. This prevents newly selected items from
+      // collapsing in an annoying fashion.
+      if (force || window.location.hash && endsWith(event.target.href, window.location.hash)) {
+        content.style.maxHeight = '0px';
+      }
+    } else {
+      // Currently hidden, so let's show it
+      content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+/*
+  Refresh the page after a live update from the server. This only
+  works in live preview mode (using the `--server` parameter).
+*/
+function refresh(body) {
+    document.querySelector('body').className = 'preload';
+    document.body.innerHTML = body;
+
+    // Re-initialize the page
+    init();
+    autoCollapse();
+
+    document.querySelector('body').className = '';
+}
+
+/*
+  Determine which navigation items should be auto-collapsed to show as many
+  as possible on the screen, based on the current window height. This also
+  collapses them.
+*/
+function autoCollapse() {
+  var windowHeight = getWindowDimensions()[1];
+  var itemsHeight = 64; /* Account for some padding */
+  var itemsArray = Array.prototype.slice.call(
+    document.querySelectorAll('nav .resource-group .heading'));
+
+  // Get the total height of the navigation items
+  itemsArray.forEach(function (item) {
+    itemsHeight += item.parentNode.offsetHeight;
+  });
+
+  // Should we auto-collapse any nav items? Try to find the smallest item
+  // that can be collapsed to show all items on the screen. If not possible,
+  // then collapse the largest item and do it again. First, sort the items
+  // by height from smallest to largest.
+  var sortedItems = itemsArray.sort(function (a, b) {
+    return a.parentNode.offsetHeight - b.parentNode.offsetHeight;
+  });
+
+  while (sortedItems.length && itemsHeight > windowHeight) {
+    for (var i = 0; i < sortedItems.length; i++) {
+      // Will collapsing this item help?
+      var itemHeight = sortedItems[i].nextSibling.offsetHeight;
+      if ((itemsHeight - itemHeight <= windowHeight) || i === sortedItems.length - 1) {
+        // It will, so let's collapse it, remove its content height from
+        // our total and then remove it from our list of candidates
+        // that can be collapsed.
+        itemsHeight -= itemHeight;
+        toggleCollapseNav({target: sortedItems[i].children[0]}, true);
+        sortedItems.splice(i, 1);
+        break;
+      }
+    }
+  }
+}
+
+/*
+  Initialize the interactive functionality of the page.
+*/
+function init() {
+    var i, j;
+
+    // Make collapse buttons clickable
+    var buttons = document.querySelectorAll('.collapse-button');
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = toggleCollapseButton;
+
+        // Show by default? Then toggle now.
+        if (buttons[i].className.indexOf('show') !== -1) {
+            toggleCollapseButton({target: buttons[i].children[0]});
+        }
+    }
+
+    var responseCodes = document.querySelectorAll('.example-names');
+    for (i = 0; i < responseCodes.length; i++) {
+        var tabButtons = childrenByClass(responseCodes[i], 'tab-button');
+        for (j = 0; j < tabButtons.length; j++) {
+            tabButtons[j].onclick = toggleTabButton;
+
+            // Show by default?
+            if (j === 0) {
+                toggleTabButton({target: tabButtons[j]});
+            }
+        }
+    }
+
+    // Make nav items clickable to collapse/expand their content.
+    var navItems = document.querySelectorAll('nav .resource-group .heading');
+    for (i = 0; i < navItems.length; i++) {
+        navItems[i].onclick = toggleCollapseNav;
+
+        // Show all by default
+        toggleCollapseNav({target: navItems[i].children[0]});
+    }
+}
+
+// Initial call to set up buttons
+init();
+
+window.onload = function () {
+    autoCollapse();
+    // Remove the `preload` class to enable animations
+    document.querySelector('body').className = '';
+};
+</script></body></html>

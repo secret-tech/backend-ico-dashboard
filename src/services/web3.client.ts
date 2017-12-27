@@ -19,7 +19,9 @@ export interface Web3ClientInterface {
 
   addReferralOf(address: string, referral: string): any;
 
-  isAllowed(account: string): any;
+  isAllowed(account: string): Promise<boolean>;
+
+  getReferralOf(account: string): Promise<string>;
 
   getEthBalance(address: string): Promise<string>;
 
@@ -32,6 +34,12 @@ export interface Web3ClientInterface {
   getJcrEthPrice(): Promise<number>;
 
   sufficientBalance(input: TransactionInput): Promise<boolean>;
+
+  getContributionsCount(): Promise<number>;
+
+  getCurrentGasPrice(): Promise<string>;
+
+  investmentFee(): Promise<any>;
 }
 
 /* istanbul ignore next */
@@ -69,7 +77,6 @@ export class Web3Client implements Web3ClientInterface {
 
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string> {
     const privateKey = this.getPrivateKeyByMnemonicAndSalt(mnemonic, salt);
-
     const params = {
       value: this.web3.utils.toWei(input.amount.toString()),
       from: input.from,
@@ -127,41 +134,58 @@ export class Web3Client implements Web3ClientInterface {
 
   addAddressToWhiteList(address: string) {
     return new Promise((resolve, reject) => {
-      this.web3.eth.getAccounts().then(accounts => {
-        this.whiteList.methods.addInvestorToWhiteList(address).send({
-          from: accounts[0],
-          gas: 200000,
-          gasPrice: this.web3.utils.toWei('20', 'gwei')
-        }).on('transactionHash', hash => {
-          resolve(hash);
-        }).on('error', error => {
-          reject(error);
-        }).catch((error) => {
-          reject(error);
-        });
+      const params = {
+        value: '0',
+        to: this.whiteList.options.address,
+        gas: 200000,
+        data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
+      };
+
+      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
 
   addReferralOf(address: string, referral: string) {
     return new Promise((resolve, reject) => {
-      this.web3.eth.getAccounts().then(accounts => {
-        this.whiteList.methods.addReferralOf(address, referral).send({
-          from: accounts[0],
-          gas: 200000
-        }).on('transactionHash', hash => {
-          resolve(hash);
-        }).on('error', error => {
-          reject(error);
-        }).catch((error) => {
-          reject(error);
-        });
+      const params = {
+        value: '0',
+        to: this.whiteList.options.address,
+        gas: 200000,
+        data: this.whiteList.methods.addReferralOf(address, referral).encodeABI()
+      };
+
+      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
 
-  async isAllowed(address: string) {
-    return await this.whiteList.methods.investorWhiteList(address).call();
+  async isAllowed(address: string): Promise<boolean> {
+    return await this.whiteList.methods.isAllowed(address).call();
+  }
+
+  async getReferralOf(address: string): Promise<string> {
+    return await this.whiteList.methods.getReferralOf(address).call();
   }
 
   async getEthBalance(address: string): Promise<string> {
@@ -223,6 +247,29 @@ export class Web3Client implements Web3ClientInterface {
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
     this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+  }
+
+  async getContributionsCount(): Promise<number> {
+    const contributionsEvents = await this.ico.getPastEvents('NewContribution', {fromBlock: config.web3.startBlock});
+    return contributionsEvents.length;
+  }
+
+  async getCurrentGasPrice(): Promise<string> {
+    return this.web3.utils.fromWei(await this.web3.eth.getGasPrice(), 'gwei');
+  }
+
+  async investmentFee(): Promise<any> {
+    const gasPrice = await this.getCurrentGasPrice();
+    const gas = config.web3.defaultInvestGas;
+    const BN = this.web3.utils.BN;
+
+    return {
+      gasPrice,
+      gas,
+      expectedTxFee: this.web3.utils.fromWei(
+        new BN(gas).mul(new BN(this.web3.utils.toWei(gasPrice, 'gwei'))).toString()
+      )
+    };
   }
 }
 

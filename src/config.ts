@@ -3,6 +3,7 @@ import 'reflect-metadata';
 
 const {
   REDIS_URL,
+  HTTP_SERVER,
   PORT,
   HTTPS_PORT,
   HTTPS_SERVER,
@@ -28,13 +29,19 @@ const {
   ACCESS_LOG,
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
-  WEB3_RESTORE_START_BLOCK
+  WEB3_RESTORE_START_BLOCK,
+  WL_OWNER_PK,
+  KYC_TOKEN,
+  KYC_SECRET,
+  KYC_BASE_URL,
+  KYC_TOKEN_LIFETIME
 } = process.env;
 
 export default {
   app: {
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
+    httpServer: HTTP_SERVER || 'enabled',
     httpsServer: HTTPS_SERVER || 'disabled',
     forceHttps: FORCE_HTTPS || 'disabled',
     apiUrl: API_URL,
@@ -42,7 +49,8 @@ export default {
     accessLog: ACCESS_LOG
   },
   web3: {
-    startBlock: WEB3_RESTORE_START_BLOCK || 1
+    startBlock: WEB3_RESTORE_START_BLOCK || 1,
+    defaultInvestGas: '130000'
   },
   redis: {
     url: REDIS_URL || 'redis://redis:6379',
@@ -60,7 +68,8 @@ export default {
     token: AUTH_JWT
   },
   verify: {
-    baseUrl: VERIFY_BASE_URL || 'http://verify:3000'
+    baseUrl: VERIFY_BASE_URL || 'http://verify:3000',
+    maxAttempts: 3
   },
   email: {
     domain: 'jincor.com',
@@ -80,7 +89,8 @@ export default {
     // old ropsten whitelist: 0x94c4b2ee76ff421cdae95a9affeea7c80d4334e8
     whiteList: {
       address: WHITELIST_SC_ADDRESS,
-      abi: [{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'addInvestorToWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'owner','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'referralList','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'investorWhiteList','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'getReferralOf','outputs': [{'name': 'result','type': 'address'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'removeInvestorFromWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'},{'name': 'referral','type': 'address'}],'name': 'addReferralOf','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'isAllowed','outputs': [{'name': 'result','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newOwner','type': 'address'}],'name': 'transferOwnership','outputs': [],'payable': false,'type': 'function'},{'inputs': [],'payable': false,'type': 'constructor'}]
+      abi: [{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'addInvestorToWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [],'name': 'owner','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'referralList','outputs': [{'name': '','type': 'address'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': '','type': 'address'}],'name': 'investorWhiteList','outputs': [{'name': '','type': 'bool'}],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'getReferralOf','outputs': [{'name': 'result','type': 'address'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'}],'name': 'removeInvestorFromWhiteList','outputs': [],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'investor','type': 'address'},{'name': 'referral','type': 'address'}],'name': 'addReferralOf','outputs': [],'payable': false,'type': 'function'},{'constant': true,'inputs': [{'name': 'investor','type': 'address'}],'name': 'isAllowed','outputs': [{'name': 'result','type': 'bool'}],'payable': false,'type': 'function'},{'constant': false,'inputs': [{'name': 'newOwner','type': 'address'}],'name': 'transferOwnership','outputs': [],'payable': false,'type': 'function'},{'inputs': [],'payable': false,'type': 'constructor'}],
+      ownerPk: WL_OWNER_PK
     },
     // old ropsten ico: 0xfd7345eaa260ec6259223ca996abac70a7cc8ac3
     ico: {
@@ -108,10 +118,10 @@ export default {
     ]
   },
   kyc: {
-    apiToken: '68b0d36a-46f4-4336-8f4e-e1f570cea5d9',
-    apiSecret: 'w37alAxYV9i5bIsiOF9bROvdzMqNlJGZ',
-    baseUrl: 'https://lon.netverify.com/api/netverify/v2/',
-    defaultTokenLifetime: 5184000 // 60 days - Jumio max allowed value
+    apiToken: KYC_TOKEN,
+    apiSecret: KYC_SECRET,
+    baseUrl: KYC_BASE_URL,
+    defaultTokenLifetime: KYC_TOKEN_LIFETIME || 5184000 // 60 days - Jumio max allowed value
   },
   rpc: {
     type: RPC_TYPE,
