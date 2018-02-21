@@ -34,7 +34,10 @@ const {
   KYC_TOKEN,
   KYC_SECRET,
   KYC_BASE_URL,
-  KYC_TOKEN_LIFETIME
+  KYC_TOKEN_LIFETIME,
+  COINPAYMENTS_KEY,
+  COINPAYMENTS_SECRET,
+  COINPAYMENTS_CURRENCY1
 } = process.env;
 
 export default {
@@ -127,5 +130,10 @@ export default {
     type: RPC_TYPE,
     address: RPC_ADDRESS,
     reconnectTimeout: 5000 // in milliseconds
+  },
+  coinPayments: {
+    key: COINPAYMENTS_KEY,
+    secret: COINPAYMENTS_SECRET,
+    currency1: COINPAYMENTS_CURRENCY1
   }
 };
