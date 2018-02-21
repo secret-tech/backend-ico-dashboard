@@ -92,9 +92,9 @@ export class KycController {
 
     await kycRepo.save(kycRepo.create(verificationResult));
 
-    const investor = await investorRepo.findOne({
-      email: verificationResult.customerId
-    });
+    const investor = (await investorRepo.createEntityCursor({
+      _id: new mongo.ObjectId(verificationResult.customerId)
+    }).toArray()).pop();
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached

@@ -44,7 +44,7 @@ export class KycClient implements KycClientInterface {
         successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
         errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
         callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
-        customerId: investor.email,
+        customerId: investor.id.toHexString(),
         authorizationTokenLifetime: this.defaultTokenLifetime
       }
     };
