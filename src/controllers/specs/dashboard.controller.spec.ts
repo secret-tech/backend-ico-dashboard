@@ -257,4 +257,29 @@ describe('Dashboard', () => {
       });
     });
   });
+
+  describe('GET /dashboard/currencies', () => {
+    it('should get expected currencies', (done) => {
+
+      getRequest(factory.testAppForDashboard(), '/dashboard/currencies').end((err, res) => {
+        expect(res.status).to.equal(200);
+        done();
+      });
+    });
+  });
+
+  describe('POST /dashboard/createTransaction', () => {
+    it('should get expected create transaction', (done) => {
+      const token = 'verified_token';
+      const params = {
+        currency: 'LTCT',
+        amount: 0.5
+      };
+      postRequest(factory.testAppForDashboard(), '/dashboard/createTransaction').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.includes.keys('txn_id', 'address', 'status_url', 'qrcode_url');
+        done();
+      });
+    });
+  });
 });

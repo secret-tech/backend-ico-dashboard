@@ -9,6 +9,10 @@ import {
   Web3Client
 } from '../../services/web3.client';
 
+import {
+  CoinpaymentsClient, CoinpaymentsClientType
+} from '../../services/coinpayments.client';
+
 import { Response, Request, NextFunction } from 'express';
 
 import {
@@ -34,6 +38,7 @@ import {
   RESET_PASSWORD_SCOPE
 } from '../../services/user.service';
 import { INVEST_SCOPE } from '../dashboard.controller';
+import { CoinpaymentsTransactionResult } from '../../entities/coinpayments.transaction.result';
 
 const mockKycClient = () => {
   const kycClientMock = TypeMoq.Mock.ofType(KycClient);
@@ -157,6 +162,74 @@ const mockAuthMiddleware = () => {
     (req: any, res: any, next: any) => auth.authenticate(req, res, next)
   );
 };
+
+const mockCoinpaymentsClient = () => {
+  const cpMock = TypeMoq.Mock.ofType(CoinpaymentsClient);
+
+  const currenciesResult = {
+    ZAR: {
+      is_fiat: 1,
+      rate_btc: '0.000007332042054924800000',
+      last_update: '1519117881',
+      tx_fee: '0.01000000',
+      status: 'online',
+      name: 'South African Rand',
+      confirms: '1',
+      can_convert: 0,
+      capabilities: []
+    },
+    ZEC: {
+      is_fiat: 0,
+      rate_btc: '0.041233200000000000000000',
+      last_update: '1519117881',
+      tx_fee: '0.00050000',
+      status: 'online',
+      name: 'ZCash',
+      confirms: '3',
+      can_convert: 0,
+      capabilities: ['payments', 'wallet', 'transfers']
+    },
+    ZEN: {
+      is_fiat: 0,
+      rate_btc: '0.003767780000000000000000',
+      last_update: '1519117881',
+      tx_fee: '0.01000000',
+      status: 'online',
+      name: 'ZenCash',
+      confirms: '4',
+      can_convert: 0,
+      capabilities: ['payments', 'wallet', 'transfers']
+    },
+    LTCT: {
+      is_fiat: 0,
+      rate_btc: '1.000000000000000000000000',
+      last_update: '1375473661',
+      tx_fee: '0.00100000',
+      status: 'online',
+      name: 'Litecoin Testnet',
+      confirms: '0',
+      can_convert: 0,
+      capabilities: ['payments', 'wallet', 'transfers']
+    }
+  };
+
+  const transactionResult = CoinpaymentsTransactionResult.createCoinpaymentsTransactionResult({
+    currency1: 'ETH',
+    currency2: 'LTCT',
+    amount: '0.5',
+    txn_id: 'd17a8ee84b1de669bdd0f15b38f20a7e9781d569d20c096e49983ad9ad40ce4c',
+    address: 'PVS1Xo3xCU2MyXHadU2EbhFZCbnyjZHBjx',
+    confirms_needed: '5',
+    timeout: 5400,
+    status_url: 'https://www.coinpayments.net/index.php?cmd=status&id=d17a8ee84b1de669bdd0f15b38f',
+    qrcode_url: 'https://www.coinpayments.net/qrgen.php?id=CPBF4COHLYGEZZYIGFDKFY9NDP&key=90e5561c1e8cd4452069f7726d3e0370'
+  });
+
+  cpMock.setup(x => x.currencies()).returns(async(): Promise<any> => currenciesResult);
+  cpMock.setup(x => x.createTransaction(TypeMoq.It.isAny())).returns(async(): Promise<CoinpaymentsTransactionResult> => transactionResult);
+
+  container.rebind<CoinpaymentsClientInterface>(CoinpaymentsClientType).toConstantValue(cpMock.object);
+}
 
 const mockVerifyClient = () => {
   const verifyMock = TypeMoq.Mock.ofInstance(container.get<VerificationClientInterface>(VerificationClientType));
@@ -452,6 +525,7 @@ export const testAppForDashboard = () => {
   mockVerifyClient();
   mockWeb3();
   mockKycClient();
+  mockCoinpaymentsClient();
   return buildApp();
 };
 
