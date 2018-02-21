@@ -35,9 +35,10 @@ const {
   KYC_SECRET,
   KYC_BASE_URL,
   KYC_TOKEN_LIFETIME,
-  COINPAYMENTS_KEY,
-  COINPAYMENTS_SECRET,
-  COINPAYMENTS_CURRENCY1
+  COINPAYMENTS_API_KEY,
+  COINPAYMENTS_API_SECRET,
+  COINPAYMENTS_API_CURRENCY1,
+  COINPAYMENTS_API_MERCHANT_ID
 } = process.env;
 
 export default {
@@ -132,8 +133,9 @@ export default {
     reconnectTimeout: 5000 // in milliseconds
   },
   coinPayments: {
-    key: COINPAYMENTS_KEY,
-    secret: COINPAYMENTS_SECRET,
-    currency1: COINPAYMENTS_CURRENCY1
+    key: COINPAYMENTS_API_KEY,
+    secret: COINPAYMENTS_API_SECRET,
+    currency1: COINPAYMENTS_API_CURRENCY1,
+    merchantId: COINPAYMENTS_API_MERCHANT_ID
   }
 };
