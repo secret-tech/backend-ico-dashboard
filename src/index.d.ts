@@ -295,3 +295,13 @@ declare interface KycClientInterface {
 declare interface EmailServiceInterface {
   send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
 }
+
+declare interface CoinpaymentsTransactionData {
+  amount: number;
+  currency: string;
+}
+
+declare interface CoinpaymentsClientInterface {
+  createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
+  currencies();
+}

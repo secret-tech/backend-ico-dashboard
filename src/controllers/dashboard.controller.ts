@@ -12,6 +12,8 @@ import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/excepti
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
+import { CoinpaymentsClientType } from '../services/coinpayments.client';
+import { CoinpaymentsTransactionResult } from '../entities/coinpayments.transaction.result';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -31,7 +33,8 @@ export class DashboardController {
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface
+    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
+    @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface
   ) { }
 
   /**
@@ -222,5 +225,22 @@ export class DashboardController {
       status: TRANSACTION_STATUS_PENDING,
       type: TRANSACTION_TYPE_TOKEN_PURCHASE
     });
+  }
+
+  @httpGet(
+    '/currencies'
+  )
+  async currencies(req: Request, res: Response): Promise<void> {
+    res.json(await this.coinpaimentsClient.currencies());
+  }
+
+  @httpPost(
+    '/createTransaction',
+    'AuthMiddleware'
+  )
+  async createTransaction(req: Request, res: Response): Promise<void> {
+    const result = await this.coinpaimentsClient.createTransaction(req.body);
+    await getConnection().mongoManager.save(result);
+    res.json(result);
   }
 }

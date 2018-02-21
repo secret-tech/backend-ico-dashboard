@@ -19,6 +19,7 @@ import { TransactionService, TransactionServiceInterface, TransactionServiceType
 import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
+import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments.client';
 
 let container = new Container();
 
@@ -44,6 +45,8 @@ container.bind<Web3HandlerInterface>(Web3HandlerType).toConstantValue(new Web3Ha
 container.bind<AuthClientInterface>(AuthClientType).toConstantValue(new AuthClient(config.auth.baseUrl));
 container.bind<VerificationClientInterface>(VerificationClientType).toConstantValue(new VerificationClient(config.verify.baseUrl));
 container.bind<UserServiceInterface>(UserServiceType).to(UserService).inSingletonScope();
+
+container.bind<CoinpaymentsClientInterface>(CoinpaymentsClientType).to(CoinpaymentsClient).inSingletonScope();
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
