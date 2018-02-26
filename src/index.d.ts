@@ -305,3 +305,39 @@ declare interface CoinpaymentsClientInterface {
   createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
   currencies();
 }
+
+declare interface IPNApiTypeResponse {
+	ipn_version: string;
+  ipn_type: string;
+  ipn_mode: string;
+  ipn_id: string;
+  merchant: string;
+  
+  // API fields
+  staus: string;
+  status_text: string;
+  txn_id: string;
+  currency1: string;
+  currency2: string;
+  amount1: number;
+  amount2: number;
+  fee: number;
+  buyer_name: string;
+  email: string;
+  item_name: string;
+  item_number: string;
+  
+  received_amount: number;
+  received_confirms: number;
+}
+
+interface TransactionInMongo {
+	type: string;
+  status: string;
+  user: any;
+  expiredOn: number;
+  buyCoinpaymentsData: any;
+  convertCoinpaymentsData: null;
+  buyIpns: Array<any>;
+  convertIpns: Array<any>;
+}
