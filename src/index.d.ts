@@ -343,5 +343,5 @@ interface TransactionInMongo {
 }
 
 interface PaymentsServiceInterface {
-  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: number, purchaseInCurrency: number);
+  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongo>;
 }

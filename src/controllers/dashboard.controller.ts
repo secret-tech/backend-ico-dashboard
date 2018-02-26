@@ -14,6 +14,7 @@ import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
 import { CoinpaymentsClientType } from '../services/coinpayments.client';
 import { CoinpaymentsTransactionResult } from '../entities/coinpayments.transaction.result';
+import { PaymentsServiceType } from '../services/payments.service';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -34,7 +35,8 @@ export class DashboardController {
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
     @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
-    @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface
+    @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface,
+    @inject(PaymentsServiceType) private paymentsService: PaymentsServiceInterface
   ) { }
 
   /**
@@ -238,9 +240,13 @@ export class DashboardController {
     '/createTransaction',
     'AuthMiddleware'
   )
-  async createTransaction(req: Request, res: Response): Promise<void> {
-    const result = await this.coinpaimentsClient.createTransaction(req.body);
-    await getConnection().mongoManager.save(result);
-    res.json(result);
+  async createTransaction(req: AuthorizedRequest, res: Response): Promise<void> {
+    const tx = await this.paymentsService.initiateBuyEths(
+      req.user, 
+      req.body.neededTokensAmount,
+      config.coinPayments.currency1,
+      req.body
+    );
+    res.json(tx.buyCoinpaymentsData);
   }
 }

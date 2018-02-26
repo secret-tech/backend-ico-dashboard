@@ -1,8 +1,13 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
+import { CoinpaymentsClientType } from "./coinpayments.client";
 
 @injectable()
 export class PaymentsService implements PaymentsServiceInterface {
-  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: number, purchaseInCurrency: number) {
+  constructor(
+    @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface,
+  ) {  }
+
+  async initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongo> {
     throw new Error("Method not implemented.");
   }
 }
