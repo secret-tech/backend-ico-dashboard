@@ -341,3 +341,7 @@ interface TransactionInMongo {
   buyIpns: Array<any>;
   convertIpns: Array<any>;
 }
+
+interface PaymentsServiceInterface {
+  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: number, purchaseInCurrency: number);
+}

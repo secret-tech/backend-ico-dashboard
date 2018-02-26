@@ -20,6 +20,7 @@ import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments.client';
+import { PaymentsServiceType, PaymentsService } from './services/payments.service';
 
 let container = new Container();
 
@@ -47,6 +48,7 @@ container.bind<VerificationClientInterface>(VerificationClientType).toConstantVa
 container.bind<UserServiceInterface>(UserServiceType).to(UserService).inSingletonScope();
 
 container.bind<CoinpaymentsClientInterface>(CoinpaymentsClientType).to(CoinpaymentsClient).inSingletonScope();
+container.bind<PaymentsServiceInterface>(PaymentsServiceType).to(PaymentsService).inSingletonScope();
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
