@@ -242,11 +242,14 @@ export class DashboardController {
   )
   async createTransaction(req: AuthorizedRequest, res: Response): Promise<void> {
     const tx = await this.paymentsService.initiateBuyEths(
-      req.user, 
-      req.body.neededTokensAmount,
+      req.user,
+      req.body.amount,
       config.coinPayments.currency1,
-      req.body
+      req.body.currency
     );
+
+    console.log(tx);
+
     res.json(tx.buyCoinpaymentsData);
   }
 }

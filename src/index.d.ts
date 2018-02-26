@@ -299,6 +299,7 @@ declare interface EmailServiceInterface {
 declare interface CoinpaymentsTransactionData {
   amount: number;
   currency: string;
+  buyer_email: string;
 }
 
 declare interface CoinpaymentsClientInterface {
@@ -331,7 +332,7 @@ declare interface IPNApiTypeResponse {
   received_confirms: number;
 }
 
-interface TransactionInMongo {
+interface TransactionInMongoInterface {
 	type: string;
   status: string;
   user: any;
@@ -343,5 +344,5 @@ interface TransactionInMongo {
 }
 
 interface PaymentsServiceInterface {
-  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongo>;
+  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongoInterface>;
 }
