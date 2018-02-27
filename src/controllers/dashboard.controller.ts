@@ -233,7 +233,7 @@ export class DashboardController {
     '/currencies'
   )
   async currencies(req: Request, res: Response): Promise<void> {
-    res.json(await this.coinpaimentsClient.currencies());
+    res.json(await this.coinpaimentsClient.rates());
   }
 
   @httpPost(
@@ -242,7 +242,7 @@ export class DashboardController {
   )
   async createTransaction(req: AuthorizedRequest, res: Response): Promise<void> {
     const tx = await this.paymentsService.initiateBuyEths(
-      req.user, 
+      req.user,
       req.body.neededTokensAmount,
       config.coinPayments.currency1,
       req.body

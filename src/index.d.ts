@@ -301,18 +301,45 @@ declare interface CoinpaymentsTransactionData {
   currency: string;
 }
 
+declare interface CoinpaymentsTransactionInfo {
+  time_created: number;
+  time_expires: number;
+  status: number;
+  status_text: string;
+  type: string;
+  coin: string;
+  amount: number;
+  amountf: number;
+  received: number;
+  receivedf: string;
+  recv_confirms: number;
+  payment_address: string;
+}
+
 declare interface CoinpaymentsClientInterface {
   createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
-  currencies();
+  rates(options?: { short?: boolean; accepted?: boolean; }): Promise<{
+    is_fiat: number;
+    rate_btc: string;
+    last_update: string;
+    tx_fee: string;
+    status: string;
+    name: string;
+    confirms: string;
+    can_convert: number;
+    capabilities: string[];
+  }>;
+  getTransactionInfo(txId: string): Promise<CoinpaymentsTransactionInfo>;
+  getTransactionMulti(txIds: string[]): Promise<{ [txId: string]: CoinpaymentsTransactionInfo }>;
 }
 
 declare interface IPNApiTypeResponse {
-	ipn_version: string;
+  ipn_version: string;
   ipn_type: string;
   ipn_mode: string;
   ipn_id: string;
   merchant: string;
-  
+
   // API fields
   staus: string;
   status_text: string;
@@ -326,13 +353,13 @@ declare interface IPNApiTypeResponse {
   email: string;
   item_name: string;
   item_number: string;
-  
+
   received_amount: number;
   received_confirms: number;
 }
 
 interface TransactionInMongo {
-	type: string;
+  type: string;
   status: string;
   user: any;
   expiredOn: number;

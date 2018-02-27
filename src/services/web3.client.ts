@@ -40,6 +40,8 @@ export interface Web3ClientInterface {
   getCurrentGasPrice(): Promise<string>;
 
   investmentFee(): Promise<any>;
+
+  queryIcoMethod(name: string, ...args): Promise<any>;
 }
 
 /* istanbul ignore next */
@@ -270,6 +272,10 @@ export class Web3Client implements Web3ClientInterface {
         new BN(gas).mul(new BN(this.web3.utils.toWei(gasPrice, 'gwei'))).toString()
       )
     };
+  }
+
+  async queryIcoMethod(name: string, ...args): Promise<any> {
+    return await this.ico.methods[name](...args).call();
   }
 }
 
