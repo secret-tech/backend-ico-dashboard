@@ -133,15 +133,17 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   addAddressToWhiteList(address: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const account = this.web3.eth.accounts.privateKeyToAccount(config.contracts.whiteList.ownerPk);
       const params = {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
+        nonce: await this.web3.eth.getTransactionCount(account.address, 'pending'),
         data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
       };
 
-      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+      account.signTransaction(params).then(transaction => {
         this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
           .on('transactionHash', transactionHash => {
             resolve(transactionHash);
