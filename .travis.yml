@@ -10,14 +10,10 @@ script:
 - docker-compose up -d
 - docker-compose exec ico npm i
 - docker-compose exec ico npm test
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif [ "$TRAVIS_BRANCH"
-  == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse --short HEAD)"
-  ; fi`
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif [
+  "$TRAVIS_BRANCH" == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse
+  --short HEAD)" ; fi`
 - "./build.sh $TAG"
-env:
-  global:
-  - secure: 37DSPYwReJU811Bj/f8Dsn9JrD/tZ1dz7rOiE9N6wAefJ1iHCzV91Ot8mxUx7er6FP8KYe4tk3XBETqgorcLpVteU0a2UjWY/Hp8LGGlO4fsGQ+GZxj4lwx9vtj8TEhnPI/b9Q94a7Kyn9HIGrIMzPJkF45W/IWEiHiyJlsrfUKpEb6ciOnw2WCnnvMmTbb/j7mwMbziRJrlA6pIeslirWxQAUenbOD6bM7EQadgqRSRQvL5w6nXR4ychjkHPC6sUZD5sDu//UJaXqN8b25gcBCcspjmvJqvhlhYOaiYauRdZAOburi8iV6lutLQaU0fMtUGByLf0N+DRobYaHKEl5KX7JfY/pW/uq0ZEJJpdBEujtHVpFziUe4wfU0IgbgQjaR2gQJyDgXzCcC/yk32GPOBT7pbDduO3LhTiNEzn9JIFMs99/4F/qhA7ZPP98mHZVwkp64aWkyZIFTIcjdfJLRZg6cTbxsDdDay67V47arXgQyOU4G3mPsZGx2gJm/VI0PwDVURnCxNlCLdpnDnpJEXGUj1glJKBGTgufqC26oa8oCE/Jk0o9MIP/NaefPVckP++Q6T0Rv6fDOmDF9LFNOzwjLhb0Zpd4duLFu0XfaslvcisxrnagyijLPn+NtovALUt+MqCj8O82k8fnNp/NAEWD7drpvo5rklcbziI8o=
-  - secure: Ba+5sEBgWclEFmxNZiuOOmJAZjgVo+KvB/8FNRUbWFFztLfyqrZz9XGZUB51it5OK3yjavKCh8PofQjfefdcJHL5niRuW/MqBivJuoM7jWX2Vu7cLpXXzJcUizw/pjpEtV/kiyBjJg6K7ms0mHcpCM76fhp8rExvUi/ZKjHSMF9nuUYGJAYcWq4+DTxaWh0k9WfnVS7mfYinlvGeD59NRZuX5I6JSJK+QD+pqbdLB73+gDKj8Kts4W8xQiIcEgMJCPySJID2qXqrPIWEKXuxGTHxnigintNt5DGgoRSPwWeUuBM3ddlK1QPb6rZ/wz9xlZwzg5RWTcKJ9oqGgGZ34QhQoflFbeHHSzKOTHzD6dIwA5R1Q+XNqjPWYrVwKegB3/dspLxBOW+XMalhkrFakaBWvF+cXUXkBtat96Vsf5wYEyjolpwIX6LILLI1n6pgy8uGmH+lViTueCJTWlsJyBL8qvoCLdZPW52W3mIm38po9xijuIZ5m3qrhc3Ml23xm+EEVMXwT19KOb48DYKXrmtYhegpHcIMo9uY87HdhmBMDusNvWoxd9w++IH1YIjO5V4vhm9zuSfNRoNhwdaQrUBIT8yQUjLur3jMSXRfrQxhpk/AWniCoVqFy152IwfM4mV6Nqfu7mzEep2g0USXTLnGtM5HrdRsiDMk4a3KCLM=
 notifications:
   slack:
-    secure: "38IJFcYZc+5X/yPX1uBOrY0j0Xqtunry/ufERlrgfpGwnkuljH+klVlE8hp5RdwqZJKBj+5C5TksK0TLbz/CiRFag6UuCWCUdpjIsaIytObhfmHnkccgAQcSmXVN+2AGva2caWNA8mA6UD3GOiv/+xzi3nW85t6wYOwNvYmCJjU1pRcA1BnCxkzvkHAxCv0xmWKGcdcSvhG1PBV2VPmPC2pEv3WDKlyEuxXDD1UrED/dXJVnMGifx+o4qp2vSQtpgIKbXk+5tH8xmQjT0BfXjP2u+ppFUKVLJQIMWxP4p9/kTxhrpiQpeQjVa5jzdUwJWzDnrIVdQNJfBXJ3euK05A/lQSBZBc+8UZBAWGKIYIHtw+I+QUTT/wFIej5no9qmCMArNP/zXIp9kt4OuvqyYB4xVLcMW9uWTqFNHs6pkk6LGpJ20RSl0MV+Hx7nP2k13MTnZFKyQK1dmS3Vkv4wLC5fJLC7Lrgk6vnqXJ502m5NHAPGpvRvQnvvBzJ0bnZkb/0YRRecXJDslQNDx7sawOdV0nACEtO997euvvKQTUSw+fVzoMUfpF7QjlT4QhnLqLK1745tqKF82JVgeZ2BQUCiZMJ6P4UBjpgDQaCXAuMVRemcn70b+dS66L39ZwjHgPI8P7/VwwwqM9egDqEIGXCGtPevT6CY7r+rP3J282U="
+    secure: YDfplGp9dwFLliajyhVrmxqYt77KexeY8A4id5SM18caiVhhsuFrc3pwUvf5cP8BBHueSsbipU2hektNEKsZDaSeQ/PsZWSOzfTYBuQKKnmJRBI/HlN7ls9Z3YXlEp3st8QldzKQPB54WNDVnM15yNeC223Z87jazF91i1LOU2D4OCHZyvNE7qj1wSgdCbZyBtJPyXwBswdW3siRxF3I9fXK8/NCA1/T5v0zNdnI2nznL6SuC6SIOTT2lEyDgDDiSjT/yUrr1Qi2P2WWhUqxiT9rB+OVoY9Z7vNDOehd2TTC/j6OkqPFNZhcxlfvhAEmOmh8jejJftGgwKFzT1OQkSVPFNm0XQTrRJ/of5ig6KL9eWdtXfqeFl97+oO+UKOYpbHpd6Oze0t2l5Ilg2fjnDXPWI/BiAgrc7xX5cna2IJLM6FLFBh1y5KtEL8rKV7EyOKYhO7fjPgnRFUGx7CZur+s9pKljgy1Jlp/34UCHN7pO84b/kag5L4T9FhQHIHnC9QU/Qrr9/cs4A062fjj0sfnJ7STyZsYGS+A5AX5p2Fl5vIAB6rbGJ7JHY2b3UT1New4AjrCIWh5tsPXHgZTpvyjBJ4TQcChQ6faZ1W8ZyrNuNje9tHDOYljnhjfSzglGw4Y74g6iaGsycDv1nYcdqomDzp/3UiOA2IJghLiZ74=
