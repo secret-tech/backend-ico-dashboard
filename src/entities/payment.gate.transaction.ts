@@ -2,17 +2,17 @@ import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { TRANSACTION_STATUS_CONFIRMED } from './transaction';
 import { CoinpaymentsTransactionResult } from './coinpayments.transaction.result';
 
-export const TRANSACTION_IN_MONGO_TYPE_BUY = 'BUY';
-export const TRANSACTION_IN_MONGO_TYPE_CONVERT = 'CONVERT';
+export const PAYMENT_GATE_TRANSACTION_TYPE_BUY = 'BUY';
+export const PAYMENT_GATE_TRANSACTION_TYPE_CONVERT = 'CONVERT';
 
-export const TRANSACTION_IN_MONGO_STATUS_STARTED = 'STARTED';
-export const TRANSACTION_IN_MONGO_STATUS_PENDING = 'PENDING';
-export const TRANSACTION_IN_MONGO_STATUS_FAILED = 'FAILED';
-export const TRANSACTION_IN_MONGO_STATUS_COMPLETE = 'COMPLETE';
-export const TRANSACTION_IN_MONGO_STATUS_INITIATE_TRANSFER_TOKENS = 'INITIATE_TRANSFER_TOKENS';
+export const PAYMENT_GATE_TRANSACTION_STATUS_STARTED = 'STARTED';
+export const PAYMENT_GATE_TRANSACTION_STATUS_PENDING = 'PENDING';
+export const PAYMENT_GATE_TRANSACTION_STATUS_FAILED = 'FAILED';
+export const PAYMENT_GATE_TRANSACTION_STATUS_COMPLETE = 'COMPLETE';
+export const PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS = 'INITIATE_TRANSFER_TOKENS';
 
 @Entity()
-export class TransactionInMongo {
+export class PaymentGateTransaction {
 
   @ObjectIdColumn()
   id: ObjectID;

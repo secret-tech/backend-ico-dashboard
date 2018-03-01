@@ -333,7 +333,7 @@ declare interface IPNApiTypeResponse {
   received_confirms: number;
 }
 
-declare interface TransactionInMongoInterface {
+declare interface PaymentGateTransactionInterface {
 	type: string;
   status: string;
   user: any;
@@ -345,7 +345,7 @@ declare interface TransactionInMongoInterface {
 }
 
 declare interface PaymentsServiceInterface {
-  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongoInterface>;
+  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface>;
 }
 
 declare interface IPNServiceInterface {

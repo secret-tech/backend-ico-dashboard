@@ -255,8 +255,6 @@ export class DashboardController {
       req.body.currency
     );
 
-    console.log(tx);
-
     res.json(tx.buyCoinpaymentsData);
   }
 

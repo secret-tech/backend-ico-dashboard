@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { getConnection } from 'typeorm';
-import { TransactionInMongo, TRANSACTION_IN_MONGO_STATUS_PENDING, TRANSACTION_IN_MONGO_STATUS_FAILED, TRANSACTION_IN_MONGO_STATUS_STARTED, TRANSACTION_IN_MONGO_TYPE_BUY, TRANSACTION_IN_MONGO_STATUS_COMPLETE, TRANSACTION_IN_MONGO_STATUS_INITIATE_TRANSFER_TOKENS, TRANSACTION_IN_MONGO_TYPE_CONVERT } from '../entities/transaction.in.mongo';
+import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_TYPE_BUY, PAYMENT_GATE_TRANSACTION_STATUS_COMPLETE, PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS, PAYMENT_GATE_TRANSACTION_TYPE_CONVERT } from '../entities/payment.gate.transaction';
 import { IPNResponse } from '../entities/ipn.response';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './coinpayments.client';
 import config from '../config';
@@ -13,8 +13,8 @@ export class IPNService implements IPNServiceInterface {
   ) { }
 
   async processFail(data: any) {
-    const txRepository = getConnection().mongoManager.getMongoRepository(TransactionInMongo);
-    const tx: TransactionInMongo = await txRepository.findOne({where: {
+    const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
     }});
 
@@ -22,14 +22,14 @@ export class IPNService implements IPNServiceInterface {
       throw new Error('Transaction not found');
     }
 
-    if ([TRANSACTION_IN_MONGO_STATUS_STARTED, TRANSACTION_IN_MONGO_STATUS_FAILED, TRANSACTION_IN_MONGO_STATUS_PENDING].indexOf(tx.status) < 0) {
+    if ([PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING].indexOf(tx.status) < 0) {
       throw new Error('Invalid status');
     }
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
 
-    tx.status = TRANSACTION_IN_MONGO_STATUS_FAILED;
-    if (tx.type === TRANSACTION_IN_MONGO_TYPE_BUY) {
+    tx.status = PAYMENT_GATE_TRANSACTION_STATUS_FAILED;
+    if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
     } else {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
@@ -39,8 +39,8 @@ export class IPNService implements IPNServiceInterface {
   }
 
   async processPending(data: any) {
-    const txRepository = getConnection().mongoManager.getMongoRepository(TransactionInMongo);
-    const tx: TransactionInMongo = await txRepository.findOne({where: {
+    const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
     }});
 
@@ -48,14 +48,14 @@ export class IPNService implements IPNServiceInterface {
       throw new Error('Transaction not found');
     }
 
-    if ([TRANSACTION_IN_MONGO_STATUS_STARTED, TRANSACTION_IN_MONGO_STATUS_PENDING].indexOf(tx.status) < 0) {
+    if ([PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING].indexOf(tx.status) < 0) {
       throw Error('Invalid status');
     }
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
 
-    tx.status = TRANSACTION_IN_MONGO_STATUS_PENDING;
-    if (tx.type === TRANSACTION_IN_MONGO_TYPE_BUY) {
+    tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;
+    if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
     } else {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
@@ -65,8 +65,8 @@ export class IPNService implements IPNServiceInterface {
   }
 
   async processComplete(data: any) {
-    const txRepository = getConnection().mongoManager.getMongoRepository(TransactionInMongo);
-    const tx: TransactionInMongo = await txRepository.findOne({where: {
+    const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
     }});
 
@@ -74,24 +74,24 @@ export class IPNService implements IPNServiceInterface {
       throw new Error('Transaction not found');
     }
 
-    if ([TRANSACTION_IN_MONGO_STATUS_STARTED, TRANSACTION_IN_MONGO_STATUS_PENDING, TRANSACTION_IN_MONGO_STATUS_INITIATE_TRANSFER_TOKENS].indexOf(tx.status) < 0) {
+    if ([PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS].indexOf(tx.status) < 0) {
       throw Error('Invalid status');
     }
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
-    tx.status = TRANSACTION_IN_MONGO_STATUS_COMPLETE;
-    if (tx.type === TRANSACTION_IN_MONGO_TYPE_BUY) {
+    tx.status = PAYMENT_GATE_TRANSACTION_STATUS_COMPLETE;
+    if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
     } else {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
     }
 
-    if (tx.type !== TRANSACTION_IN_MONGO_TYPE_BUY) {
+    if (tx.type !== PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       return;
     }
 
-    tx.type = TRANSACTION_IN_MONGO_TYPE_CONVERT;
-    tx.status = TRANSACTION_IN_MONGO_STATUS_STARTED;
+    tx.type = PAYMENT_GATE_TRANSACTION_TYPE_CONVERT;
+    tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;
     getConnection().mongoManager.save(tx);
 
     tx.convertCoinpaymentsData = await this.cpClient.convertCoinsTransaction({
@@ -101,7 +101,7 @@ export class IPNService implements IPNServiceInterface {
       address: tx.user.ethWallet.address
     });
 
-    tx.status = TRANSACTION_IN_MONGO_STATUS_PENDING;
+    tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;
 
     getConnection().mongoManager.save(tx);
   }
