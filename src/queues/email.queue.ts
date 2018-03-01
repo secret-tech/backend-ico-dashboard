@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { EmailServiceType } from '../types';
 import config from '../config';
+import { Logger } from '../logger';
 
 export interface EmailQueueInterface {
   addJob(data: any);
@@ -10,6 +11,7 @@ export interface EmailQueueInterface {
 
 @injectable()
 export class EmailQueue implements EmailQueueInterface {
+  private logger = Logger.getInstance('EMAIL_QUEUE');
   private queueWrapper: any;
 
   constructor(
@@ -21,8 +23,9 @@ export class EmailQueue implements EmailQueueInterface {
     });
 
     this.queueWrapper.on('error', (error) => {
-      console.error(error);
+      this.logger.exception(error);
     });
+    this.logger.verbose('Email job worker started');
   }
 
   private async process(job: Bull.Job): Promise<boolean> {

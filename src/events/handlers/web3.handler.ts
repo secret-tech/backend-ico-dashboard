@@ -13,6 +13,7 @@ import {
 import { getConnection } from 'typeorm';
 import { TransactionServiceInterface } from '../../services/transaction.service';
 import * as Bull from 'bull';
+import { Logger } from '../../logger';
 
 export interface Web3HandlerInterface {
 
@@ -21,6 +22,7 @@ export interface Web3HandlerInterface {
 /* istanbul ignore next */
 @injectable()
 export class Web3Handler implements Web3HandlerInterface {
+  private logger = Logger.getInstance('WEB3_HANDLER');
   web3: any;
   ico: any;
   jcrToken: any;
@@ -40,7 +42,7 @@ export class Web3Handler implements Web3HandlerInterface {
         const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
 
         webSocketProvider.connection.onclose = () => {
-          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.logger.info('Web3 socket connection closed');
           this.onWsClose();
         };
 
@@ -65,8 +67,9 @@ export class Web3Handler implements Web3HandlerInterface {
     });
     this.queueWrapper.add({}, {repeat: {cron: '*/10 * * * *'}});
     this.queueWrapper.on('error', (error) => {
-      console.error(error);
+      this.logger.exception(error);
     });
+    this.logger.verbose('Web3 transactions job worker started');
   }
 
   async processNewBlockHeaders(data: any): Promise<void> {
@@ -237,10 +240,10 @@ export class Web3Handler implements Web3HandlerInterface {
   }
 
   onWsClose() {
-    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    this.logger.error('Web3 socket connection closed. Trying to reconnect');
     const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
     webSocketProvider.connection.onclose = () => {
-      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      this.logger.info('Web3 socket connection closed');
       setTimeout(() => {
         this.onWsClose();
       }, config.rpc.reconnectTimeout);

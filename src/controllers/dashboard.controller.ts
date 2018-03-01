@@ -12,6 +12,7 @@ import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/excepti
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
+import { Logger } from '../logger';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -28,6 +29,8 @@ export const INVEST_SCOPE = 'invest';
   '/dashboard'
 )
 export class DashboardController {
+  private logger = Logger.getInstance('DASHBOARD_CONTROLLER');
+
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
@@ -119,10 +122,14 @@ export class DashboardController {
       throw new IncorrectMnemonic('Not correct mnemonic phrase');
     }
 
+    const logger = this.logger.sub({ email: req.user.email }, '[investInitiate] ');
+
     if (!req.body.gasPrice) {
       req.body.gasPrice = await this.web3Client.getCurrentGasPrice();
     }
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
+
+    logger.debug('Check sufficient balance');
 
     if (!(await this.web3Client.sufficientBalance(txInput))) {
       throw new InsufficientEthBalance('Insufficient funds to perform this operation and pay tx fee');
@@ -133,15 +140,21 @@ export class DashboardController {
         email: req.user.referral
       });
 
+      logger.debug('Check referral from whitelist');
+
       const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
       if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
         throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
       }
     }
 
+    logger.debug('Check from whitelist');
+
     if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
       throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
     }
+
+    logger.debug('Initiate verification');
 
     const verificationResult = await this.verificationClient.initiateVerification(
       req.user.defaultVerificationMethod,
@@ -184,16 +197,22 @@ export class DashboardController {
       throw new IncorrectMnemonic('Not correct mnemonic phrase');
     }
 
+    const logger = this.logger.sub({ email: req.user.email }, '[investInitiate] ');
+
     if (req.user.referral) {
       const referral = await getConnection().mongoManager.findOne(Investor, {
         email: req.user.referral
       });
+
+      logger.debug('Check referral from whitelist');
 
       const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
       if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
         throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
       }
     }
+
+    logger.debug('Check from whitelist');
 
     if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
       throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
@@ -204,12 +223,18 @@ export class DashboardController {
       ethAmount: req.body.ethAmount.toString()
     };
 
+    logger.debug('Validate verification');
+
     await this.verificationClient.checkVerificationPayloadAndCode(req.body.verification, req.user.email, payload);
 
     if (!req.body.gasPrice) {
+      logger.debug('Get current gas price');
+
       req.body.gasPrice = await this.web3Client.getCurrentGasPrice();
     }
     const txInput = transformReqBodyToInvestInput(req.body, req.user);
+
+    logger.debug('Send transaction', { tx: txInput });
 
     const transactionHash = await this.web3Client.sendTransactionByMnemonic(
       txInput,

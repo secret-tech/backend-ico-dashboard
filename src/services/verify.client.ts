@@ -6,12 +6,14 @@ import {
   NotCorrectVerificationCode,
   VerificationIsNotFound
 } from '../exceptions/exceptions';
+import { Logger } from '../logger';
 
 const QR = require('qr-image');
 
 /* istanbul ignore next */
 @injectable()
 export class VerificationClient implements VerificationClientInterface {
+  private logger = Logger.getInstance('VERIFICATION_CLIENT');
   tenantToken: string;
   baseUrl: string;
 
@@ -29,26 +31,32 @@ export class VerificationClient implements VerificationClientInterface {
   }
 
   async initiateVerification(method: string, data: InitiateData): Promise<InitiateResult> {
-    const result = await request.json<InitiateResult>(`/methods/${ method }/actions/initiate`, {
-      baseUrl: this.baseUrl,
-      auth: {
-        bearer: this.tenantToken
-      },
-      method: 'POST',
-      body: data
-    });
-
-    result.method = method;
-    delete result.code;
-    if (result.totpUri) {
-      const buffer = QR.imageSync(result.totpUri, {
-        type: 'png',
-        size: 20
+    try {
+      const result = await request.json<InitiateResult>(`/methods/${ method }/actions/initiate`, {
+        baseUrl: this.baseUrl,
+        auth: {
+          bearer: this.tenantToken
+        },
+        method: 'POST',
+        body: data
       });
-      result.qrPngDataUri = 'data:image/png;base64,' + buffer.toString('base64');
-    }
 
-    return result;
+      result.method = method;
+      delete result.code;
+      if (result.totpUri) {
+        const buffer = QR.imageSync(result.totpUri, {
+          type: 'png',
+          size: 20
+        });
+        result.qrPngDataUri = 'data:image/png;base64,' + buffer.toString('base64');
+      }
+
+      return result;
+    } catch (error) {
+      this.logger.exception('Initiate', error);
+
+      throw error;
+    }
   }
 
   async validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult> {
@@ -74,6 +82,8 @@ export class VerificationClient implements VerificationClientInterface {
       if (e.statusCode === 404) {
         throw new VerificationIsNotFound('Code was expired or not found. Please retry');
       }
+
+      this.logger.exception('Validate', e);
 
       throw e;
     }
@@ -102,6 +112,8 @@ export class VerificationClient implements VerificationClientInterface {
       if (e.statusCode === 404) {
         throw new VerificationIsNotFound('Code was expired or not found. Please retry');
       }
+
+      this.logger.exception('getVerification', e);
 
       throw e;
     }
