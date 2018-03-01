@@ -2,6 +2,9 @@ require('dotenv').config();
 import 'reflect-metadata';
 
 const {
+  LOGGING_LEVEL,
+  LOGGING_FORMAT,
+  LOGGING_COLORIZE,
   REDIS_URL,
   HTTP_SERVER,
   PORT,
@@ -57,6 +60,11 @@ export default {
     apiUrl: API_URL,
     frontendUrl: FRONTEND_URL,
     accessLog: ACCESS_LOG
+  },
+  logging: {
+    level: LOGGING_LEVEL || 'warn',
+    format: LOGGING_FORMAT || 'text',
+    colorize: LOGGING_COLORIZE || false,
   },
   web3: {
     startBlock: WEB3_RESTORE_START_BLOCK || 1,

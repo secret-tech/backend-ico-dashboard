@@ -1,9 +1,11 @@
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import config from '../config';
+import { Logger } from '../logger';
 
 @injectable()
 export class MailjetService implements EmailServiceInterface {
+  private logger = Logger.getInstance('EMAIL_MAILJET_SERVICE');
   private api: any;
 
   /**
@@ -26,6 +28,9 @@ export class MailjetService implements EmailServiceInterface {
       'Recipients': [{'Email': recipient}]
     };
 
-    return sendEmail.request(emailData);
+    return sendEmail.request(emailData).catch(error => {
+      this.logger.exception(error);
+      return Promise.reject(error);
+    });
   }
 }

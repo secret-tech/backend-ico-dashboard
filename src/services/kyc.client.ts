@@ -6,11 +6,13 @@ import { Investor } from '../entities/investor';
 import * as uuid from 'node-uuid';
 import { base64encode } from '../helpers/helpers';
 import * as bcrypt from 'bcrypt-nodejs';
+import { Logger } from '../logger';
 
 const userAgent = config.app.companyName.replace(/[^a-zA-Z0-9]/g, '') + ' ICO/1.0.0';
 
 @injectable()
 export class KycClient implements KycClientInterface {
+  private logger = Logger.getInstance('JUMIO_KYC_CLIENT');
   apiToken: string;
   apiSecret: string;
   baseUrl: string;
@@ -28,44 +30,64 @@ export class KycClient implements KycClientInterface {
   }
 
   async init(investor: Investor): Promise<KycInitResult> {
-    const id = investor.id.toHexString();
-    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+    const logger = this.logger.sub({ email: investor.email }).addPrefix('[init] ');
 
-    const kycOptions = {
-      baseUrl: this.baseUrl,
-      method: 'POST',
-      auth: {
-        user: this.apiToken,
-        password: this.apiSecret
-      },
-      headers: {
-        'User-Agent': userAgent
-      },
-      body: {
-        merchantIdScanReference: uuid.v4(),
-        successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
-        errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
-        callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
-        customerId: investor.email,
-        authorizationTokenLifetime: this.defaultTokenLifetime
-      }
-    };
+    try {
+      logger.debug('Prepare investor for identification');
 
-    return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+      const id = investor.id.toHexString();
+      const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+
+      const kycOptions = {
+        baseUrl: this.baseUrl,
+        method: 'POST',
+        auth: {
+          user: this.apiToken,
+          password: this.apiSecret
+        },
+        headers: {
+          'User-Agent': userAgent
+        },
+        body: {
+          merchantIdScanReference: uuid.v4(),
+          successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
+          errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
+          callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
+          customerId: investor.email,
+          authorizationTokenLifetime: this.defaultTokenLifetime
+        }
+      };
+
+      return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+    } catch (error) {
+      logger.exception({ error });
+
+      throw error;
+    }
   }
 
   async getScanReferenceStatus(scanId: string): Promise<KycScanStatus> {
-    return await request.json<KycScanStatus>(`/scans/${ scanId }`, {
-      baseUrl: this.baseUrl,
-      method: 'GET',
-      auth: {
-        user: this.apiToken,
-        password: this.apiSecret
-      },
-      headers: {
-        'User-Agent': userAgent
-      }
-    });
+    const logger = this.logger.sub({ scanId }, '[getScanReferenceStatus] ');
+
+    try {
+      logger.debug('Get scan data');
+
+      return await request.json<KycScanStatus>(`/scans/${ scanId }`, {
+        baseUrl: this.baseUrl,
+        method: 'GET',
+        auth: {
+          user: this.apiToken,
+          password: this.apiSecret
+        },
+        headers: {
+          'User-Agent': userAgent
+        }
+      });
+    } catch (error) {
+      logger.exception({ error });
+
+      throw error;
+    }
   }
 }
 
