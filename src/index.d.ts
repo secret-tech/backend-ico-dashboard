@@ -304,7 +304,8 @@ declare interface CoinpaymentsTransactionData {
 
 declare interface CoinpaymentsClientInterface {
   createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
-  currencies();
+  convertCoinsTransaction(transactionData: any): Promise<any>;
+  currencies(): Promise<any>;
 }
 
 declare interface IPNApiTypeResponse {
@@ -332,7 +333,7 @@ declare interface IPNApiTypeResponse {
   received_confirms: number;
 }
 
-interface TransactionInMongoInterface {
+declare interface TransactionInMongoInterface {
 	type: string;
   status: string;
   user: any;
@@ -343,6 +344,12 @@ interface TransactionInMongoInterface {
   convertIpns: Array<any>;
 }
 
-interface PaymentsServiceInterface {
+declare interface PaymentsServiceInterface {
   initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<TransactionInMongoInterface>;
+}
+
+declare interface IPNServiceInterface {
+  processFail(data: any);
+  processPending(data: any);
+  processComplete(data: any);
 }

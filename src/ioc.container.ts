@@ -21,6 +21,7 @@ import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments.client';
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
+import { IPNServiceType, IPNService } from './services/ipn.service';
 
 let container = new Container();
 
@@ -49,6 +50,7 @@ container.bind<UserServiceInterface>(UserServiceType).to(UserService).inSingleto
 
 container.bind<CoinpaymentsClientInterface>(CoinpaymentsClientType).to(CoinpaymentsClient).inSingletonScope();
 container.bind<PaymentsServiceInterface>(PaymentsServiceType).to(PaymentsService).inSingletonScope();
+container.bind<IPNServiceInterface>(IPNServiceType).to(IPNService).inSingletonScope();
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares

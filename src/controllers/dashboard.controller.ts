@@ -12,9 +12,10 @@ import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/excepti
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
-import { CoinpaymentsClientType } from '../services/coinpayments.client';
+import { CoinpaymentsClientType, CoinPayments } from '../services/coinpayments.client';
 import { CoinpaymentsTransactionResult } from '../entities/coinpayments.transaction.result';
 import { PaymentsServiceType } from '../services/payments.service';
+import { IPNService, IPNServiceType } from '../services/ipn.service';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -22,6 +23,11 @@ const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
 export const INVEST_SCOPE = 'invest';
+
+const cpMiddleware = CoinPayments.ipn({
+  merchantId: config.coinPayments.merchantId,
+  merchantSecret: 'ipnsecret'
+});
 
 /**
  * Dashboard controller
@@ -36,7 +42,8 @@ export class DashboardController {
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
     @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
     @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface,
-    @inject(PaymentsServiceType) private paymentsService: PaymentsServiceInterface
+    @inject(PaymentsServiceType) private paymentsService: PaymentsServiceInterface,
+    @inject(IPNServiceType) private ipnService: IPNServiceInterface
   ) { }
 
   /**
@@ -251,5 +258,22 @@ export class DashboardController {
     console.log(tx);
 
     res.json(tx.buyCoinpaymentsData);
+  }
+
+  @httpPost(
+    '/ipn',
+    (req, res, next) => cpMiddleware(req, {end: () => {}}, next)
+  )
+  async ipn(req: Request, res: Response, next): Promise<void> {
+    if (req.body.status >= 100 || req.body.status == 2) {
+      // complete
+      this.ipnService.processComplete(req.body);
+    } else if (req.body.status < 0) {
+      // fail
+      this.ipnService.processFail(req.body);
+    } else {
+      // pending
+      this.ipnService.processPending(req.body);
+    }
   }
 }

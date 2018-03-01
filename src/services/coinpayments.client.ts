@@ -2,10 +2,11 @@ import { injectable, inject } from 'inversify';
 import { CoinpaymentsTransactionResult } from '../entities/coinpayments.transaction.result';
 import config from '../config';
 
-const CoinPayments = require('coinpayments');
+export const CoinPayments = require('coinpayments');
 const { promisify } = require('util');
 const rates = promisify(CoinPayments.prototype.rates);
 const createTransaction = promisify(CoinPayments.prototype.createTransaction);
+const convertCoins = promisify(CoinPayments.prototype.convertCoins);
 
 @injectable()
 export class CoinpaymentsClient implements CoinpaymentsClientInterface {
@@ -35,11 +36,27 @@ export class CoinpaymentsClient implements CoinpaymentsClientInterface {
       await createTransaction.call(this.cpClient, data),
       data
     );
-    console.log(transactionResult);
 
     return CoinpaymentsTransactionResult.createCoinpaymentsTransactionResult(
       transactionResult
     );
+  }
+
+  async convertCoinsTransaction(transactionData: any): Promise<any> {
+    const data = {
+      amount: transactionData.amount,
+      from: transactionData.from,
+      to: transactionData.to,
+      address: transactionData.address
+    };
+
+    const transactionResult = Object.assign(
+      {},
+      await convertCoins.call(this.cpClient, data),
+      data
+    );
+
+    return transactionResult;
   }
 
   currencies() {
