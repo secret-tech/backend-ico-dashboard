@@ -1,0 +1,12 @@
+{
+	"_id": "59ff233b958c8c44c418fffe",
+	"transactionHash": "0x8e058020f00816335fffbec575e4e9c84ab4088890e0d7395058618637809857",
+	"timestamp": 1509885929,
+	"blockNumber": 2009428,
+	"from": "0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF",
+	"to": "0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA",
+	"ethAmount": "0",
+	"jcrAmount": "10",
+	"status": "confirmed",
+	"type": "referral_transfer"
+}

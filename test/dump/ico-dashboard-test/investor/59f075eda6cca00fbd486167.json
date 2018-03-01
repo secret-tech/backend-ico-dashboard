@@ -1,0 +1,24 @@
+{
+	"_id": "59f075eda6cca00fbd486167",
+	"email": "existing@test.com",
+	"name": "ICO investor",
+	"passwordHash": "$2a$10$2mOIlbr/90cdpKRotGJpg.dc9Kz6uud/7z6rZbZ.hXVHO83lfH0pS",
+	"agreeTos": true,
+	"isVerified": false,
+	"defaultVerificationMethod": "email",
+	"referralCode": "ZXhpc3RpbmdAdGVzdC5jb20",
+	"kycStatus": "not_verified",
+	"verification": {
+		"id": "123",
+		"method": "email"
+	},
+	"ethWallet": {
+		"ticker": "ETH",
+		"address": "0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aF",
+		"balance": "0",
+		"salt": "",
+		"mnemonic": "pig turn bounce jeans left mouse hammer sketch hold during grief spirit"
+	},
+	"invitees": [],
+	"referral": "activated@test.com"
+}

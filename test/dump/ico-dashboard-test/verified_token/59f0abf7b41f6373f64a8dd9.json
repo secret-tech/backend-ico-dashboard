@@ -1,0 +1,11 @@
+{
+	"_id": "59f0abf7b41f6373f64a8dd9",
+	"token": "not_verified_token",
+	"verified": false,
+	"verification": {
+		"id": "verify_login_verification",
+		"method": "email",
+		"attempts": 1,
+		"expiredOn": 124545
+	}
+}
