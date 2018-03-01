@@ -94,10 +94,10 @@ export class UserService implements UserServiceInterface {
     const link = `${ config.app.frontendUrl }/auth/signup?type=activate&code={{{CODE}}}&verificationId={{{VERIFICATION_ID}}}&email=${ encodedEmail }`;
     const verification = await this.verificationClient.initiateVerification(EMAIL_VERIFICATION, {
       consumer: email,
-      issuer: 'Jincor',
+      issuer: config.app.companyName,
       template: {
         fromEmail: config.email.from.general,
-        subject: 'Verify your email at Jincor.com',
+        subject: `Verify your email at ${config.app.companyName}`,
         body: initiateSignUpTemplate(userData.name, link)
       },
       generateCode: {
@@ -161,10 +161,10 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          subject: 'Jincor.com Login Verification Code',
+          subject: `${config.app.companyName} Login Verification Code`,
           body: initiateSignInCodeTemplate(user.name, new Date().toUTCString(), ip)
         },
         generateCode: {
@@ -235,7 +235,7 @@ export class UserService implements UserServiceInterface {
     await getConnection().getMongoRepository(VerifiedToken).save(token);
     this.emailQueue.addJob({
       sender: config.email.from.general,
-      subject: 'Jincor.com Successful Login Notification',
+      subject: `${config.app.companyName} Successful Login Notification`,
       recipient: user.email,
       text: successSignInTemplate(user.name, new Date().toUTCString())
     });
@@ -311,7 +311,7 @@ export class UserService implements UserServiceInterface {
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'You are officially registered for participation in Jincor\'s ICO',
+      subject: `You are officially registered for participation in ${config.app.companyName}\'s ICO`,
       text: successSignUpTemplate(user.name)
     });
 
@@ -330,10 +330,10 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          subject: 'Here’s the Code to Change Your Password at Jincor.com',
+          subject: `Here’s the Code to Change Your Password at ${config.app.companyName}`,
           body: initiatePasswordChangeTemplate(user.name)
         },
         generateCode: {
@@ -370,7 +370,7 @@ export class UserService implements UserServiceInterface {
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'Jincor.com Password Change Notification',
+      subject: `${config.app.companyName} Password Change Notification`,
       text: successPasswordChangeTemplate(user.name)
     });
 
@@ -405,11 +405,11 @@ export class UserService implements UserServiceInterface {
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
           body: initiatePasswordResetTemplate(user.name),
-          subject: 'Here’s the Code to Reset Your Password at Jincor.com'
+          subject: `Here’s the Code to Reset Your Password at ${config.app.companyName}`
         },
         generateCode: {
           length: 6,
@@ -457,7 +457,7 @@ export class UserService implements UserServiceInterface {
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'Jincor.com Password Reset Notification',
+      subject: `${config.app.companyName} Password Reset Notification`,
       text: successPasswordResetTemplate(user.name)
     });
 
@@ -501,7 +501,7 @@ export class UserService implements UserServiceInterface {
       AUTHENTICATOR_VERIFICATION,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         policy: {
           expiredOn: '01:00:00'
         },

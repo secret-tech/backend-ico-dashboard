@@ -27,6 +27,8 @@ const {
   RPC_TYPE,
   RPC_ADDRESS,
   ACCESS_LOG,
+  MAILGUN_DOMAIN,
+  MAILGUN_API_KEY,
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
@@ -34,11 +36,19 @@ const {
   KYC_TOKEN,
   KYC_SECRET,
   KYC_BASE_URL,
-  KYC_TOKEN_LIFETIME
+  KYC_TOKEN_LIFETIME,
+  COINPAYMENTS_API_KEY,
+  COINPAYMENTS_API_SECRET,
+  COINPAYMENTS_API_CURRENCY1,
+  COINPAYMENTS_API_MERCHANT_ID,
+  COMPANY_NAME,
+  EMAIL_FROM,
+  EMAIL_REFERRAL
 } = process.env;
 
 export default {
   app: {
+    companyName: COMPANY_NAME || 'Jincor',
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
     httpServer: HTTP_SERVER || 'enabled',
@@ -72,17 +82,17 @@ export default {
     maxAttempts: 3
   },
   email: {
-    domain: 'jincor.com',
+    domain: MAILGUN_DOMAIN || 'jincor.com',
     mailgun: {
-      secret: 'key-176cd97e7ce70c9e75d826792669e53a'
+      secret: MAILGUN_API_KEY || 'key-0123456789'
     },
     mailjet: {
       apiKey: MAILJET_API_KEY,
       apiSecret: MAILJET_API_SECRET
     },
     from: {
-      general: 'noreply@jincor.com',
-      referral: 'partners@jincor.com'
+      general: EMAIL_FROM || 'noreply@jincor.com',
+      referral: EMAIL_REFERRAL || 'partners@jincor.com'
     }
   },
   contracts: {

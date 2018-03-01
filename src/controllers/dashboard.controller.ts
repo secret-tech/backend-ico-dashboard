@@ -135,22 +135,22 @@ export class DashboardController {
 
       const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
       if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
-        throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+        throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
       }
     }
 
     if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
-      throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+      throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
     }
 
     const verificationResult = await this.verificationClient.initiateVerification(
       req.user.defaultVerificationMethod,
       {
         consumer: req.user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          subject: 'You Purchase Validation Code to Use at Jincor.com',
+          subject: `You Purchase Validation Code to Use at ${config.app.companyName}`,
           body: initiateBuyTemplate(req.user.name)
         },
         generateCode: {
@@ -191,12 +191,12 @@ export class DashboardController {
 
       const addressFromWhiteList = await this.web3Client.getReferralOf(req.user.ethWallet.address);
       if (addressFromWhiteList.toLowerCase() !== referral.ethWallet.address.toLowerCase()) {
-        throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+        throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
       }
     }
 
     if (!(await this.web3Client.isAllowed(req.user.ethWallet.address))) {
-      throw Error('Error. Please try again in few minutes. Contact Jincor Team if you continue to receive this');
+      throw Error(`Error. Please try again in few minutes. Contact ${config.app.companyName} Team if you continue to receive this`);
     }
 
     const payload = {

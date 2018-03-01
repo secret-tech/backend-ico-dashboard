@@ -7,6 +7,8 @@ import * as uuid from 'node-uuid';
 import { base64encode } from '../helpers/helpers';
 import * as bcrypt from 'bcrypt-nodejs';
 
+const userAgent = config.app.companyName.replace(/[^a-zA-Z0-9]/g, '') + ' ICO/1.0.0';
+
 @injectable()
 export class KycClient implements KycClientInterface {
   apiToken: string;
@@ -37,7 +39,7 @@ export class KycClient implements KycClientInterface {
         password: this.apiSecret
       },
       headers: {
-        'User-Agent': 'JINCOR ICO/1.0.0'
+        'User-Agent': userAgent
       },
       body: {
         merchantIdScanReference: uuid.v4(),
@@ -61,7 +63,7 @@ export class KycClient implements KycClientInterface {
         password: this.apiSecret
       },
       headers: {
-        'User-Agent': 'JINCOR ICO/1.0.0'
+        'User-Agent': userAgent
       }
     });
   }
