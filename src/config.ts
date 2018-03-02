@@ -134,10 +134,10 @@ export default {
     reconnectTimeout: 5000 // in milliseconds
   },
   coinPayments: {
-    key: COINPAYMENTS_API_KEY,
-    secret: COINPAYMENTS_API_SECRET,
-    currency1: COINPAYMENTS_API_CURRENCY1,
-    merchantId: COINPAYMENTS_API_MERCHANT_ID,
-    merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET
+    key: COINPAYMENTS_API_KEY || 'api_key',
+    secret: COINPAYMENTS_API_SECRET || 'api_secret',
+    currency1: COINPAYMENTS_API_CURRENCY1 || 'ETH',
+    merchantId: COINPAYMENTS_API_MERCHANT_ID || 'api_merchant_id',
+    merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET || 'api_merchant_secret'
   }
 };
