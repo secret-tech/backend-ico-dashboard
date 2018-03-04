@@ -12,7 +12,7 @@ export class IPNService implements IPNServiceInterface {
     @inject(CoinpaymentsClientType) private cpClient: CoinpaymentsClientInterface
   ) { }
 
-  async processFail(data: any) {
+  async processFail(data: any): Promise<PaymentGateTransaction> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
@@ -35,10 +35,10 @@ export class IPNService implements IPNServiceInterface {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
     }
 
-    getConnection().mongoManager.save(tx);
+    return getConnection().mongoManager.save(tx);
   }
 
-  async processPending(data: any) {
+  async processPending(data: any): Promise<PaymentGateTransaction> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
@@ -61,10 +61,10 @@ export class IPNService implements IPNServiceInterface {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
     }
 
-    getConnection().mongoManager.save(tx);
+    return getConnection().mongoManager.save(tx);
   }
 
-  async processComplete(data: any) {
+  async processComplete(data: any): Promise<PaymentGateTransaction> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
@@ -103,7 +103,7 @@ export class IPNService implements IPNServiceInterface {
 
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;
 
-    getConnection().mongoManager.save(tx);
+    return getConnection().mongoManager.save(tx);
   }
 }
 
