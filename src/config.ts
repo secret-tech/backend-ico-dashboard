@@ -2,6 +2,7 @@ require('dotenv').config();
 import 'reflect-metadata';
 
 const {
+  CLIENT_IP_FORWARD_HEADER,
   LOGGING_LEVEL,
   LOGGING_FORMAT,
   LOGGING_COLORIZE,
@@ -51,6 +52,7 @@ const {
 
 export default {
   app: {
+    clientIpHeader: CLIENT_IP_FORWARD_HEADER || 'x-forwarded-for',
     companyName: COMPANY_NAME || 'Jincor',
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
