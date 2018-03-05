@@ -349,7 +349,7 @@ declare interface PaymentsServiceInterface {
 }
 
 declare interface IPNServiceInterface {
-  processFail(data: any);
-  processPending(data: any);
-  processComplete(data: any);
+  processFail(data: any): Promise<PaymentGateTransactionInterface>;
+  processPending(data: any): Promise<PaymentGateTransactionInterface>;
+  processComplete(data: any): Promise<PaymentGateTransactionInterface>;
 }
