@@ -225,7 +225,7 @@ const mockCoinpaymentsClient = () => {
     qrcode_url: 'https://www.coinpayments.net/qrgen.php?id=CPBF4COHLYGEZZYIGFDKFY9NDP&key=90e5561c1e8cd4452069f7726d3e0370'
   });
 
-  cpMock.setup(x => x.currencies()).returns(async(): Promise<any> => currenciesResult);
+  cpMock.setup(x => x.rates(TypeMoq.It.isAny())).returns(async(): Promise<any> => currenciesResult);
   cpMock.setup(x => x.createTransaction(TypeMoq.It.isAny())).returns(async(): Promise<CoinpaymentsTransactionResult> => transactionResult);
 
   container.rebind<CoinpaymentsClientInterface>(CoinpaymentsClientType).toConstantValue(cpMock.object);

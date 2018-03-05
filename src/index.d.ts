@@ -320,7 +320,6 @@ declare interface CoinpaymentsTransactionInfo {
 declare interface CoinpaymentsClientInterface {
   createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
   convertCoinsTransaction(transactionData: any): Promise<any>;
-  currencies(): Promise<any>;
   rates(options?: { short?: boolean; accepted?: boolean; }): Promise<{
     is_fiat: number;
     rate_btc: string;
