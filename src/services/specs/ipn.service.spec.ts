@@ -4,7 +4,7 @@ import { IPNServiceType } from '../ipn.service';
 import { getConnection } from 'typeorm';
 import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_TYPE_CONVERT, PAYMENT_GATE_TRANSACTION_TYPE_BUY } from '../../entities/payment.gate.transaction';
 import { IPNResponse } from '../../entities/ipn.response';
-import { CoinpaymentsClient, CoinpaymentsClientType } from '../coinpayments.client';
+import { CoinpaymentsClient, CoinpaymentsClientType } from '../coinpayments/coinpayments.client';
 import * as TypeMoq from 'typemoq';
 import { CoinpaymentsTransactionResult } from '../../entities/coinpayments.transaction.result';
 
