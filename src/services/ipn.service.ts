@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { getConnection } from 'typeorm';
 import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_TYPE_BUY, PAYMENT_GATE_TRANSACTION_STATUS_COMPLETE, PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS, PAYMENT_GATE_TRANSACTION_TYPE_CONVERT } from '../entities/payment.gate.transaction';
 import { IPNResponse } from '../entities/ipn.response';
-import { CoinpaymentsClient, CoinpaymentsClientType } from './coinpayments.client';
+import { CoinpaymentsClient, CoinpaymentsClientType } from './coinpayments/coinpayments.client';
 import config from '../config';
 
 @injectable()

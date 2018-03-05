@@ -55,7 +55,8 @@ export default {
   },
   web3: {
     startBlock: WEB3_RESTORE_START_BLOCK || 1,
-    defaultInvestGas: '130000'
+    defaultInvestGas: '130000',
+    purchaseGasLimit: 100000
   },
   redis: {
     url: REDIS_URL || 'redis://redis:6379',
@@ -138,6 +139,7 @@ export default {
     secret: COINPAYMENTS_API_SECRET || 'api_secret',
     currency1: COINPAYMENTS_API_CURRENCY1 || 'ETH',
     merchantId: COINPAYMENTS_API_MERCHANT_ID || 'api_merchant_id',
-    merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET || 'api_merchant_secret'
+    merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET || 'api_merchant_secret',
+    incomingPaymentsFee: 0.005
   }
 };

@@ -12,7 +12,7 @@ import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/excepti
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
-import { CoinpaymentsClientType, CoinPayments } from '../services/coinpayments.client';
+import { CoinpaymentsClientType, CoinPayments } from '../services/coinpayments/coinpayments.client';
 import { CoinpaymentsTransactionResult } from '../entities/coinpayments.transaction.result';
 import { PaymentsServiceType } from '../services/payments.service';
 import { IPNService, IPNServiceType } from '../services/ipn.service';
@@ -240,7 +240,7 @@ export class DashboardController {
     '/currencies'
   )
   async currencies(req: Request, res: Response): Promise<void> {
-    res.json(await this.coinpaimentsClient.currencies());
+    res.json(await this.coinpaimentsClient.rates());
   }
 
   @httpPost(

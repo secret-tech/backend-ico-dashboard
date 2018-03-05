@@ -19,7 +19,7 @@ import { TransactionService, TransactionServiceInterface, TransactionServiceType
 import { KycController } from './controllers/kyc.controller';
 import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
-import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments.client';
+import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments/coinpayments.client';
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
 import { IPNServiceType, IPNService } from './services/ipn.service';
 

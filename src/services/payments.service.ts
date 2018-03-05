@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { CoinpaymentsClientType } from './coinpayments.client';
+import { CoinpaymentsClientType } from './coinpayments/coinpayments.client';
 import { Investor } from '../entities/investor';
 import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_TYPE_BUY } from '../entities/payment.gate.transaction';
 import { getConnection } from 'typeorm';

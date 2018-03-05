@@ -11,7 +11,7 @@ import {
 
 import {
   CoinpaymentsClient, CoinpaymentsClientType
-} from '../../services/coinpayments.client';
+} from '../../services/coinpayments/coinpayments.client';
 
 import { Response, Request, NextFunction } from 'express';
 
