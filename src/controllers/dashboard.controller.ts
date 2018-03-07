@@ -21,6 +21,8 @@ const TRANSACTION_STATUS_PENDING = 'pending';
 
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
+const IPN_RESPONSE_STATUS_COMPLETE = 100;
+const IPN_RESPONSE_STATUS_QUEUED_PAYOUT = 2;
 
 export const INVEST_SCOPE = 'invest';
 
@@ -248,14 +250,18 @@ export class DashboardController {
     'AuthMiddleware'
   )
   async createTransaction(req: AuthorizedRequest, res: Response): Promise<void> {
-    const tx = await this.paymentsService.initiateBuyEths(
-      req.user,
-      req.body.amount,
-      config.coinPayments.currency1,
-      req.body.currency
-    );
+    try {
+      const tx = await this.paymentsService.initiateBuyEths(
+        req.user,
+        req.body.amount,
+        config.coinPayments.currency1,
+        req.body.currency
+      );
 
-    res.json(tx.buyCoinpaymentsData);
+      res.json(tx.buyCoinpaymentsData);
+    } catch (error) {
+      res.json(error);
+    }
   }
 
   @httpPost(
@@ -263,15 +269,23 @@ export class DashboardController {
     (req, res, next) => cpMiddleware(req, {end: () => {}}, next)
   )
   async ipn(req: Request, res: Response, next): Promise<void> {
-    if (req.body.status >= 100 || req.body.status == 2) {
-      // complete
-      this.ipnService.processComplete(req.body);
-    } else if (req.body.status < 0) {
-      // fail
-      this.ipnService.processFail(req.body);
-    } else {
-      // pending
-      this.ipnService.processPending(req.body);
+    console.log('debug:...');
+    console.log(req.body);
+    try {
+      if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE || req.body.status === IPN_RESPONSE_STATUS_QUEUED_PAYOUT) {
+        // complete
+        console.log(await this.ipnService.processComplete(req.body));
+      } else if (req.body.status < 0) {
+        // fail
+        console.log(await this.ipnService.processFail(req.body));
+      } else {
+        // pending
+        console.log(await this.ipnService.processPending(req.body));
+      }
+
+      res.end('IPN OK');
+    } catch (error) {
+      res.end('IPN Error: ' + error);
     }
   }
 }

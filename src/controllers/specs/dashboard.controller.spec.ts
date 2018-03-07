@@ -260,7 +260,6 @@ describe('Dashboard', () => {
 
   describe('GET /dashboard/currencies', () => {
     it('should get expected currencies', (done) => {
-
       getRequest(factory.testAppForDashboard(), '/dashboard/currencies').end((err, res) => {
         expect(res.status).to.equal(200);
         done();

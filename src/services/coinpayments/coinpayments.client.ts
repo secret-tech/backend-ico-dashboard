@@ -10,17 +10,32 @@ const createTransaction = promisify(CoinPayments.prototype.createTransaction);
 const getTx = promisify(CoinPayments.prototype.getTx);
 const getTxMulti = promisify(CoinPayments.prototype.getTxMulti);
 
+export interface ConversionOptions {
+  amount: string|number;
+  from: string;
+  to: string;
+  address?: string;
+}
+
+export interface ConversionResult {
+  id: string;
+}
+
+export interface ExchangeRateOptions {
+  short?: number;
+  accepted?: number;
+}
+
 @injectable()
 export class CoinpaymentsClient implements CoinpaymentsClientInterface {
   private cpClient: any;
   private currency1: string;
 
   constructor() {
-    const cpOptions = {
+    this.cpClient = new CoinPayments({
       key: config.coinPayments.key,
       secret: config.coinPayments.secret
-    };
-    this.cpClient = new CoinPayments(cpOptions);
+    });
     this.currency1 = config.coinPayments.currency1;
   }
 
@@ -33,45 +48,38 @@ export class CoinpaymentsClient implements CoinpaymentsClientInterface {
       amount: transactionData.amount
     };
 
-    const transactionResult = Object.assign(
-      {},
-      await createTransaction.call(this.cpClient, data),
-      data
-    );
-
-    // const transactionResult = { ...await createTransaction.call(this.cpClient, data), ...data };
+    const transactionResult = {...await createTransaction.call(this.cpClient, data), ...data};
 
     return CoinpaymentsTransactionResult.createCoinpaymentsTransactionResult(
       transactionResult
     );
   }
 
-  async convertCoinsTransaction(transactionData: any): Promise<any> {
+  async convertCoinsTransaction(conversionOptions: ConversionOptions): Promise<ConversionResult> {
     const data = {
-      amount: transactionData.amount,
-      from: transactionData.from,
-      to: transactionData.to,
-      address: transactionData.address
+      amount: conversionOptions.amount,
+      from: conversionOptions.from,
+      to: conversionOptions.to,
+      address: conversionOptions.address
     };
 
-    const transactionResult = Object.assign(
-      {},
-      await rates.call(this.cpClient, data),
-      data
-    );
-
+    const transactionResult = {...await rates.call(this.cpClient, data), ...data};
     return transactionResult;
   }
 
-  rates(options) {
-    return rates.call(this.cpClient, options);
+  async rates(options?: ExchangeRateOptions): Promise<ExchangeRateInterface> {
+    if (options) {
+      return rates.call(this.cpClient, options);
+    } else {
+      return rates.call(this.cpClient);
+    }
   }
 
-  getTransactionInfo(txId: string) {
+  async getTransactionInfo(txId: string): Promise<CoinpaymentsTransactionInfo> {
     return getTx.call(this.cpClient, txId);
   }
 
-  getTransactionMulti(txIds: string[]) {
+  async getTransactionMulti(txIds: string[]): Promise<{ [txId: string]: CoinpaymentsTransactionInfo }> {
     return getTxMulti.call(this.cpClient, txIds);
   }
 }

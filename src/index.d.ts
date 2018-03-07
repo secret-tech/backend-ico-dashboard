@@ -302,7 +302,7 @@ declare interface CoinpaymentsTransactionData {
   buyer_email: string;
 }
 
-declare interface CoinpaymentsTransactionInfo {
+declare interface CoinpaymentsTransactionInfo { 
   time_created: number;
   time_expires: number;
   status: number;
@@ -310,27 +310,29 @@ declare interface CoinpaymentsTransactionInfo {
   type: string;
   coin: string;
   amount: number;
-  amountf: number;
+  amountf: string;
   received: number;
   receivedf: string;
   recv_confirms: number;
   payment_address: string;
 }
 
+declare interface ExchangeRateInterface {
+  is_fiat: number;
+  rate_btc: string;
+  last_update: string;
+  tx_fee: string;
+  status: string;
+  name: string;
+  confirms: string;
+  can_convert: number;
+  capabilities: string[];
+}
+
 declare interface CoinpaymentsClientInterface {
   createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
   convertCoinsTransaction(transactionData: any): Promise<any>;
-  rates(options?: { short?: boolean; accepted?: boolean; }): Promise<{
-    is_fiat: number;
-    rate_btc: string;
-    last_update: string;
-    tx_fee: string;
-    status: string;
-    name: string;
-    confirms: string;
-    can_convert: number;
-    capabilities: string[];
-  }>;
+  rates(options?: { short?: number; accepted?: number; }): Promise<ExchangeRateInterface>;
   getTransactionInfo(txId: string): Promise<CoinpaymentsTransactionInfo>;
   getTransactionMulti(txIds: string[]): Promise<{ [txId: string]: CoinpaymentsTransactionInfo }>;
 }
