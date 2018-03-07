@@ -365,7 +365,7 @@ declare interface IPNApiTypeResponse {
 declare interface PaymentGateTransactionInterface {
 	type: string;
   status: string;
-  user: any;
+  userEmail: string;
   expiredOn: number;
   buyCoinpaymentsData: any;
   convertCoinpaymentsData: null;

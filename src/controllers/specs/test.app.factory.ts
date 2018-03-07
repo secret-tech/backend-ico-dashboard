@@ -229,7 +229,7 @@ const mockCoinpaymentsClient = () => {
   cpMock.setup(x => x.createTransaction(TypeMoq.It.isAny())).returns(async(): Promise<CoinpaymentsTransactionResult> => transactionResult);
 
   container.rebind<CoinpaymentsClientInterface>(CoinpaymentsClientType).toConstantValue(cpMock.object);
-}
+};
 
 const mockVerifyClient = () => {
   const verifyMock = TypeMoq.Mock.ofInstance(container.get<VerificationClientInterface>(VerificationClientType));

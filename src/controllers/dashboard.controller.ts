@@ -270,7 +270,7 @@ export class DashboardController {
   )
   async ipn(req: Request, res: Response, next): Promise<void> {
     try {
-      if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE || req.body.status === IPN_RESPONSE_STATUS_QUEUED_PAYOUT) {
+      if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE) {
         // complete
         console.log(await this.ipnService.processComplete(req.body));
       } else if (req.body.status < 0) {

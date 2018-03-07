@@ -4,6 +4,7 @@ import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMEN
 import { IPNResponse } from '../entities/ipn.response';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './coinpayments/coinpayments.client';
 import config from '../config';
+import { Investor } from '../entities/investor';
 
 @injectable()
 export class IPNService implements IPNServiceInterface {
@@ -66,6 +67,8 @@ export class IPNService implements IPNServiceInterface {
 
   async processComplete(data: any): Promise<PaymentGateTransactionInterface> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const investorRepository = getConnection().mongoManager.getMongoRepository(Investor);
+
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
       'buyCoinpaymentsData.txn_id': data.txn_id
     }});
@@ -86,19 +89,24 @@ export class IPNService implements IPNServiceInterface {
       tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
     }
 
+    await getConnection().mongoManager.save(tx);
+
+    // Run convertation once
     if (tx.type !== PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
-      return;
+      return tx;
     }
 
     tx.type = PAYMENT_GATE_TRANSACTION_TYPE_CONVERT;
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;
-    getConnection().mongoManager.save(tx);
+    await getConnection().mongoManager.save(tx);
+
+    const investor = await investorRepository.findOne({where: {email: tx.userEmail}});
 
     tx.convertCoinpaymentsData = await this.cpClient.convertCoinsTransaction({
-      amount: tx.buyCoinpaymentsData.amount,
+      amount: tx.buyCoinpaymentsData.amount, /** @todo: change to net */
       from: tx.buyCoinpaymentsData.currency2,
       to: config.coinPayments.currency1,
-      address: tx.user.ethWallet.address
+      address: investor.ethWallet.address
     });
 
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;

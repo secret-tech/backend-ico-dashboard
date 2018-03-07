@@ -24,7 +24,7 @@ export class PaymentGateTransaction {
   status: string;
 
   @Column()
-  user: any;
+  userEmail: string;
 
   @Column()
   expiredOn: number;
