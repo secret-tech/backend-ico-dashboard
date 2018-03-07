@@ -2,7 +2,7 @@ import { container } from '../../ioc.container';
 import { expect } from 'chai';
 import { IPNServiceType } from '../ipn.service';
 import { getConnection } from 'typeorm';
-import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_TYPE_CONVERT, PAYMENT_GATE_TRANSACTION_TYPE_BUY } from '../../entities/payment.gate.transaction';
+import { PaymentGateTransaction, PAYMENT_GATE_TRANSACTION_STATUS_FAILED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_TYPE_CONVERT, PAYMENT_GATE_TRANSACTION_TYPE_BUY, PAYMENT_GATE_TRANSACTION_STATUS_STARTED } from '../../entities/payment.gate.transaction';
 import { IPNResponse } from '../../entities/ipn.response';
 import { CoinpaymentsClient, CoinpaymentsClientType } from '../coinpayments/coinpayments.client';
 import * as TypeMoq from 'typemoq';
@@ -85,6 +85,7 @@ describe('IPN Service', () => {
         amount1: '1',
         amount2: '0.1',
         fee: '0.00025',
+        net: '0.09975',
         buyer_name: 'CoinPayments API',
         received_amount: '0.1',
         received_confirms: '2'
@@ -95,11 +96,12 @@ describe('IPN Service', () => {
       const ipnService = container.get<IPNServiceInterface>(IPNServiceType);
       const tx = await ipnService.processComplete(ipnResponse);
       expect(tx.type).to.eq(PAYMENT_GATE_TRANSACTION_TYPE_CONVERT);
-      expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_PENDING);
+      expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_STARTED);
       expect(tx.convertIpns.length).to.eq(0);
       expect(tx.buyIpns.length).to.eq(1);
       expect(tx.convertCoinpaymentsData).to.contain(converResult);
       expect(tx.buyIpns[0]).to.contain(ipnResponse);
+      expect(tx.buyIpns[0].net).to.eq('0.09975');
     });
   });
 });

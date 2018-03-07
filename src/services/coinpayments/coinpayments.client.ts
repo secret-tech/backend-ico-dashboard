@@ -7,6 +7,7 @@ const { promisify } = require('util');
 
 const rates = promisify(CoinPayments.prototype.rates);
 const createTransaction = promisify(CoinPayments.prototype.createTransaction);
+const convertCoins = promisify(CoinPayments.prototype.convertCoins);
 const getTx = promisify(CoinPayments.prototype.getTx);
 const getTxMulti = promisify(CoinPayments.prototype.getTxMulti);
 
@@ -58,14 +59,14 @@ export class CoinpaymentsClient implements CoinpaymentsClientInterface {
   }
 
   async convertCoinsTransaction(conversionOptions: ConversionOptions): Promise<ConversionResult> {
-    const data = {
+    const options = {
       amount: conversionOptions.amount,
       from: conversionOptions.from,
       to: conversionOptions.to,
       address: conversionOptions.address
     };
 
-    const transactionResult = {...await rates.call(this.cpClient, data), ...data};
+    const transactionResult = {...await convertCoins.call(this.cpClient, options), ...options};
     return transactionResult;
   }
 
