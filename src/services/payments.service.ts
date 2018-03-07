@@ -25,7 +25,7 @@ export class PaymentsService implements PaymentsServiceInterface {
     tx.expiredOn = txCoinpaymentsData.timeout + Date.now();
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;
     tx.type = PAYMENT_GATE_TRANSACTION_TYPE_BUY;
-    tx.user = currentUser;
+    tx.userEmail = currentUser.email;
 
     await getConnection().getMongoRepository(PaymentGateTransaction).save(tx);
 
