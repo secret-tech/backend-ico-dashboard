@@ -72,6 +72,9 @@ export class IPNResponse {
   @Column()
   received_confirms: number;
 
+  @Column()
+  net: string;
+
   static createIPNResponse(data: any): IPNResponse {
     const ipnResponse = new IPNResponse();
     Object.assign(ipnResponse, data);

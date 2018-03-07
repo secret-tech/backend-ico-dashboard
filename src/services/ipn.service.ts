@@ -65,7 +65,7 @@ export class IPNService implements IPNServiceInterface {
     return getConnection().mongoManager.save(tx);
   }
 
-  async processComplete(data: any): Promise<PaymentGateTransactionInterface> {
+  async processComplete(data: IPNApiTypeResponse): Promise<PaymentGateTransactionInterface> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const investorRepository = getConnection().mongoManager.getMongoRepository(Investor);
 
@@ -77,11 +77,14 @@ export class IPNService implements IPNServiceInterface {
       throw new Error('Transaction not found');
     }
 
-    if ([PAYMENT_GATE_TRANSACTION_STATUS_STARTED, PAYMENT_GATE_TRANSACTION_STATUS_PENDING, PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS].indexOf(tx.status) < 0) {
+    if ([PAYMENT_GATE_TRANSACTION_STATUS_STARTED,
+      PAYMENT_GATE_TRANSACTION_STATUS_PENDING,
+      PAYMENT_GATE_TRANSACTION_STATUS_INITIATE_TRANSFER_TOKENS].indexOf(tx.status) < 0) {
       throw Error('Invalid status');
     }
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
+
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_COMPLETE;
     if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
@@ -98,12 +101,11 @@ export class IPNService implements IPNServiceInterface {
 
     tx.type = PAYMENT_GATE_TRANSACTION_TYPE_CONVERT;
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;
-    await getConnection().mongoManager.save(tx);
 
     const investor = await investorRepository.findOne({where: {email: tx.userEmail}});
 
     tx.convertCoinpaymentsData = await this.cpClient.convertCoinsTransaction({
-      amount: tx.buyCoinpaymentsData.amount, /** @todo: change to net */
+      amount: data.net,
       from: tx.buyCoinpaymentsData.currency2,
       to: config.coinPayments.currency1,
       address: investor.ethWallet.address

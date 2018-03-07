@@ -353,6 +353,7 @@ declare interface IPNApiTypeResponse {
   amount1: number;
   amount2: number;
   fee: number;
+  net: string;
   buyer_name: string;
   email: string;
   item_name: string;
