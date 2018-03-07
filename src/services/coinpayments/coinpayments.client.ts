@@ -45,7 +45,9 @@ export class CoinpaymentsClient implements CoinpaymentsClientInterface {
     const data = {
       currency1: this.currency1,
       currency2: transactionData.currency,
-      amount: transactionData.amount
+      amount: transactionData.amount,
+      buyer_email: transactionData.buyer_email,
+      email: transactionData.buyer_email
     };
 
     const transactionResult = {...await createTransaction.call(this.cpClient, data), ...data};

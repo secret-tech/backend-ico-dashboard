@@ -269,8 +269,6 @@ export class DashboardController {
     (req, res, next) => cpMiddleware(req, {end: () => {}}, next)
   )
   async ipn(req: Request, res: Response, next): Promise<void> {
-    console.log('debug:...');
-    console.log(req.body);
     try {
       if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE || req.body.status === IPN_RESPONSE_STATUS_QUEUED_PAYOUT) {
         // complete

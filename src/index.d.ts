@@ -374,7 +374,7 @@ declare interface PaymentGateTransactionInterface {
 }
 
 declare interface PaymentsServiceInterface {
-  initiateBuyEths(currentUser: any, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface>;
+  initiateBuyEths(currentUser: any, amount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface>;
 }
 
 declare interface IPNServiceInterface {

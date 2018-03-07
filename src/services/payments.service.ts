@@ -10,9 +10,9 @@ export class PaymentsService implements PaymentsServiceInterface {
     @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface
   ) { }
 
-  async initiateBuyEths(currentUser: Investor, needTokensAmount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface> {
+  async initiateBuyEths(currentUser: Investor, amount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface> {
     const txCoinpaymentsData = await this.coinpaimentsClient.createTransaction({
-      amount: needTokensAmount * 0.1, // todo: use convertion service
+      amount: amount,
       currency: purchaseInCurrency,
       buyer_email: currentUser.email
     });
