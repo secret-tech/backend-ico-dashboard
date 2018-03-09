@@ -7,6 +7,7 @@ const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
+import { Logger } from '../logger';
 
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
@@ -47,6 +48,8 @@ export interface Web3ClientInterface {
 /* istanbul ignore next */
 @injectable()
 export class Web3Client implements Web3ClientInterface {
+  private logger = Logger.getInstance('WEB3CLIENT');
+
   whiteList: any;
   ico: any;
   jcrToken: any;
@@ -61,7 +64,7 @@ export class Web3Client implements Web3ClientInterface {
         const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
 
         webSocketProvider.connection.onclose = () => {
-          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.logger.info('Web3 socket connection closed');
           this.onWsClose();
         };
 
@@ -135,15 +138,17 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   addAddressToWhiteList(address: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const account = this.web3.eth.accounts.privateKeyToAccount(config.contracts.whiteList.ownerPk);
       const params = {
         value: '0',
         to: this.whiteList.options.address,
         gas: 200000,
+        nonce: await this.web3.eth.getTransactionCount(account.address, 'pending'),
         data: this.whiteList.methods.addInvestorToWhiteList(address).encodeABI()
       };
 
-      this.web3.eth.accounts.signTransaction(params, config.contracts.whiteList.ownerPk).then(transaction => {
+      account.signTransaction(params).then(transaction => {
         this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
           .on('transactionHash', transactionHash => {
             resolve(transactionHash);
@@ -232,10 +237,10 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   onWsClose() {
-    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    this.logger.error('Web3 socket connection closed. Trying to reconnect');
     const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
     webSocketProvider.connection.onclose = () => {
-      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      this.logger.info('Web3 socket connection closed');
       setTimeout(() => {
         this.onWsClose();
       }, config.rpc.reconnectTimeout);

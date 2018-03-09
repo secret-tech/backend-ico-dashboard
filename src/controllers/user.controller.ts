@@ -1,3 +1,4 @@
+import config from '../config';
 import { Response, Request } from 'express';
 import { UserServiceType } from '../services/user.service';
 import { inject, injectable } from 'inversify';
@@ -56,7 +57,7 @@ export class UserController {
     'InitiateLoginValidation'
   )
   async initiateLogin(req: Request, res: Response): Promise<void> {
-    let ip = req.header('cf-connecting-ip') || req.ip;
+    let ip = req.header(config.app.clientIpHeader as string) || req.ip;
 
     if (ip.substr(0, 7) === '::ffff:') {
       ip = ip.substr(7);

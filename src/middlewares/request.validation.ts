@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import config from '../config';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { base64decode } from '../helpers/helpers';
@@ -206,7 +207,7 @@ export function onlyJumioIp(req: Request, res: Response, next: NextFunction) {
     '52.58.113.86'
   ];
 
-  let ip = req.header('cf-connecting-ip') || req.ip;
+  let ip = req.header(config.app.clientIpHeader as string) || req.ip;
 
   /*
    Check if IP has ipv6 prefix and remove it.
