@@ -750,3 +750,74 @@ Authentication attempts with not verified token will result in 401 response.
             "clientRedirectUrl": "https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea",
             "jumioIdScanReference": "7b58a08e-19cf-4d28-a828-4bb577c6f69a"
         }
+
+## Get Currencies and Rates [/dashboard/currencies]
+
+### Get Currencies and Rates [GET]
+
++ Request
+
+    + Headers
+        
+            Accept: application/json
+        
++ Response 200 (application/json)
+
+        {
+            "BTC": {
+                "is_fiat": 0,
+                "rate_btc": "1.000000000000000000000000",
+                "last_update": "1375473661",
+                "tx_fee": "0.00070000",
+                "status": "online",
+                "name": "Bitcoin",
+                "confirms": "2",
+                "can_convert": 1,
+                "capabilities": ["payments", "wallet", "transfers", "convert"]
+            },
+            "LTC":{
+                "is_fiat": 0,
+                "rate_btc": "0.019997165000000000000000",
+                "last_update": "1520610961",
+                "tx_fee": "0.00100000",
+                "status": "online",
+                "name": "Litecoin",
+                "confirms": "3",
+                "can_convert": 1,
+                "capabilities": ["payments", "wallet", "transfers", "convert"]
+            }
+        }
+        
+
+## Create CoinPayments Transaction [/dashboard/createTransaction]
+
+### Create CoinPayments Transaction [POST]
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer token
+            
+    + Body
+    
+            {
+                "amount": 5,
+                "currency": "BTC"
+            }
+        
++ Response 200 (application/json)
+
+        {
+            "address": "mhocbNymvkn9sP7FRAionoif2SQqJBuibx",
+            "amount": 5,
+            "confirms_needed": "0",
+            "currency1": "ETH",
+            "currency2": "BTC",
+            "email": "user@test.com",
+            "qrcode_url": "https://www.coinpayments.net/qrgen.php?id=CPCC41OJBXM5TKQO3HNMDR3F0W&key=8877e51b87aee89e256336e7e955ec53",
+            "status_url": "https://www.coinpayments.net/index.php?cmd=status&id=CPCC41OJBXM5TKQO3HNMDR3F0W&key=8877e51b87aee89e256336e7e955ec53",
+            "timeout": 3600,
+            "txn_id": "CPCC4YOJBXMI1VQOAHNMDR330W"
+        }
