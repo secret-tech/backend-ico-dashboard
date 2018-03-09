@@ -45,7 +45,7 @@ const {
   COINPAYMENTS_API_SECRET,
   COINPAYMENTS_API_CURRENCY1,
   COINPAYMENTS_API_MERCHANT_ID,
-  COINPAYMENTS_API_MERCHANT_SECRET
+  COINPAYMENTS_API_MERCHANT_SECRET,
   COMPANY_NAME,
   EMAIL_FROM,
   EMAIL_REFERRAL
@@ -67,7 +67,7 @@ export default {
   logging: {
     level: LOGGING_LEVEL || 'warn',
     format: LOGGING_FORMAT || 'text',
-    colorize: LOGGING_COLORIZE || false,
+    colorize: LOGGING_COLORIZE || false
   },
   web3: {
     startBlock: WEB3_RESTORE_START_BLOCK || 1,
