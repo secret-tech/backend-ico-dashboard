@@ -22,6 +22,7 @@ import { MailjetService } from './services/mailjet.service';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments/coinpayments.client';
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
 import { IPNServiceType, IPNService } from './services/ipn.service';
+import { GatewayController } from './controllers/gateway.controller';
 
 let container = new Container();
 
@@ -95,5 +96,6 @@ container.bind<express.RequestHandler>('OnlyJumioIp').toConstantValue(
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');
 container.bind<interfaces.Controller>(TYPE.Controller).to(DashboardController).whenTargetNamed('DashboardController');
 container.bind<interfaces.Controller>(TYPE.Controller).to(KycController).whenTargetNamed('KycController');
+container.bind<interfaces.Controller>(TYPE.Controller).to(GatewayController).whenTargetNamed('GatewayController');
 
 export { container };
