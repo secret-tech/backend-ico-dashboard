@@ -34,7 +34,13 @@ export class GatewayController {
     '/currencies'
   )
   async currencies(req: Request, res: Response): Promise<void> {
-    res.json(await this.coinpaimentsClient.rates());
+    const rates = await this.coinpaimentsClient.rates({accepted: 1});
+    Object.keys(rates).forEach(key => {
+      if (!rates[key].accepted) {
+        delete rates[key];
+      }
+    });
+    res.json(rates);
   }
 
   @httpPost(
