@@ -7,6 +7,8 @@ import { PaymentsServiceType } from '../services/payments.service';
 import { CoinpaymentsClientType, CoinPayments } from '../services/coinpayments/coinpayments.client';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import config from '../config';
+import { getConnection } from 'typeorm';
+import { PaymentGateTransaction } from '../entities/payment.gate.transaction';
 
 const IPN_RESPONSE_STATUS_COMPLETE = 100;
 const IPN_RESPONSE_STATUS_QUEUED_PAYOUT = 2;
@@ -52,6 +54,19 @@ export class GatewayController {
     } catch (error) {
       res.json(error);
     }
+  }
+
+  @httpGet(
+    '/getTransactions',
+    'AuthMiddleware'
+  )
+  async getPaymentGateTransactions(req: AuthorizedRequest, res: Response): Promise<void> {
+    const paymentGateTransactionRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const txs = await paymentGateTransactionRepository.find({
+      where: {userEmail: req.user.email}
+    });
+
+    res.json(txs);
   }
 
   @httpPost(
