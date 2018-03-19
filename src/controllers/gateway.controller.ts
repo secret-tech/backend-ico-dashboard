@@ -36,7 +36,7 @@ export class GatewayController {
   async currencies(req: Request, res: Response): Promise<void> {
     const rates = await this.coinpaimentsClient.rates({accepted: 1});
     Object.keys(rates).forEach(key => {
-      if (!rates[key].accepted) {
+      if (!rates[key].accepted || !rates[key].can_convert) {
         delete rates[key];
       }
     });
