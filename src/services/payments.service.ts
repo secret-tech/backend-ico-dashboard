@@ -26,6 +26,7 @@ export class PaymentsService implements PaymentsServiceInterface {
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;
     tx.type = PAYMENT_GATE_TRANSACTION_TYPE_BUY;
     tx.userEmail = currentUser.email;
+    tx.timestamp = Date.now();
 
     await getConnection().getMongoRepository(PaymentGateTransaction).save(tx);
 

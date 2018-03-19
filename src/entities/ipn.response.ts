@@ -1,4 +1,4 @@
-import { Entity, ObjectID, ObjectIdColumn, Column } from "typeorm";
+import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
 
 // Payment Statuses
 export const REFUND_OR_REVERSAL = -2;
@@ -74,6 +74,9 @@ export class IPNResponse {
 
   @Column()
   net: string;
+
+  @Column()
+  timestamp: number;
 
   static createIPNResponse(data: any): IPNResponse {
     const ipnResponse = new IPNResponse();

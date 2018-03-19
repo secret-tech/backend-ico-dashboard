@@ -1,6 +1,7 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { TRANSACTION_STATUS_CONFIRMED } from './transaction';
 import { CoinpaymentsTransactionResult } from './coinpayments.transaction.result';
+import { IPNResponse } from './ipn.response';
 
 export const PAYMENT_GATE_TRANSACTION_TYPE_BUY = 'BUY';
 export const PAYMENT_GATE_TRANSACTION_TYPE_CONVERT = 'CONVERT';
@@ -36,8 +37,11 @@ export class PaymentGateTransaction {
   convertCoinpaymentsData: null;
 
   @Column()
-  buyIpns: Array<IPNApiTypeResponse>;
+  buyIpns: Array<IPNResponse>;
 
   @Column()
   convertIpns: Array<any>;
+
+  @Column()
+  timestamp: number;
 }

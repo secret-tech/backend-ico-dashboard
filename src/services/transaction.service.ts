@@ -130,6 +130,7 @@ export class TransactionService implements TransactionServiceInterface {
       tx.totalAmount = item.buyCoinpaymentsData.amount;
       tx.txnId = item.buyCoinpaymentsData.txn_id;
       tx.type = 'gateway_transaction';
+      tx.timestamp = item.timestamp;
 
       data.push(tx);
     });

@@ -345,7 +345,7 @@ declare interface IPNApiTypeResponse {
   merchant: string;
 
   // API fields
-  staus: string;
+  staus: number;
   status_text: string;
   txn_id: string;
   currency1: string;
@@ -361,6 +361,9 @@ declare interface IPNApiTypeResponse {
 
   received_amount: number;
   received_confirms: number;
+
+  // Custom fields
+  timestamp: number;
 }
 
 declare interface PaymentGateTransactionInterface {
@@ -391,7 +394,7 @@ declare interface GenericTransaction {
 declare interface PaymentGateTransactionView {
   id: string;
   type: string;
-  status: string;
+  status: number;
   currency: string;
   confirmsNeeded: string;
   totalAmount: string;
@@ -399,7 +402,7 @@ declare interface PaymentGateTransactionView {
   receivedConfirms: number;
   qrcodeUrl: string;
   address: string;
-  timestamp?: number;
+  timestamp: number;
   expiredOn: number;
   txnId: string;
   statusUrl: string;

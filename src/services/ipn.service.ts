@@ -31,9 +31,9 @@ export class IPNService implements IPNServiceInterface {
 
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_FAILED;
     if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
-      tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
+      tx.buyIpns.push({...ipnResponse});
     } else {
-      tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
+      tx.convertIpns.push({...ipnResponse});
     }
 
     return getConnection().mongoManager.save(tx);
@@ -57,9 +57,9 @@ export class IPNService implements IPNServiceInterface {
 
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;
     if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
-      tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
+      tx.buyIpns.push({...ipnResponse});
     } else {
-      tx.convertIpns.push({...ipnResponse, timestamp: Date.now()});
+      tx.convertIpns.push({...ipnResponse});
     }
 
     return getConnection().mongoManager.save(tx);
@@ -83,7 +83,7 @@ export class IPNService implements IPNServiceInterface {
     }
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
-    tx.buyIpns.push({...ipnResponse, timestamp: Date.now()});
+    tx.buyIpns.push({...ipnResponse});
     const investor = await investorRepository.findOne({where: {email: tx.userEmail}});
 
     try {
