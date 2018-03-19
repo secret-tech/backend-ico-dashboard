@@ -383,3 +383,24 @@ declare interface IPNServiceInterface {
   processPending(data: any): Promise<PaymentGateTransactionInterface>;
   processComplete(data: any): Promise<PaymentGateTransactionInterface>;
 }
+
+declare interface GenericTransaction {
+  type: string;
+}
+
+declare interface PaymentGateTransactionView {
+  id: string;
+  type: string;
+  status: string;
+  currency: string;
+  confirmsNeeded: string;
+  totalAmount: string;
+  receivedAmount: number;
+  receivedConfirms: number;
+  qrcodeUrl: string;
+  address: string;
+  timestamp?: number;
+  expiredOn: number;
+  txnId: string;
+  statusUrl: string;
+}

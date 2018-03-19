@@ -234,6 +234,20 @@ describe('Dashboard', () => {
             status: 'confirmed',
             type: 'jcr_transfer',
             direction: 'in'
+          },
+          {
+            address: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aa',
+            confirmsNeeded: 0,
+            currency: 'BTC',
+            expiredOn: 1234567890,
+            id: '563143b280d2387c91807933',
+            qrcodeUrl: 'qrcode_url',
+            receivedAmount: '0.1',
+            receivedConfirms: '0',
+            statusUrl: 'status_url',
+            totalAmount: 1,
+            txnId: 'abc123432',
+            type: 'gateway_transaction'
           }
         ]);
         done();

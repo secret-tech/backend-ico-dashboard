@@ -10,13 +10,14 @@ import { getConnection, getMongoManager } from 'typeorm';
 import { Investor } from '../entities/investor';
 import { injectable } from 'inversify';
 import config from '../config';
+import { PaymentGateTransaction } from '../entities/payment.gate.transaction';
 const abiDecoder = require('abi-decoder');
 const Web3 = require('web3');
 const net = require('net');
 const DIRECTION_IN = 'in';
 const DIRECTION_OUT = 'out';
 
-interface ExtendedTransaction extends Transaction {
+interface ExtendedTransaction extends Transaction, GenericTransaction {
   direction: string;
 }
 
@@ -40,7 +41,7 @@ interface FromToJcrAmount {
 }
 
 export interface TransactionServiceInterface {
-  getTransactionsOfUser(user: Investor): Promise<ExtendedTransaction[]>;
+  getTransactionsOfUser(user: Investor): Promise<GenericTransaction[]>;
 
   getReferralIncome(user: Investor): Promise<ReferralResult>;
 
@@ -71,8 +72,10 @@ export class TransactionService implements TransactionServiceInterface {
     }
   }
 
-  async getTransactionsOfUser(user: Investor): Promise<ExtendedTransaction[]> {
-    const data = await getMongoManager().createEntityCursor(Transaction, {
+  async getTransactionsOfUser(user: Investor): Promise<GenericTransaction[]> {
+    const data: Array<GenericTransaction> = [];
+
+    const txs = await getMongoManager().createEntityCursor(Transaction, {
       '$and': [
         {
           '$or': [
@@ -92,13 +95,44 @@ export class TransactionService implements TransactionServiceInterface {
       ]
     }).toArray() as ExtendedTransaction[];
 
-    for (let transaction of data) {
+    for (let transaction of txs) {
       if (transaction.from === user.ethWallet.address) {
         transaction.direction = DIRECTION_OUT;
       } else {
         transaction.direction = DIRECTION_IN;
       }
     }
+
+    data.push(...txs);
+
+    // coinpayments transaction
+    const paymentGateTransactionRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const cpTxs = await paymentGateTransactionRepository.find({
+      where: {userEmail: user.email}
+    });
+
+    cpTxs.forEach(item => {
+      let tx = {} as PaymentGateTransactionView;
+
+      // get latest actual ipn response.
+      let latestIPN = item.buyIpns[item.buyIpns.length - 1];
+
+      tx.address = item.buyCoinpaymentsData.address;
+      tx.confirmsNeeded = item.buyCoinpaymentsData.confirms_needed;
+      tx.currency = item.buyCoinpaymentsData.currency2;
+      tx.expiredOn = item.expiredOn;
+      tx.id = item.id.toHexString();
+      tx.qrcodeUrl = item.buyCoinpaymentsData.qrcode_url;
+      tx.receivedAmount = latestIPN.received_amount;
+      tx.receivedConfirms = latestIPN.received_confirms;
+      tx.status = latestIPN.staus;
+      tx.statusUrl = item.buyCoinpaymentsData.status_url;
+      tx.totalAmount = item.buyCoinpaymentsData.amount;
+      tx.txnId = item.buyCoinpaymentsData.txn_id;
+      tx.type = 'gateway_transaction';
+
+      data.push(tx);
+    });
 
     return data;
   }

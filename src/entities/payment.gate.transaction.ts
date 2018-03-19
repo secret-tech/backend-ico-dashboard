@@ -36,7 +36,7 @@ export class PaymentGateTransaction {
   convertCoinpaymentsData: null;
 
   @Column()
-  buyIpns: Array<any>;
+  buyIpns: Array<IPNApiTypeResponse>;
 
   @Column()
   convertIpns: Array<any>;
