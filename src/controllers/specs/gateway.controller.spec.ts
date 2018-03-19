@@ -22,6 +22,11 @@ describe('Gateway', () => {
     it('should get expected currencies', (done) => {
       getRequest(factory.testAppForDashboard(), '/gateway/currencies').end((err, res) => {
         expect(res.status).to.equal(200);
+
+        Object.keys(res.body).forEach(key => {
+          expect(res.body[key].can_convert).to.eq(1);
+          expect(res.body[key].accepted).to.eq(1);
+        });
         done();
       });
     });
