@@ -83,13 +83,13 @@ export class GatewayController {
     try {
       if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE) {
         // complete
-        console.log(await this.ipnService.processComplete(req.body));
+        await this.ipnService.processComplete(req.body);
       } else if (req.body.status < 0) {
         // fail
-        console.log(await this.ipnService.processFail(req.body));
+        await this.ipnService.processFail(req.body);
       } else {
         // pending
-        console.log(await this.ipnService.processPending(req.body));
+        await this.ipnService.processPending(req.body);
       }
 
       res.end('IPN OK');
