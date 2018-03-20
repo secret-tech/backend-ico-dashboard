@@ -88,3 +88,7 @@ It was implemented to provide following functionality:
   `npm run serve`
 
   > Note: If the dev environment, will run `npm run start` command.
+
+## Other
+
+For set kycVerify into verified status use bash script `changeKYCStatus.sh` as `changeKYCStatus.sh [email] [status]`, where the  `status` option default value is `verified`.

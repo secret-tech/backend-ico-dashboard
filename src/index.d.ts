@@ -295,3 +295,115 @@ declare interface KycClientInterface {
 declare interface EmailServiceInterface {
   send(sender: string, recipient: string, subject: string, text: string): Promise<any>;
 }
+
+declare interface CoinpaymentsTransactionData {
+  amount: number;
+  currency: string;
+  buyer_email: string;
+}
+
+declare interface CoinpaymentsTransactionInfo { 
+  time_created: number;
+  time_expires: number;
+  status: number;
+  status_text: string;
+  type: string;
+  coin: string;
+  amount: number;
+  amountf: string;
+  received: number;
+  receivedf: string;
+  recv_confirms: number;
+  payment_address: string;
+}
+
+declare interface ExchangeRateInterface {
+  is_fiat: number;
+  rate_btc: string;
+  last_update: string;
+  tx_fee: string;
+  status: string;
+  name: string;
+  confirms: string;
+  can_convert: number;
+  capabilities: string[];
+}
+
+declare interface CoinpaymentsClientInterface {
+  createTransaction(transactionData: CoinpaymentsTransactionData): Promise<any>;
+  convertCoinsTransaction(transactionData: any): Promise<any>;
+  rates(options?: { short?: number; accepted?: number; }): Promise<ExchangeRateInterface>;
+  getTransactionInfo(txId: string): Promise<CoinpaymentsTransactionInfo>;
+  getTransactionMulti(txIds: string[]): Promise<{ [txId: string]: CoinpaymentsTransactionInfo }>;
+}
+
+declare interface IPNApiTypeResponse {
+  ipn_version: string;
+  ipn_type: string;
+  ipn_mode: string;
+  ipn_id: string;
+  merchant: string;
+
+  // API fields
+  staus: number;
+  status_text: string;
+  txn_id: string;
+  currency1: string;
+  currency2: string;
+  amount1: number;
+  amount2: number;
+  fee: number;
+  net: string;
+  buyer_name: string;
+  email: string;
+  item_name: string;
+  item_number: string;
+
+  received_amount: number;
+  received_confirms: number;
+
+  // Custom fields
+  timestamp: number;
+}
+
+declare interface PaymentGateTransactionInterface {
+	type: string;
+  status: string;
+  userEmail: string;
+  expiredOn: number;
+  buyCoinpaymentsData: any;
+  convertCoinpaymentsData: null;
+  buyIpns: Array<any>;
+  convertIpns: Array<any>;
+}
+
+declare interface PaymentsServiceInterface {
+  initiateBuyEths(currentUser: any, amount: number, displayInCurrency: string, purchaseInCurrency: string): Promise<PaymentGateTransactionInterface>;
+}
+
+declare interface IPNServiceInterface {
+  processFail(data: any): Promise<PaymentGateTransactionInterface>;
+  processPending(data: any): Promise<PaymentGateTransactionInterface>;
+  processComplete(data: any): Promise<PaymentGateTransactionInterface>;
+}
+
+declare interface GenericTransaction {
+  type: string;
+}
+
+declare interface PaymentGateTransactionView {
+  id: string;
+  type: string;
+  status: number;
+  currency: string;
+  confirmsNeeded: string;
+  totalAmount: string;
+  receivedAmount: number;
+  receivedConfirms: number;
+  qrcodeUrl: string;
+  address: string;
+  timestamp: number;
+  expiredOn: number;
+  txnId: string;
+  statusUrl: string;
+}

@@ -12,6 +12,7 @@ import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/excepti
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
+
 import { Logger } from '../logger';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
