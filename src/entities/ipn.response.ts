@@ -15,16 +15,16 @@ export class IPNResponse {
   id: ObjectID;
 
   @Column()
-  ipn_version: string;
+  ipnVersion: string;
 
   @Column()
-  ipn_type: string; // 'api'
+  ipnType: string; // 'api'
 
   @Column()
-  ipn_mode: string; // 'hmac'
+  ipnMode: string; // 'hmac'
 
   @Column()
-  ipn_id: string; // unique id
+  ipnId: string; // unique id
 
   @Column()
   merchant: string;
@@ -34,10 +34,10 @@ export class IPNResponse {
   staus: number; // see: https://www.coinpayments.net/merchant-tools-ipn#statuses
 
   @Column()
-  status_text: string;
+  statusText: string;
 
   @Column()
-  txn_id: string;
+  txnId: string;
 
   @Column()
   currency1: string;
@@ -55,22 +55,22 @@ export class IPNResponse {
   fee: number;
 
   @Column()
-  buyer_name: string;
+  buyerName: string;
 
   @Column()
   email: string;
 
   @Column()
-  item_name: string;
+  itemName: string;
 
   @Column()
-  item_number: string;
+  itemNumber: string;
 
   @Column()
-  received_amount: number;
+  receivedAmount: number;
 
   @Column()
-  received_confirms: number;
+  receivedConfirms: number;
 
   @Column()
   net: string;
@@ -80,7 +80,27 @@ export class IPNResponse {
 
   static createIPNResponse(data: any): IPNResponse {
     const ipnResponse = new IPNResponse();
-    Object.assign(ipnResponse, data);
+    ipnResponse.amount1 = data.amount1;
+    ipnResponse.amount2 = data.amount2;
+    ipnResponse.buyerName = data.buyer_name;
+    ipnResponse.currency1 = data.currency1;
+    ipnResponse.currency2 = data.currency2;
+    ipnResponse.email = data.email;
+    ipnResponse.fee = data.fee;
+    ipnResponse.ipnId = data.ipn_id;
+    ipnResponse.ipnMode = data.ipn_mode;
+    ipnResponse.ipnType = data.ipn_type;
+    ipnResponse.ipnVersion = data.ipn_version;
+    ipnResponse.itemName = data.item_name;
+    ipnResponse.itemNumber = data.item_number;
+    ipnResponse.merchant = data.merchant;
+    ipnResponse.net = data.net;
+    ipnResponse.receivedAmount = data.received_amount;
+    ipnResponse.receivedConfirms = data.received_amount;
+    ipnResponse.statusText = data.status_text;
+    ipnResponse.timestamp = data.timestamp;
+    ipnResponse.txnId = data.txn_id;
+
     return ipnResponse;
   }
 }

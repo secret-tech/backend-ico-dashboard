@@ -14,14 +14,14 @@ describe('IPN Service', () => {
   describe('Payment gate transaction type BUY', () => {
     it('Process Fail', async() => {
       const ipnService = container.get<IPNServiceInterface>(IPNServiceType);
-      const ipnResponse = IPNResponse.createIPNResponse({
+      const rawResponse = {
         ipn_version: '1.0',
         ipn_id: '17549438956480f7fddadbd6a7f387f8',
         ipn_mode: 'hmac',
         merchant: '123',
         ipn_type: 'api',
         txn_id: 'abc123',
-        status: '-1',
+        status: -1,
         status_text: 'Fail...',
         currency1: 'ETH',
         currency2: 'BTC',
@@ -31,9 +31,10 @@ describe('IPN Service', () => {
         buyer_name: 'CoinPayments API',
         received_amount: '0',
         received_confirms: '0'
-      });
+      };
+      const ipnResponse = IPNResponse.createIPNResponse(rawResponse);
+      const tx = await ipnService.processFail(rawResponse);
 
-      const tx = await ipnService.processFail(ipnResponse);
       expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_FAILED);
       expect(tx.type).to.eq(PAYMENT_GATE_TRANSACTION_TYPE_BUY);
       expect(tx.buyIpns.length).to.eq(1);
@@ -42,14 +43,14 @@ describe('IPN Service', () => {
 
     it('Process Pending', async() => {
       const ipnService = container.get<IPNServiceInterface>(IPNServiceType);
-      const ipnResponse = IPNResponse.createIPNResponse({
+      const rawResponse = {
         ipn_version: '1.0',
         ipn_id: '17549438956480f7fddadbd6a7f387f8',
         ipn_mode: 'hmac',
         merchant: '123',
         ipn_type: 'api',
         txn_id: 'abc123',
-        status: '0',
+        status: 0,
         status_text: 'Pending...',
         currency1: 'ETH',
         currency2: 'BTC',
@@ -59,9 +60,10 @@ describe('IPN Service', () => {
         buyer_name: 'CoinPayments API',
         received_amount: '0',
         received_confirms: '0'
-      });
+      };
+      const ipnResponse = IPNResponse.createIPNResponse(rawResponse);
+      const tx = await ipnService.processPending(rawResponse);
 
-      const tx = await ipnService.processPending(ipnResponse);
       expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_PENDING);
       expect(tx.type).to.eq(PAYMENT_GATE_TRANSACTION_TYPE_BUY);
       expect(tx.buyIpns.length).to.eq(1);
@@ -71,14 +73,14 @@ describe('IPN Service', () => {
     it('Process Complete', async() => {
       const cpMock = TypeMoq.Mock.ofType(CoinpaymentsClient);
       const converResult = {id: 'abc123'};
-      const ipnResponse = IPNResponse.createIPNResponse({
+      const rawResponse = {
         ipn_version: '1.0',
         ipn_id: '17549438956480f7fddadbd6a7f387f8',
         ipn_mode: 'hmac',
         merchant: '123',
         ipn_type: 'api',
         txn_id: 'abc123',
-        status: '100',
+        status: 100,
         status_text: 'Complete...',
         currency1: 'ETH',
         currency2: 'BTC',
@@ -89,12 +91,15 @@ describe('IPN Service', () => {
         buyer_name: 'CoinPayments API',
         received_amount: '0.1',
         received_confirms: '2'
-      });
+      };
+      const ipnResponse = IPNResponse.createIPNResponse(rawResponse);
+
       cpMock.setup(x => x.convertCoinsTransaction(TypeMoq.It.isAny())).returns(async(): Promise<any> => converResult);
       container.rebind<CoinpaymentsClientInterface>(CoinpaymentsClientType).toConstantValue(cpMock.object);
 
       const ipnService = container.get<IPNServiceInterface>(IPNServiceType);
-      const tx = await ipnService.processComplete(ipnResponse);
+      const tx = await ipnService.processComplete(rawResponse);
+
       expect(tx.type).to.eq(PAYMENT_GATE_TRANSACTION_TYPE_CONVERT);
       expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_STARTED);
       expect(tx.convertIpns.length).to.eq(0);

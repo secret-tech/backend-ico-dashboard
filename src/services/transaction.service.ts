@@ -112,27 +112,29 @@ export class TransactionService implements TransactionServiceInterface {
     });
 
     cpTxs.forEach(item => {
-      let tx = {} as PaymentGateTransactionView;
+      if (item.buyIpns.length > 0) {
+        let tx = {} as PaymentGateTransactionView;
 
-      // get latest actual ipn response.
-      let latestIPN = item.buyIpns[item.buyIpns.length - 1];
+        // get latest actual ipn response.
+        let latestIPN = item.buyIpns[item.buyIpns.length - 1];
 
-      tx.address = item.buyCoinpaymentsData.address;
-      tx.confirmsNeeded = item.buyCoinpaymentsData.confirms_needed;
-      tx.currency = item.buyCoinpaymentsData.currency2;
-      tx.expiredOn = item.expiredOn;
-      tx.id = item.id.toHexString();
-      tx.qrcodeUrl = item.buyCoinpaymentsData.qrcode_url;
-      tx.receivedAmount = latestIPN.received_amount;
-      tx.receivedConfirms = latestIPN.received_confirms;
-      tx.status = latestIPN.staus;
-      tx.statusUrl = item.buyCoinpaymentsData.status_url;
-      tx.totalAmount = item.buyCoinpaymentsData.amount;
-      tx.txnId = item.buyCoinpaymentsData.txn_id;
-      tx.type = 'gateway_transaction';
-      tx.timestamp = item.timestamp;
+        tx.address = item.buyCoinpaymentsData.address;
+        tx.confirmsNeeded = item.buyCoinpaymentsData.confirmsNeeded;
+        tx.currency = item.buyCoinpaymentsData.currency2;
+        tx.expiredOn = item.expiredOn;
+        tx.id = item.id.toHexString();
+        tx.qrcodeUrl = item.buyCoinpaymentsData.qrcodeUrl;
+        tx.receivedAmount = latestIPN.receivedAmount;
+        tx.receivedConfirms = latestIPN.receivedConfirms;
+        tx.status = latestIPN.staus;
+        tx.statusUrl = item.buyCoinpaymentsData.statusUrl;
+        tx.totalAmount = item.buyCoinpaymentsData.amount;
+        tx.txnId = item.buyCoinpaymentsData.txnId;
+        tx.type = 'gateway_transaction';
+        tx.timestamp = item.timestamp;
 
-      data.push(tx);
+        data.push(tx);
+      }
     });
 
     return data;

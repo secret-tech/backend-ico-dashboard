@@ -15,17 +15,17 @@ export class CoinpaymentsTransactionResult {
 
   @Column() amount: string;
 
-  @Column() txn_id: string;
+  @Column() txnId: string;
 
   @Column() address: string;
 
-  @Column() confirms_needed: string;
+  @Column() confirmsNeeded: string;
 
   @Column() timeout: number;
 
-  @Column() status_url: string;
+  @Column() statusUrl: string;
 
-  @Column() qrcode_url: string;
+  @Column() qrcodeUrl: string;
 
   @Column() currency1: string;
 
@@ -38,14 +38,14 @@ export class CoinpaymentsTransactionResult {
 
     result.address = data.address;
     result.amount = data.amount;
-    result.confirms_needed = data.confirms_needed;
+    result.confirmsNeeded = data.confirms_needed;
     result.currency1 = data.currency1;
     result.currency2 = data.currency2;
     result.email = data.email;
-    result.qrcode_url = data.qrcode_url;
-    result.status_url = data.status_url;
+    result.qrcodeUrl = data.qrcode_url;
+    result.statusUrl = data.status_url;
     result.timeout = data.timeout;
-    result.txn_id = data.txn_id;
+    result.txnId = data.txn_id;
 
     return result;
   }

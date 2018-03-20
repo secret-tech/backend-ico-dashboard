@@ -16,7 +16,7 @@ export class IPNService implements IPNServiceInterface {
   async processFail(data: any): Promise<PaymentGateTransactionInterface> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
-      'buyCoinpaymentsData.txn_id': data.txn_id
+      'buyCoinpaymentsData.txnId': data.txn_id
     }});
 
     if (!tx) {
@@ -42,7 +42,7 @@ export class IPNService implements IPNServiceInterface {
   async processPending(data: any): Promise<PaymentGateTransactionInterface> {
     const txRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
-      'buyCoinpaymentsData.txn_id': data.txn_id
+      'buyCoinpaymentsData.txnId': data.txn_id
     }});
 
     if (!tx) {
@@ -70,7 +70,7 @@ export class IPNService implements IPNServiceInterface {
     const investorRepository = getConnection().mongoManager.getMongoRepository(Investor);
 
     const tx: PaymentGateTransaction = await txRepository.findOne({where: {
-      'buyCoinpaymentsData.txn_id': data.txn_id
+      'buyCoinpaymentsData.txnId': data.txn_id
     }});
 
     if (!tx) {

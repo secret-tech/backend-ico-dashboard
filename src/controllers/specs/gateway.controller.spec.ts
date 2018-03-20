@@ -41,7 +41,7 @@ describe('Gateway', () => {
       };
       postRequest(factory.testAppForDashboard(), '/gateway/createTransaction').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body).to.includes.keys('txn_id', 'address', 'status_url', 'qrcode_url');
+        expect(res.body).to.includes.keys('txnId', 'address', 'statusUrl', 'qrcodeUrl');
         done();
       });
     });
@@ -53,7 +53,7 @@ describe('Gateway', () => {
       getRequest(factory.testAppForDashboard(), '/gateway/getTransactions').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body[0]).to.includes.keys('id', 'type', 'status', 'expiredOn');
-        expect(res.body[0].buyIpns[0]).to.includes.keys('ipn_version', 'merchant', 'txn_id', 'status', 'status_text');
+        expect(res.body[0].buyIpns[0]).to.includes.keys('ipnVersion', 'merchant', 'txnId', 'status', 'statusText');
         done();
       });
     });
