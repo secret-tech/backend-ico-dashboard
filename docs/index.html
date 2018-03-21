@@ -369,67 +369,83 @@ Authentication attempts with not verified token will result in 401 response.</p>
   "<span class="hljs-attribute">gas</span>": <span class="hljs-value"><span class="hljs-string">"130000"</span></span>,
   "<span class="hljs-attribute">expectedTxFee</span>": <span class="hljs-value"><span class="hljs-string">"0.00611"</span>
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-expected-token-purchase-fee-get" class="action get"><h4 class="action-heading"><div class="name">Get expected token purchase fee</div><a href="#get-expected-token-purchase-fee-get" class="method get">GET</a><code class="uri">/dashboard/investTxFee</code></h4></div></div><hr class="split"><div class="middle"><div id="get-transaction-history" class="resource"><h3 class="resource-heading">Get transaction history <a href="#get-transaction-history" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/transactions</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
-  {
-    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a003866ee3a9d0ad93aeba3"</span></span>,
-    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe423dd7d40b039e4e30ad7b5520f5905c6ec8c11122c94e3858c70e7983b5d7e"</span></span>,
-    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509963894</span></span>,
-    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016136</span></span>,
-    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
-    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
-    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
-    "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
-    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
-    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
-  </span>},
-  {
-    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004158b8442c0e1400fc4f"</span></span>,
-    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xcdf4a9dc086bcb3308475ced42b772879fd052822693aee509f81493412d460f"</span></span>,
-    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509966175</span></span>,
-    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016339</span></span>,
-    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
-    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
-    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
-    "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
-    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
-    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
-  </span>},
-  {
-    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004dee3663160140d19291"</span></span>,
-    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe5d5ed39bf9eb64d3e56bf4a9d89b7f2bb026fc02c0d149027757936a1e7b6c7"</span></span>,
-    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
-    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
-    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
-    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
-    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
-    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
-    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
-  </span>},
-  {
-    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004e003663160140d19292"</span></span>,
-    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0x057c0846b7b7fa54c10544c595ec2e476c830220f0ea1fbb52215a3a44deade1"</span></span>,
-    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
-    "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
-    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
-    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
-    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
-    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
-    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
-  </span>},
-  {
-    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a00669ab21e84067aac8bf6"</span></span>,
-    "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xb87ef88fe75724ed067413de7c48f4c745cfafa709f42884308663cb53a8e2a0"</span></span>,
-    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509975754</span></span>,
-    "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA"</span></span>,
-    "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
-    "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"5"</span></span>,
-    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
-    "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
-    "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"in"</span>
-  </span>}
+    {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a003866ee3a9d0ad93aeba3"</span></span>,
+        "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe423dd7d40b039e4e30ad7b5520f5905c6ec8c11122c94e3858c70e7983b5d7e"</span></span>,
+        "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509963894</span></span>,
+        "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016136</span></span>,
+        "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+        "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+        "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+        "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004158b8442c0e1400fc4f"</span></span>,
+        "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xcdf4a9dc086bcb3308475ced42b772879fd052822693aee509f81493412d460f"</span></span>,
+        "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509966175</span></span>,
+        "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016339</span></span>,
+        "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+        "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+        "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+        "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004dee3663160140d19291"</span></span>,
+        "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xe5d5ed39bf9eb64d3e56bf4a9d89b7f2bb026fc02c0d149027757936a1e7b6c7"</span></span>,
+        "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
+        "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
+        "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+        "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+        "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+        "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a004e003663160140d19292"</span></span>,
+        "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0x057c0846b7b7fa54c10544c595ec2e476c830220f0ea1fbb52215a3a44deade1"</span></span>,
+        "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509969394</span></span>,
+        "<span class="hljs-attribute">blockNumber</span>": <span class="hljs-value"><span class="hljs-number">2016578</span></span>,
+        "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+        "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
+        "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"2"</span></span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+        "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5a00669ab21e84067aac8bf6"</span></span>,
+        "<span class="hljs-attribute">transactionHash</span>": <span class="hljs-value"><span class="hljs-string">"0xb87ef88fe75724ed067413de7c48f4c745cfafa709f42884308663cb53a8e2a0"</span></span>,
+        "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-number">1509975754</span></span>,
+        "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA"</span></span>,
+        "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
+        "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"5"</span></span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"eth_transfer"</span></span>,
+        "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"in"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">address</span>": <span class="hljs-value">'<span class="hljs-number">0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aa</span>'</span>,
+        "<span class="hljs-attribute">confirmsNeeded</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+        "<span class="hljs-attribute">currency</span>": <span class="hljs-value">'BTC'</span>,
+        "<span class="hljs-attribute">expiredOn</span>": <span class="hljs-value"><span class="hljs-number">1234567890</span></span>,
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">'<span class="hljs-number">563143</span>b280d2387c91807933'</span>,
+        "<span class="hljs-attribute">qrcodeUrl</span>": <span class="hljs-value">'qrcode_url'</span>,
+        "<span class="hljs-attribute">receivedAmount</span>": <span class="hljs-value">'<span class="hljs-number">0.1</span>'</span>,
+        "<span class="hljs-attribute">receivedConfirms</span>": <span class="hljs-value">'<span class="hljs-number">0</span>'</span>,
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value">'<span class="hljs-number">100</span>'</span>,
+        "<span class="hljs-attribute">statusUrl</span>": <span class="hljs-value">'status_url'</span>,
+        "<span class="hljs-attribute">totalAmount</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">txnId</span>": <span class="hljs-value">'abc123432'</span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value">'gateway_transaction'</span>,
+        "<span class="hljs-attribute">timeout</span>": <span class="hljs-value"><span class="hljs-number">3600</span>
+    </span>}
 ]</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-transaction-history-get" class="action get"><h4 class="action-heading"><div class="name">Get transaction history</div><a href="#get-transaction-history-get" class="method get">GET</a><code class="uri">/dashboard/transactions</code></h4></div></div><hr class="split"><div class="middle"><div id="get-referral-info" class="resource"><h3 class="resource-heading">Get referral info <a href="#get-referral-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/referral</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
   "<span class="hljs-attribute">data</span>": <span class="hljs-value"><span class="hljs-string">"dGVzdEB0ZXN0LmNvbQ"</span></span>,
   "<span class="hljs-attribute">referralCount</span>": <span class="hljs-value"><span class="hljs-number">5</span></span>,
@@ -499,7 +515,7 @@ Authentication attempts with not verified token will result in 401 response.</p>
   "<span class="hljs-attribute">authorizationToken</span>": <span class="hljs-value"><span class="hljs-string">"c87447f8-fa43-4f98-a933-3c88be4e86ea"</span></span>,
   "<span class="hljs-attribute">clientRedirectUrl</span>": <span class="hljs-value"><span class="hljs-string">"https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea"</span></span>,
   "<span class="hljs-attribute">jumioIdScanReference</span>": <span class="hljs-value"><span class="hljs-string">"7b58a08e-19cf-4d28-a828-4bb577c6f69a"</span>
-</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="init-kyc-process-get" class="action get"><h4 class="action-heading"><div class="name">Init KYC process</div><a href="#init-kyc-process-get" class="method get">GET</a><code class="uri">/kyc/init</code></h4></div></div><hr class="split"><div class="middle"><div id="get-currencies-and-rates" class="resource"><h3 class="resource-heading">Get Currencies and Rates <a href="#get-currencies-and-rates" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/currencies</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="init-kyc-process-get" class="action get"><h4 class="action-heading"><div class="name">Init KYC process</div><a href="#init-kyc-process-get" class="method get">GET</a><code class="uri">/kyc/init</code></h4></div></div><hr class="split"><div class="middle"><div id="get-currencies-and-rates" class="resource"><h3 class="resource-heading">Get Currencies and Rates <a href="#get-currencies-and-rates" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/gateway/currencies</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
   "<span class="hljs-attribute">BTC</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">is_fiat</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
     "<span class="hljs-attribute">rate_btc</span>": <span class="hljs-value"><span class="hljs-string">"1.000000000000000000000000"</span></span>,
@@ -532,21 +548,21 @@ Authentication attempts with not verified token will result in 401 response.</p>
       <span class="hljs-string">"convert"</span>
     ]
   </span>}
-</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-currencies-and-rates-get" class="action get"><h4 class="action-heading"><div class="name">Get Currencies and Rates</div><a href="#get-currencies-and-rates-get" class="method get">GET</a><code class="uri">/dashboard/currencies</code></h4></div></div><hr class="split"><div class="middle"><div id="create-coinpayments-transaction" class="resource"><h3 class="resource-heading">Create CoinPayments Transaction <a href="#create-coinpayments-transaction" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/createTransaction</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-currencies-and-rates-get" class="action get"><h4 class="action-heading"><div class="name">Get Currencies and Rates</div><a href="#get-currencies-and-rates-get" class="method get">GET</a><code class="uri">/gateway/currencies</code></h4></div></div><hr class="split"><div class="middle"><div id="create-coinpayments-transaction" class="resource"><h3 class="resource-heading">Create CoinPayments Transaction <a href="#create-coinpayments-transaction" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/gateway/createTransaction</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
   "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-number">5</span></span>,
   "<span class="hljs-attribute">currency</span>": <span class="hljs-value"><span class="hljs-string">"BTC"</span>
 </span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
   "<span class="hljs-attribute">address</span>": <span class="hljs-value"><span class="hljs-string">"mhocbNymvkn9sP7FRAionoif2SQqJBuibx"</span></span>,
   "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-number">5</span></span>,
-  "<span class="hljs-attribute">confirms_needed</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+  "<span class="hljs-attribute">confirmsNeeded</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
   "<span class="hljs-attribute">currency1</span>": <span class="hljs-value"><span class="hljs-string">"ETH"</span></span>,
   "<span class="hljs-attribute">currency2</span>": <span class="hljs-value"><span class="hljs-string">"BTC"</span></span>,
   "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"user@test.com"</span></span>,
-  "<span class="hljs-attribute">qrcode_url</span>": <span class="hljs-value"><span class="hljs-string">"https://www.coinpayments.net/qrgen.php?id=CPCC41OJBXM5TKQO3HNMDR3F0W&amp;key=8877e51b87aee89e256336e7e955ec53"</span></span>,
-  "<span class="hljs-attribute">status_url</span>": <span class="hljs-value"><span class="hljs-string">"https://www.coinpayments.net/index.php?cmd=status&amp;id=CPCC41OJBXM5TKQO3HNMDR3F0W&amp;key=8877e51b87aee89e256336e7e955ec53"</span></span>,
+  "<span class="hljs-attribute">qrcodeUrl</span>": <span class="hljs-value"><span class="hljs-string">"https://www.coinpayments.net/qrgen.php?id=CPCC41OJBXM5TKQO3HNMDR3F0W&amp;key=8877e51b87aee89e256336e7e955ec53"</span></span>,
+  "<span class="hljs-attribute">statusUrl</span>": <span class="hljs-value"><span class="hljs-string">"https://www.coinpayments.net/index.php?cmd=status&amp;id=CPCC41OJBXM5TKQO3HNMDR3F0W&amp;key=8877e51b87aee89e256336e7e955ec53"</span></span>,
   "<span class="hljs-attribute">timeout</span>": <span class="hljs-value"><span class="hljs-number">3600</span></span>,
-  "<span class="hljs-attribute">txn_id</span>": <span class="hljs-value"><span class="hljs-string">"CPCC4YOJBXMI1VQOAHNMDR330W"</span>
-</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="create-coinpayments-transaction-post" class="action post"><h4 class="action-heading"><div class="name">Create CoinPayments Transaction</div><a href="#create-coinpayments-transaction-post" class="method post">POST</a><code class="uri">/dashboard/createTransaction</code></h4></div></div><hr class="split"><div class="middle"><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 09 Mar 2018</p></div></div></div></div><script>/* eslint-env browser */
+  "<span class="hljs-attribute">txnId</span>": <span class="hljs-value"><span class="hljs-string">"CPCC4YOJBXMI1VQOAHNMDR330W"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="create-coinpayments-transaction-post" class="action post"><h4 class="action-heading"><div class="name">Create CoinPayments Transaction</div><a href="#create-coinpayments-transaction-post" class="method post">POST</a><code class="uri">/gateway/createTransaction</code></h4></div></div><hr class="split"><div class="middle"><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 21 Mar 2018</p></div></div></div></div><script>/* eslint-env browser */
 /* eslint quotes: [2, "single"] */
 'use strict';
 
