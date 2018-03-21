@@ -132,6 +132,7 @@ export class TransactionService implements TransactionServiceInterface {
         tx.txnId = item.buyCoinpaymentsData.txnId;
         tx.type = 'gateway_transaction';
         tx.timestamp = item.timestamp;
+        tx.timeout = item.buyCoinpaymentsData.timeout;
 
         data.push(tx);
       }

@@ -248,7 +248,8 @@ describe('Dashboard', () => {
             statusUrl: 'status_url',
             totalAmount: 1,
             txnId: 'abc123432',
-            type: 'gateway_transaction'
+            type: 'gateway_transaction',
+            timeout: 3600
           }
         ]);
         done();

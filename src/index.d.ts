@@ -403,6 +403,7 @@ declare interface PaymentGateTransactionView {
   qrcodeUrl: string;
   address: string;
   timestamp: number;
+  timeout: number;
   expiredOn: number;
   txnId: string;
   statusUrl: string;
