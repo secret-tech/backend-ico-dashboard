@@ -244,6 +244,7 @@ describe('Dashboard', () => {
             qrcodeUrl: 'qrcode_url',
             receivedAmount: '0.1',
             receivedConfirms: '0',
+            status: '100',
             statusUrl: 'status_url',
             totalAmount: 1,
             txnId: 'abc123432',

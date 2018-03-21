@@ -126,7 +126,7 @@ export class TransactionService implements TransactionServiceInterface {
         tx.qrcodeUrl = item.buyCoinpaymentsData.qrcodeUrl;
         tx.receivedAmount = latestIPN.receivedAmount;
         tx.receivedConfirms = latestIPN.receivedConfirms;
-        tx.status = latestIPN.staus;
+        tx.status = latestIPN.status;
         tx.statusUrl = item.buyCoinpaymentsData.statusUrl;
         tx.totalAmount = item.buyCoinpaymentsData.amount;
         tx.txnId = item.buyCoinpaymentsData.txnId;

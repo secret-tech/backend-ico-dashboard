@@ -31,7 +31,7 @@ export class IPNResponse {
 
   // API fields
   @Column()
-  staus: number; // see: https://www.coinpayments.net/merchant-tools-ipn#statuses
+  status: number; // see: https://www.coinpayments.net/merchant-tools-ipn#statuses
 
   @Column()
   statusText: string;
@@ -98,6 +98,7 @@ export class IPNResponse {
     ipnResponse.receivedAmount = data.received_amount;
     ipnResponse.receivedConfirms = data.received_amount;
     ipnResponse.statusText = data.status_text;
+    ipnResponse.status = data.status;
     ipnResponse.timestamp = data.timestamp;
     ipnResponse.txnId = data.txn_id;
 
