@@ -4,6 +4,7 @@ import * as factory from './test.app.factory';
 const Web3 = require('web3');
 const bip39 = require('bip39');
 import 'reflect-metadata';
+import config from "../../config";
 require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));
@@ -42,7 +43,12 @@ describe('Users', () => {
         expect(res.body.email).to.eq('test@test.com');
         expect(res.body.agreeTos).to.eq(true);
         expect(res.body.isVerified).to.eq(false);
-        expect(res.body.kycStatus).to.eq('not_verified');
+        if (config.kyc.enabled) {
+          expect(res.body.kycStatus).to.eq('not_verified');
+        } else {
+          expect(res.body.kycStatus).to.eq('verified');
+        }
+
         expect(res.body.defaultVerificationMethod).to.eq('email');
         expect(res.body.verification.id).to.equal('123');
         expect(res.body.verification.method).to.equal('email');

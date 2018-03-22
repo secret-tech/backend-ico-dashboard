@@ -37,6 +37,7 @@ const {
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
   WL_OWNER_PK,
+  KYC_ENABLED,
   KYC_TOKEN,
   KYC_SECRET,
   KYC_BASE_URL,
@@ -140,6 +141,7 @@ export default {
     ]
   },
   kyc: {
+    enabled: KYC_ENABLED || false,
     apiToken: KYC_TOKEN,
     apiSecret: KYC_SECRET,
     baseUrl: KYC_BASE_URL,
