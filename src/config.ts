@@ -141,7 +141,7 @@ export default {
     ]
   },
   kyc: {
-    enabled: KYC_ENABLED || false,
+    enabled: (KYC_ENABLED == 'true'),
     apiToken: KYC_TOKEN,
     apiSecret: KYC_SECRET,
     baseUrl: KYC_BASE_URL,
