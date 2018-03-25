@@ -40,8 +40,5 @@ export class PaymentGateTransaction {
   buyIpns: Array<IPNResponse>;
 
   @Column()
-  convertIpns: Array<any>;
-
-  @Column()
   timestamp: number;
 }

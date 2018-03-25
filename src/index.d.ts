@@ -374,7 +374,6 @@ declare interface PaymentGateTransactionInterface {
   buyCoinpaymentsData: any;
   convertCoinpaymentsData: null;
   buyIpns: Array<any>;
-  convertIpns: Array<any>;
 }
 
 declare interface PaymentsServiceInterface {

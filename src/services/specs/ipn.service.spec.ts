@@ -102,7 +102,6 @@ describe('IPN Service', () => {
 
       expect(tx.type).to.eq(PAYMENT_GATE_TRANSACTION_TYPE_CONVERT);
       expect(tx.status).to.eq(PAYMENT_GATE_TRANSACTION_STATUS_STARTED);
-      expect(tx.convertIpns.length).to.eq(0);
       expect(tx.buyIpns.length).to.eq(1);
       expect(tx.convertCoinpaymentsData).to.contain(converResult);
       expect(tx.buyIpns[0]).to.contain(ipnResponse);

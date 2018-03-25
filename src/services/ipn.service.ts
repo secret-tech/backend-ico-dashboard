@@ -32,8 +32,6 @@ export class IPNService implements IPNServiceInterface {
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_FAILED;
     if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse});
-    } else {
-      tx.convertIpns.push({...ipnResponse});
     }
 
     return getConnection().mongoManager.save(tx);
@@ -58,8 +56,6 @@ export class IPNService implements IPNServiceInterface {
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_PENDING;
     if (tx.type === PAYMENT_GATE_TRANSACTION_TYPE_BUY) {
       tx.buyIpns.push({...ipnResponse});
-    } else {
-      tx.convertIpns.push({...ipnResponse});
     }
 
     return getConnection().mongoManager.save(tx);
