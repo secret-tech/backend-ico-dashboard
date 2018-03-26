@@ -6,6 +6,7 @@ import { Invitee } from './invitee';
 import { InviteIsNotAllowed } from '../exceptions/exceptions';
 import { Index } from 'typeorm/decorator/Index';
 import { base64encode } from '../helpers/helpers';
+import config from "../config";
 
 export const KYC_STATUS_NOT_VERIFIED = 'not_verified';
 export const KYC_STATUS_VERIFIED = 'verified';
@@ -67,7 +68,7 @@ export class Investor {
     user.agreeTos = data.agreeTos;
     user.passwordHash = data.passwordHash;
     user.isVerified = false;
-    user.kycStatus = KYC_STATUS_NOT_VERIFIED;
+    user.kycStatus = config.kyc.enabled ? KYC_STATUS_NOT_VERIFIED : KYC_STATUS_VERIFIED;
     user.referralCode = base64encode(user.email);
     user.referral = data.referral;
     user.defaultVerificationMethod = EMAIL_VERIFICATION;

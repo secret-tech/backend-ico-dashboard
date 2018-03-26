@@ -17,12 +17,14 @@ export class KycClient implements KycClientInterface {
   apiSecret: string;
   baseUrl: string;
   defaultTokenLifetime: number;
+  kycEnabled: boolean;
 
   constructor() {
     this.apiToken = config.kyc.apiToken;
     this.apiSecret = config.kyc.apiSecret;
     this.baseUrl = config.kyc.baseUrl;
     this.defaultTokenLifetime = config.kyc.defaultTokenLifetime;
+    this.kycEnabled = config.kyc.enabled;
 
     request.defaults({
       throwResponseError: true
@@ -35,30 +37,40 @@ export class KycClient implements KycClientInterface {
     try {
       logger.debug('Prepare investor for identification');
 
-      const id = investor.id.toHexString();
-      const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+      if (this.kycEnabled) {
+        const id = investor.id.toHexString();
+        const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
 
-      const kycOptions = {
-        baseUrl: this.baseUrl,
-        method: 'POST',
-        auth: {
-          user: this.apiToken,
-          password: this.apiSecret
-        },
-        headers: {
-          'User-Agent': userAgent
-        },
-        body: {
-          merchantIdScanReference: uuid.v4(),
-          successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
-          errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
-          callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
-          customerId: investor.email,
-          authorizationTokenLifetime: this.defaultTokenLifetime
-        }
-      };
+        const kycOptions = {
+          baseUrl: this.baseUrl,
+          method: 'POST',
+          auth: {
+            user: this.apiToken,
+            password: this.apiSecret
+          },
+          headers: {
+            'User-Agent': userAgent
+          },
+          body: {
+            merchantIdScanReference: uuid.v4(),
+            successUrl: `${ config.app.apiUrl }/kyc/uploaded/${ id }/${ hash }`,
+            errorUrl: `${ config.app.frontendUrl }/dashboard/verification/failure`,
+            callbackUrl: `${ config.app.apiUrl }/kyc/callback`,
+            customerId: investor.email,
+            authorizationTokenLifetime: this.defaultTokenLifetime
+          }
+        };
 
-      return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+        return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+      } else {
+        return {
+          timestamp: '1520846090',
+          authorizationToken: 'token',
+          jumioIdScanReference: 'id',
+          clientRedirectUrl: 'http://localhost'
+        };
+      }
+
     } catch (error) {
       logger.exception({ error });
 
