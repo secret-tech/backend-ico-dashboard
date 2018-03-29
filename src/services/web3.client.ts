@@ -7,6 +7,7 @@ const bip39 = require('bip39');
 const hdkey = require('ethereumjs-wallet/hdkey');
 import config from '../config';
 import 'reflect-metadata';
+import { Logger } from '../logger';
 
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
@@ -40,11 +41,15 @@ export interface Web3ClientInterface {
   getCurrentGasPrice(): Promise<string>;
 
   investmentFee(): Promise<any>;
+
+  queryIcoMethod(name: string, ...args): Promise<any>;
 }
 
 /* istanbul ignore next */
 @injectable()
 export class Web3Client implements Web3ClientInterface {
+  private logger = Logger.getInstance('WEB3CLIENT');
+
   whiteList: any;
   ico: any;
   jcrToken: any;
@@ -59,7 +64,7 @@ export class Web3Client implements Web3ClientInterface {
         const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
 
         webSocketProvider.connection.onclose = () => {
-          console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+          this.logger.info('Web3 socket connection closed');
           this.onWsClose();
         };
 
@@ -232,10 +237,10 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   onWsClose() {
-    console.error(new Date().toUTCString() + ': Web3 socket connection closed. Trying to reconnect');
+    this.logger.error('Web3 socket connection closed. Trying to reconnect');
     const webSocketProvider = new Web3.providers.WebsocketProvider(config.rpc.address);
     webSocketProvider.connection.onclose = () => {
-      console.log(new Date().toUTCString() + ':Web3 socket connection closed');
+      this.logger.info('Web3 socket connection closed');
       setTimeout(() => {
         this.onWsClose();
       }, config.rpc.reconnectTimeout);
@@ -272,6 +277,10 @@ export class Web3Client implements Web3ClientInterface {
         new BN(gas).mul(new BN(this.web3.utils.toWei(gasPrice, 'gwei'))).toString()
       )
     };
+  }
+
+  async queryIcoMethod(name: string, ...args): Promise<any> {
+    return await this.ico.methods[name](...args).call();
   }
 }
 

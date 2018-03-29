@@ -3,9 +3,11 @@ import * as MailComposer from 'mailcomposer';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import config from '../config';
+import { Logger } from '../logger';
 
 @injectable()
 export class MailgunService implements EmailServiceInterface {
+  private logger = Logger.getInstance('EMAIL_MAILGUN_SERVICE');
   private api: any;
 
   /**
@@ -39,6 +41,7 @@ export class MailgunService implements EmailServiceInterface {
 
         this.api.messages().sendMime(dataToSend, (err, body) => {
           if (err) {
+            this.logger.exception(err);
             reject(new Error(err));
           }
           resolve(body);

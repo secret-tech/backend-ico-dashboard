@@ -9,6 +9,7 @@ dist
 .idea
 ts-node
 coverage
+.vscode
 
 # Runtime data
 pids

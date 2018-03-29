@@ -29,6 +29,7 @@ import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
 import { KycClientType } from './kyc.client';
+import { Logger } from '../logger';
 
 export const ACTIVATE_USER_SCOPE = 'activate_user';
 export const LOGIN_USER_SCOPE = 'login_user';
@@ -42,6 +43,7 @@ export const DISABLE_2FA_SCOPE = 'disable_2fa';
  */
 @injectable()
 export class UserService implements UserServiceInterface {
+  private logger = Logger.getInstance('USER_SERVICE');
 
   /**
    * constructor
@@ -76,7 +78,11 @@ export class UserService implements UserServiceInterface {
       throw new UserExists('User already exists');
     }
 
+    const logger = this.logger.sub({ email }, '[create] ');
+
     if (userData.referral) {
+      logger.debug('Find referral');
+
       const referral = await getConnection().getMongoRepository(Investor).findOne({
         email: userData.referral
       });
@@ -92,12 +98,15 @@ export class UserService implements UserServiceInterface {
 
     const encodedEmail = encodeURIComponent(email);
     const link = `${ config.app.frontendUrl }/auth/signup?type=activate&code={{{CODE}}}&verificationId={{{VERIFICATION_ID}}}&email=${ encodedEmail }`;
+
+    logger.debug('Init verification');
+
     const verification = await this.verificationClient.initiateVerification(EMAIL_VERIFICATION, {
       consumer: email,
-      issuer: 'Jincor',
+      issuer: config.app.companyName,
       template: {
         fromEmail: config.email.from.general,
-        subject: 'Verify your email at Jincor.com',
+        subject: `Verify your email at ${config.app.companyName}`,
         body: initiateSignUpTemplate(userData.name, link)
       },
       generateCode: {
@@ -120,6 +129,9 @@ export class UserService implements UserServiceInterface {
     });
 
     await getConnection().mongoManager.save(investor);
+
+    logger.debug('Create user in auth');
+
     await this.authClient.createUser(transformers.transformInvestorForAuth(investor));
 
     return transformers.transformCreatedInvestor(investor);
@@ -151,20 +163,26 @@ export class UserService implements UserServiceInterface {
       throw new InvalidPassword('Incorrect password');
     }
 
+    const logger = this.logger.sub({ email: loginData.email }, '[initiateLogin] ');
+
+    logger.debug('Login user');
+
     const tokenData = await this.authClient.loginUser({
       login: user.email,
       password: user.passwordHash,
       deviceId: 'device'
     });
 
+    logger.debug('Init verification');
+
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          subject: 'Jincor.com Login Verification Code',
+          subject: `${config.app.companyName} Login Verification Code`,
           body: initiateSignInCodeTemplate(user.name, new Date().toUTCString(), ip)
         },
         generateCode: {
@@ -213,11 +231,19 @@ export class UserService implements UserServiceInterface {
       throw new Error('Invalid verification id');
     }
 
+    this.logger.debug('[verifyLogin] Check access token by auth');
+
     const verifyAuthResult = await this.authClient.verifyUserToken(inputData.accessToken);
 
     const user = await getConnection().getMongoRepository(Investor).findOne({
       email: verifyAuthResult.login
     });
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
+
+    const logger = this.logger.sub({ email: user.email }, '[verifyLogin] ');
 
     const inputVerification = {
       verificationId: inputData.verification.id,
@@ -229,13 +255,18 @@ export class UserService implements UserServiceInterface {
       scope: LOGIN_USER_SCOPE
     };
 
+    logger.debug('Validate verification');
+
     await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, user.email, payload);
 
     token.makeVerified();
     await getConnection().getMongoRepository(VerifiedToken).save(token);
+
+    logger.debug('Send notification');
+
     this.emailQueue.addJob({
       sender: config.email.from.general,
-      subject: 'Jincor.com Successful Login Notification',
+      subject: `${config.app.companyName} Successful Login Notification`,
       recipient: user.email,
       text: successSignInTemplate(user.name, new Date().toUTCString())
     });
@@ -255,6 +286,8 @@ export class UserService implements UserServiceInterface {
       throw Error('User is activated already');
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[activate] ');
+
     const inputVerification = {
       verificationId: activationData.verificationId,
       method: EMAIL_VERIFICATION,
@@ -264,7 +297,12 @@ export class UserService implements UserServiceInterface {
     const payload = {
       scope: ACTIVATE_USER_SCOPE
     };
+
+    logger.debug('Validate verification');
+
     await this.verificationClient.checkVerificationPayloadAndCode(inputVerification, activationData.email, payload);
+
+    logger.debug('Generate eth wallet');
 
     const mnemonic = this.web3Client.generateMnemonic();
     const salt = bcrypt.genSaltSync();
@@ -278,15 +316,24 @@ export class UserService implements UserServiceInterface {
     });
 
     if (user.referral) {
+      logger.debug('Find referral user', user.referral);
+
       const referral = await getConnection().getMongoRepository(Investor).findOne({
         email: user.referral
       });
+
+      logger.debug('Add referral to the list');
+
       await this.web3Client.addReferralOf(account.address, referral.ethWallet.address);
     }
+
+    logger.debug('Initialization of KYC verification');
 
     user.kycInitResult = await this.kycClient.init(user);
     user.isVerified = true;
     await getConnection().getMongoRepository(Investor).save(user);
+
+    logger.debug('Login user by auth');
 
     const loginResult = await this.authClient.loginUser({
       login: user.email,
@@ -308,10 +355,12 @@ export class UserService implements UserServiceInterface {
 
     await getConnection().getMongoRepository(VerifiedToken).save(token);
 
+    logger.debug('Send email notification');
+
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'You are officially registered for participation in Jincor\'s ICO',
+      subject: `You are officially registered for participation in ${config.app.companyName}\'s ICO`,
       text: successSignUpTemplate(user.name)
     });
 
@@ -326,14 +375,16 @@ export class UserService implements UserServiceInterface {
       throw new InvalidPassword('Invalid password');
     }
 
+    this.logger.debug('[initiateChangePassword] Initiate verification', { meta: { email: user.email } });
+
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          subject: 'Here’s the Code to Change Your Password at Jincor.com',
+          subject: `Here’s the Code to Change Your Password at ${config.app.companyName}`,
           body: initiatePasswordChangeTemplate(user.name)
         },
         generateCode: {
@@ -359,20 +410,29 @@ export class UserService implements UserServiceInterface {
       throw new InvalidPassword('Invalid password');
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[verifyChangePassword] ');
+
     const payload = {
       scope: CHANGE_PASSWORD_SCOPE
     };
+
+    logger.debug('Validate verification');
 
     await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload);
 
     user.passwordHash = bcrypt.hashSync(params.newPassword);
     await getConnection().getMongoRepository(Investor).save(user);
+
+    logger.debug('Send notification');
+
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'Jincor.com Password Change Notification',
+      subject: `${config.app.companyName} Password Change Notification`,
       text: successPasswordChangeTemplate(user.name)
     });
+
+    logger.debug('Recreate user in auth');
 
     await this.authClient.createUser({
       email: user.email,
@@ -380,6 +440,8 @@ export class UserService implements UserServiceInterface {
       password: user.passwordHash,
       sub: params.verification.verificationId
     });
+
+    logger.debug('Login user in auth');
 
     const loginResult = await this.authClient.loginUser({
       login: user.email,
@@ -401,15 +463,17 @@ export class UserService implements UserServiceInterface {
       throw new UserNotFound('User is not found');
     }
 
+    this.logger.debug('[initiateResetPassword] Initiate verification', { meta: { email: params.email } });
+
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
           body: initiatePasswordResetTemplate(user.name),
-          subject: 'Here’s the Code to Reset Your Password at Jincor.com'
+          subject: `Here’s the Code to Reset Your Password at ${config.app.companyName}`
         },
         generateCode: {
           length: 6,
@@ -438,14 +502,20 @@ export class UserService implements UserServiceInterface {
       throw new UserNotFound('User is not found');
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[verifyResetPassword] ');
+
     const payload = {
       scope: RESET_PASSWORD_SCOPE
     };
+
+    logger.debug('Validate verification');
 
     const verificationResult = await this.verificationClient.checkVerificationPayloadAndCode(params.verification, params.email, payload);
 
     user.passwordHash = bcrypt.hashSync(params.password);
     await getConnection().getMongoRepository(Investor).save(user);
+
+    logger.debug('Recreate user in auth');
 
     await this.authClient.createUser({
       email: user.email,
@@ -454,10 +524,12 @@ export class UserService implements UserServiceInterface {
       sub: params.verification.verificationId
     });
 
+    logger.debug('Send notification');
+
     this.emailQueue.addJob({
       sender: config.email.from.general,
       recipient: user.email,
-      subject: 'Jincor.com Password Reset Notification',
+      subject: `${config.app.companyName} Password Reset Notification`,
       text: successPasswordResetTemplate(user.name)
     });
 
@@ -474,9 +546,15 @@ export class UserService implements UserServiceInterface {
       }
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[invite] ');
+
     user.checkAndUpdateInvitees(params.emails);
 
+    logger.debug('Send invites');
+
     for (let email of params.emails) {
+      logger.debug('Send invite for', email);
+
       this.emailQueue.addJob({
         sender: config.email.from.referral,
         recipient: email,
@@ -497,11 +575,13 @@ export class UserService implements UserServiceInterface {
   }
 
   private async initiate2faVerification(user: Investor, scope: string): Promise<InitiateResult> {
+    this.logger.debug('[initiate2faVerification] Initiate verification', { meta: { email: user.email } });
+
     return await this.verificationClient.initiateVerification(
       AUTHENTICATOR_VERIFICATION,
       {
         consumer: user.email,
-        issuer: 'Jincor',
+        issuer: config.app.companyName,
         policy: {
           expiredOn: '01:00:00'
         },
@@ -527,9 +607,14 @@ export class UserService implements UserServiceInterface {
       throw new AuthenticatorError('Authenticator is enabled already.');
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[verifyEnable2fa] ');
+
     const payload = {
       scope: ENABLE_2FA_SCOPE
     };
+
+    logger.debug('Validate verification');
+
     await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload);
 
     user.defaultVerificationMethod = AUTHENTICATOR_VERIFICATION;
@@ -556,9 +641,14 @@ export class UserService implements UserServiceInterface {
       throw new AuthenticatorError('Authenticator is disabled already.');
     }
 
+    const logger = this.logger.sub({ email: user.email }, '[verifyEnable2fa] ');
+
     const payload = {
       scope: DISABLE_2FA_SCOPE
     };
+
+    logger.debug('Validate verification');
+
     await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload, true);
 
     user.defaultVerificationMethod = EMAIL_VERIFICATION;
