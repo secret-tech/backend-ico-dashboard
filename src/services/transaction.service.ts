@@ -75,6 +75,54 @@ export class TransactionService implements TransactionServiceInterface {
   async getTransactionsOfUser(user: Investor): Promise<GenericTransaction[]> {
     const data: Array<GenericTransaction> = [];
 
+    data.push(...await this.getExtendedTransactions(user));
+    data.push(...await this.getPaymentGateTransactions(user));
+
+    return data;
+  }
+
+  private async getPaymentGateTransactions(user: Investor): Promise<Array<GenericTransaction>> {
+    const data: Array<GenericTransaction> = [];
+    const paymentGateTransactionRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
+    const txs = await paymentGateTransactionRepository.find({
+      where: {userEmail: user.email}
+    });
+
+    txs.forEach(item => {
+      if (item.buyIpns.length > 0) {
+        let tx = {} as PaymentGateTransactionView;
+
+        // get latest actual ipn response.
+        item.buyIpns.sort((a, b) => {
+          return a.status - b.status;
+        });
+
+        const actualIPN = item.buyIpns[0].status < 0 ? item.buyIpns[0] : item.buyIpns[item.buyIpns.length - 1];
+
+        tx.address = item.buyCoinpaymentsData.address;
+        tx.confirmsNeeded = item.buyCoinpaymentsData.confirmsNeeded;
+        tx.currency = item.buyCoinpaymentsData.currency2;
+        tx.expiredOn = item.expiredOn;
+        tx.id = item.id.toHexString();
+        tx.qrcodeUrl = item.buyCoinpaymentsData.qrcodeUrl;
+        tx.receivedAmount = actualIPN.receivedAmount;
+        tx.receivedConfirms = actualIPN.receivedConfirms;
+        tx.status = actualIPN.status;
+        tx.statusUrl = item.buyCoinpaymentsData.statusUrl;
+        tx.totalAmount = item.buyCoinpaymentsData.amount;
+        tx.txnId = item.buyCoinpaymentsData.txnId;
+        tx.type = 'gateway_transaction';
+        tx.timestamp = item.timestamp;
+        tx.timeout = item.buyCoinpaymentsData.timeout;
+
+        data.push(tx);
+      }
+    });
+
+    return data;
+  }
+
+  private async getExtendedTransactions(user: Investor): Promise<Array<GenericTransaction>> {
     const txs = await getMongoManager().createEntityCursor(Transaction, {
       '$and': [
         {
@@ -103,42 +151,7 @@ export class TransactionService implements TransactionServiceInterface {
       }
     }
 
-    data.push(...txs);
-
-    // coinpayments transaction
-    const paymentGateTransactionRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
-    const cpTxs = await paymentGateTransactionRepository.find({
-      where: {userEmail: user.email}
-    });
-
-    cpTxs.forEach(item => {
-      if (item.buyIpns.length > 0) {
-        let tx = {} as PaymentGateTransactionView;
-
-        // get latest actual ipn response.
-        let latestIPN = item.buyIpns[item.buyIpns.length - 1];
-
-        tx.address = item.buyCoinpaymentsData.address;
-        tx.confirmsNeeded = item.buyCoinpaymentsData.confirmsNeeded;
-        tx.currency = item.buyCoinpaymentsData.currency2;
-        tx.expiredOn = item.expiredOn;
-        tx.id = item.id.toHexString();
-        tx.qrcodeUrl = item.buyCoinpaymentsData.qrcodeUrl;
-        tx.receivedAmount = latestIPN.receivedAmount;
-        tx.receivedConfirms = latestIPN.receivedConfirms;
-        tx.status = latestIPN.status;
-        tx.statusUrl = item.buyCoinpaymentsData.statusUrl;
-        tx.totalAmount = item.buyCoinpaymentsData.amount;
-        tx.txnId = item.buyCoinpaymentsData.txnId;
-        tx.type = 'gateway_transaction';
-        tx.timestamp = item.timestamp;
-        tx.timeout = item.buyCoinpaymentsData.timeout;
-
-        data.push(tx);
-      }
-    });
-
-    return data;
+    return txs;
   }
 
   async getReferralIncome(user: Investor): Promise<ReferralResult> {
