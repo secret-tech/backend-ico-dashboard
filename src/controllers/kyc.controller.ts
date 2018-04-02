@@ -17,8 +17,9 @@ import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../exc
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import { base64decode } from '../helpers/helpers';
 import config from '../config';
-import * as bcrypt from 'bcrypt-nodejs';
+
 const mongo = require('mongodb');
+const bcrypt = require('bcrypt');
 
 /**
  * KYC controller

@@ -5,9 +5,9 @@ import 'reflect-metadata';
 import { Investor } from '../entities/investor';
 import * as uuid from 'node-uuid';
 import { base64encode } from '../helpers/helpers';
-import * as bcrypt from 'bcrypt-nodejs';
 import { Logger } from '../logger';
 
+const bcrypt = require('bcrypt');
 const userAgent = config.app.companyName.replace(/[^a-zA-Z0-9]/g, '') + ' ICO/1.0.0';
 
 @injectable()
@@ -39,7 +39,7 @@ export class KycClient implements KycClientInterface {
 
       if (this.kycEnabled) {
         const id = investor.id.toHexString();
-        const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+        const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret, 10));
 
         const kycOptions = {
           baseUrl: this.baseUrl,

@@ -1,12 +1,12 @@
 import * as chai from 'chai';
 import * as factory from './test.app.factory';
-import * as bcrypt from 'bcrypt-nodejs';
 require('../../../test/load.fixtures');
 import { base64encode } from '../../helpers/helpers';
 import config from '../../config';
 import { Investor } from '../../entities/investor';
 import { getConnection, ObjectID } from 'typeorm';
 const mongo = require('mongodb');
+const bcrypt = require('bcrypt');
 
 chai.use(require('chai-http'));
 const { expect, request } = chai;
@@ -68,7 +68,7 @@ describe('Kyc', () => {
 
   describe('GET /uploaded/:id/:base64hash', () => {
     const id = '59f075eda6cca00fbd486167';
-    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+    const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret, 10));
 
     it('should update investor status to pending', (done) => {
       getRequest(factory.testAppForDashboard(), `/kyc/uploaded/${ id }/${ hash }`).end((err, res) => {

@@ -27,9 +27,10 @@ import { VerifiedToken } from '../entities/verified.token';
 import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
-import * as bcrypt from 'bcrypt-nodejs';
 import { KycClientType } from './kyc.client';
 import { Logger } from '../logger';
+
+const bcrypt = require('bcrypt');
 
 export const ACTIVATE_USER_SCOPE = 'activate_user';
 export const LOGIN_USER_SCOPE = 'login_user';
@@ -123,7 +124,7 @@ export class UserService implements UserServiceInterface {
       }
     });
 
-    userData.passwordHash = bcrypt.hashSync(userData.password);
+    userData.passwordHash = bcrypt.hashSync(userData.password, 10);
     const investor = Investor.createInvestor(userData, {
       verificationId: verification.verificationId
     });
@@ -420,7 +421,7 @@ export class UserService implements UserServiceInterface {
 
     await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload);
 
-    user.passwordHash = bcrypt.hashSync(params.newPassword);
+    user.passwordHash = bcrypt.hashSync(params.newPassword, 10);
     await getConnection().getMongoRepository(Investor).save(user);
 
     logger.debug('Send notification');
@@ -512,7 +513,7 @@ export class UserService implements UserServiceInterface {
 
     const verificationResult = await this.verificationClient.checkVerificationPayloadAndCode(params.verification, params.email, payload);
 
-    user.passwordHash = bcrypt.hashSync(params.password);
+    user.passwordHash = bcrypt.hashSync(params.password, 10);
     await getConnection().getMongoRepository(Investor).save(user);
 
     logger.debug('Recreate user in auth');
