@@ -20,7 +20,6 @@ export class PaymentsService implements PaymentsServiceInterface {
     const tx = new PaymentGateTransaction();
     tx.buyCoinpaymentsData = txCoinpaymentsData;
     tx.buyIpns = [];
-    tx.convertIpns = [];
     tx.convertCoinpaymentsData = null;
     tx.expiredOn = txCoinpaymentsData.timeout + Date.now();
     tx.status = PAYMENT_GATE_TRANSACTION_STATUS_STARTED;

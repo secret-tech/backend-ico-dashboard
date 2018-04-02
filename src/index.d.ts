@@ -374,7 +374,6 @@ declare interface PaymentGateTransactionInterface {
   buyCoinpaymentsData: any;
   convertCoinpaymentsData: null;
   buyIpns: Array<any>;
-  convertIpns: Array<any>;
 }
 
 declare interface PaymentsServiceInterface {
@@ -403,6 +402,7 @@ declare interface PaymentGateTransactionView {
   qrcodeUrl: string;
   address: string;
   timestamp: number;
+  timeout: number;
   expiredOn: number;
   txnId: string;
   statusUrl: string;
