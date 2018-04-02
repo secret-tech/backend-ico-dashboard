@@ -54,8 +54,8 @@ export class DashboardController {
       jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
       jcrTokenBalance: await this.web3Client.getJcrBalanceOf(req.user.ethWallet.address),
       jcrTokenPrice: {
-        ETH: (1 / Number(currentJcrEthPrice)).toString(),
-        USD: '1'
+        ETH: (config.contracts.jcrToken.priceUsd / Number(currentJcrEthPrice)).toString(),
+        USD: config.contracts.jcrToken.priceUsd
       },
       raised: {
         ETH: ethCollected,
