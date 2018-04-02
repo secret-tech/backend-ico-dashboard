@@ -244,9 +244,25 @@ describe('Dashboard', () => {
             qrcodeUrl: 'qrcode_url',
             receivedAmount: '0.1',
             receivedConfirms: '0',
+            status: '100',
             statusUrl: 'status_url',
             totalAmount: 1,
             txnId: 'abc123432',
+            type: 'gateway_transaction',
+            timeout: 3600
+          },
+          {
+            address: '0x99eb89a5D15A6D487da3f3C1fC4fc2378eE227aa',
+            confirmsNeeded: 0,
+            currency: 'BTC',
+            expiredOn: 1234567890,
+            id: '563143b280d2387c91807f00',
+            qrcodeUrl: 'qrcode_url',
+            status: '-1',
+            statusUrl: 'status_url',
+            timeout: 3600,
+            totalAmount: 1,
+            txnId: 'abc124',
             type: 'gateway_transaction'
           }
         ]);

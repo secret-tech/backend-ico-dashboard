@@ -10,6 +10,8 @@ import config from '../config';
 import { getConnection } from 'typeorm';
 import { PaymentGateTransaction } from '../entities/payment.gate.transaction';
 
+import { Logger } from '../logger';
+
 const IPN_RESPONSE_STATUS_COMPLETE = 100;
 const IPN_RESPONSE_STATUS_QUEUED_PAYOUT = 2;
 
@@ -23,6 +25,8 @@ const cpMiddleware = CoinPayments.ipn({
   '/gateway'
 )
 export class GatewayController {
+  private logger = Logger.getInstance('DASHBOARD_CONTROLLER');
+
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(CoinpaymentsClientType) private coinpaimentsClient: CoinpaymentsClientInterface,
@@ -48,6 +52,8 @@ export class GatewayController {
     'AuthMiddleware'
   )
   async createTransaction(req: AuthorizedRequest, res: Response): Promise<void> {
+    const logger = this.logger.sub({ email: req.user.email }, '[createTransaction] ');
+
     try {
       const tx = await this.paymentsService.initiateBuyEths(
         req.user,
@@ -58,6 +64,7 @@ export class GatewayController {
 
       res.json(tx.buyCoinpaymentsData);
     } catch (error) {
+      logger.exception(error);
       res.json(error);
     }
   }
@@ -80,6 +87,7 @@ export class GatewayController {
     (req, res, next) => cpMiddleware(req, {end: () => {}}, next)
   )
   async ipn(req: Request, res: Response, next): Promise<void> {
+    const logger = this.logger.sub({ ipnId: req.body.ipn_id }, '[IPN Handler] ');
     try {
       if (req.body.status >= IPN_RESPONSE_STATUS_COMPLETE) {
         // complete
@@ -94,6 +102,7 @@ export class GatewayController {
 
       res.end('IPN OK');
     } catch (error) {
+      logger.exception(error);
       res.end('IPN Error: ' + error);
     }
   }
