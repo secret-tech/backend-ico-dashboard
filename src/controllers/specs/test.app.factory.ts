@@ -506,3 +506,22 @@ export function testAppForResetPassword() {
   container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
   return buildApp();
 }
+
+export function testAppForResendVerification() {
+  const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
+
+  const initiateResult: InitiateResult = {
+    status: 200,
+    verificationId: '123',
+    attempts: 0,
+    expiredOn: 124545,
+    method: 'email'
+  };
+
+  verifyMock.setup(x => x.resendVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<InitiateResult> => initiateResult);
+
+  container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
+
+  return buildApp();
+}

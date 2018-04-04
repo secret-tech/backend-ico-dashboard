@@ -937,4 +937,59 @@ describe('Users', () => {
         });
     });
   });
+
+  describe('POST /resendVerification', () => {
+    it('should require email', function (done) {
+      const params = {};
+
+      postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(422);
+          expect(res.body.error.details[0].message).to.eq('"email" is required');
+          done();
+        });
+    });
+
+    it('should respond with 404 error on resend verification if email is wrong', function (done) {
+      const params = {
+        email:'wrong@test.ru'
+      };
+
+      postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.eq('User is not found');
+          done();
+        });
+    });
+
+    it('should respond with error on resend verification if user is activated', function (done) {
+      const params = {
+        email:'activated@test.com'
+      }
+
+      postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(403);
+          expect(res.body.error).to.eq('User is activated already');
+          done();
+        });
+    });
+
+    it('should resend verification', function (done) {
+      const params = {
+        email:'existing@test.com'
+      };
+
+      postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
+        .send(params)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          done();
+        });
+    });
+  });
 });

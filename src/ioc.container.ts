@@ -91,6 +91,9 @@ container.bind<express.RequestHandler>('InvestValidation').toConstantValue(
 container.bind<express.RequestHandler>('OnlyJumioIp').toConstantValue(
   (req: any, res: any, next: any) => validation.onlyJumioIp(req, res, next)
 );
+container.bind<express.RequestHandler>('ResendVerificationValidation').toConstantValue(
+  (req: any, res: any, next: any) => validation.resendVerification(req, res, next)
+);
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');

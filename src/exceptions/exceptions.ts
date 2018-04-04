@@ -15,3 +15,4 @@ export class VerificationIsNotFound extends Error {}
 export class InsufficientEthBalance extends Error {}
 export class MaxVerificationsAttemptsReached extends Error {}
 export class IncorrectMnemonic extends Error {}
+export class UserActivated extends Error {}

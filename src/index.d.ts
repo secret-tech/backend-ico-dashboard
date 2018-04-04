@@ -86,6 +86,7 @@ declare interface InitiateData {
   };
   policy: {
     expiredOn: string;
+    verificationId?: string
   };
   payload?: any;
 }
@@ -121,6 +122,7 @@ declare interface ValidateVerificationInput {
 
 declare interface VerificationClientInterface {
   initiateVerification(method: string, data: InitiateData): Promise<InitiateResult>;
+  resendVerification(method: string, data: InitiateData): Promise<InitiateResult>;
   validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult>;
   invalidateVerification(method: string, id: string): Promise<void>;
   getVerification(method: string, id: string): Promise<ValidationResult>;
@@ -200,6 +202,10 @@ declare interface VerifyLoginInput {
     code: string,
     method: string
   };
+}
+
+declare interface ResendVerificationInput {
+  email: string
 }
 
 declare interface InitiateChangePasswordInput {
@@ -285,6 +291,7 @@ declare interface UserServiceInterface {
   verifyLogin(inputData: VerifyLoginInput): Promise<VerifyLoginResult>;
   invite(user: any, params: any): Promise<InviteResultArray>;
   getUserInfo(user: any): Promise<UserInfo>;
+  resendVerification(userData: ResendVerificationInput): Promise<CreatedUserData>;
 }
 
 declare interface KycClientInterface {
