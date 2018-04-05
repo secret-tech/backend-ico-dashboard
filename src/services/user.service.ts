@@ -19,12 +19,12 @@ import {
   UserNotFound,
   InvalidPassword,
   UserNotActivated,
-  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed
+  TokenNotFound, ReferralDoesNotExist, ReferralIsNotActivated, AuthenticatorError, InviteIsNotAllowed, UserActivated
 } from '../exceptions/exceptions';
 import config from '../config';
 import { Investor } from '../entities/investor';
 import { VerifiedToken } from '../entities/verified.token';
-import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION } from '../entities/verification';
+import {AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION, Verification} from '../entities/verification';
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
@@ -135,6 +135,50 @@ export class UserService implements UserServiceInterface {
     await this.authClient.createUser(transformers.transformInvestorForAuth(investor));
 
     return transformers.transformCreatedInvestor(investor);
+  }
+
+  async resendVerification(userData: ResendVerificationInput): Promise<CreatedUserData> {
+    const email = userData.email;
+    const user = await getConnection().getMongoRepository(Investor).findOne({
+      email: email
+    });
+
+    if (!user) {
+      throw new UserNotFound('User is not found');
+    }
+
+    if (user.isVerified) {
+      throw new UserActivated('User is activated already');
+    }
+
+    const logger = this.logger.sub({ email }, '[resend] ');
+
+    const encodedEmail = encodeURIComponent(email);
+    const link = `${ config.app.frontendUrl }/auth/signup?type=activate&code={{{CODE}}}&verificationId={{{VERIFICATION_ID}}}&email=${ encodedEmail }`;
+
+    logger.debug('Resend verification');
+
+    const verification = await this.verificationClient.resendVerification(EMAIL_VERIFICATION, {
+      consumer: email,
+      issuer: config.app.companyName,
+      template: {
+        fromEmail: config.email.from.general,
+        subject: `Verify your email at ${config.app.companyName}`,
+        body: initiateSignUpTemplate(user.name, link)
+      },
+      policy: {
+        expiredOn: '24:00:00',
+        verificationId: user.verification.id
+      },
+      payload: {
+        scope: ACTIVATE_USER_SCOPE
+      }
+    });
+
+    user.verification = Verification.createVerification(verification);
+    await getConnection().getMongoRepository(Investor).save(user);
+
+    return transformers.transformCreatedInvestor(user);
   }
 
   /**

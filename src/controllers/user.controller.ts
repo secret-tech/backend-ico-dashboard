@@ -170,4 +170,12 @@ export class UserController {
   async disable2faVerify(req: AuthorizedRequest, res: Response): Promise<void> {
     res.json(await this.userService.verifyDisable2fa(req.user, req.body));
   }
+
+  @httpPost(
+    '/resendVerification',
+    'ResendVerificationValidation'
+  )
+  async resendVerification(req: Request, res: Response): Promise<void> {
+    res.json(await this.userService.resendVerification(req.body));
+  }
 }

@@ -19,6 +19,8 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
     case Err.InvalidPassword:
       // no break
     case Err.UserNotActivated:
+      //no break
+    case Err.UserActivated:
       status = 403;
       break;
     case Err.VerificationIsNotFound:

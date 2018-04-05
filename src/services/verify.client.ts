@@ -59,6 +59,27 @@ export class VerificationClient implements VerificationClientInterface {
     }
   }
 
+  async resendVerification(method: string, data: InitiateData): Promise<InitiateResult> {
+    try {
+      const result = await request.json<InitiateResult>(`/methods/${ method }/actions/resend`, {
+        baseUrl: this.baseUrl,
+        auth: {
+          bearer: this.tenantToken
+        },
+        method: 'POST',
+        body: data
+      });
+
+      result.method = method;
+
+      return result;
+    } catch (error) {
+      this.logger.exception('Resend', error);
+
+      throw error;
+    }
+  }
+
   async validateVerification(method: string, id: string, input: ValidateVerificationInput): Promise<ValidationResult> {
     try {
       return await request.json<ValidationResult>(`/methods/${ method }/verifiers/${ id }/actions/validate`, {
