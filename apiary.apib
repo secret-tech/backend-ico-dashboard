@@ -837,3 +837,36 @@ Authentication attempts with not verified token will result in 401 response.
             "timeout": 3600,
             "txnId": "CPCC4YOJBXMI1VQOAHNMDR330W"
         }
+
+## Resend verification [/user/resendVerification]
+
+### Resend verification [POST]
+
++ email `test@test.com` (string, required, email)
+
++ Request (application/json)
+
+        {
+            "email": "existing@test.com",
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "fb10d98f-2a5e-430d-bf2a-c76b42259b74",
+            "email": "existing@test.com",
+            "name": "ICO investor",
+            "agreeTos": true,
+            "verification": {
+                "id": "3ed09e0a-72e1-417b-a05c-f0f08a5e1ffa",
+                "method": "email"
+            },
+            "isVerified": false,
+            "defaultVerificationMethod": "email",
+            "referralCode": "ZXhpc3RpbmdAdGVzdC5jb20",
+            "referral": "activated@test.com",
+            "source": {
+              "utm": "utm",
+              "gtm": "gtm"
+            }
+        }
