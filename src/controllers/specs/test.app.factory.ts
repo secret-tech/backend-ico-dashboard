@@ -77,13 +77,13 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => 'transactionHash');
 
-  web3Mock.setup(x => x.getJcrEthPrice())
+  web3Mock.setup(x => x.getTokenEthPrice())
     .returns(async(): Promise<number> => 200);
 
   web3Mock.setup(x => x.getEthBalance(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '1.0001');
 
-  web3Mock.setup(x => x.getJcrBalanceOf(TypeMoq.It.isAny()))
+  web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '500.00012345678912345');
 
   web3Mock.setup(x => x.getEthCollected())
