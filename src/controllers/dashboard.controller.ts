@@ -7,13 +7,13 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
 import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
-import initiateBuyTemplate from '../emails/12_initiate_buy_jcr_code';
 import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/exceptions';
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
 
 import { Logger } from '../logger';
+import { EmailTemplateServiceType, EmailTemplateService } from '../services/email.template.service';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -35,7 +35,8 @@ export class DashboardController {
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface
+    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
+    @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateService
   ) { }
 
   /**
@@ -165,7 +166,7 @@ export class DashboardController {
         template: {
           fromEmail: config.email.from.general,
           subject: `You Purchase Validation Code to Use at ${config.app.companyName}`,
-          body: initiateBuyTemplate(req.user.name)
+          body: await this.emailTemplateService.getRenderedTemplate('12_initiate_buy_jcr_code', { name: req.user.name })
         },
         generateCode: {
           length: 6,

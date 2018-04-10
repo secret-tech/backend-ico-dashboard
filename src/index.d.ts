@@ -414,3 +414,7 @@ declare interface PaymentGateTransactionView {
   txnId: string;
   statusUrl: string;
 }
+
+declare interface EmailTemplateServiceInterface {
+  getRenderedTemplate(templateName: string, data: any): Promise<string>;
+}

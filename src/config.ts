@@ -51,6 +51,7 @@ const {
   COMPANY_NAME,
   EMAIL_FROM,
   EMAIL_REFERRAL,
+  EMAIL_TEMPLATE_FOLDER,
   TOKEN_PRICE_USD
 } = process.env;
 
@@ -108,6 +109,9 @@ export default {
     from: {
       general: EMAIL_FROM || 'noreply@jincor.com',
       referral: EMAIL_REFERRAL || 'partners@jincor.com'
+    },
+    template: {
+      folder: EMAIL_TEMPLATE_FOLDER || 'default'
     }
   },
   contracts: {

@@ -1,4 +1,4 @@
-export default function(name, datetime) {
+export function render(data) {
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -198,27 +198,51 @@ export default function(name, datetime) {
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello ${ name },</p>
+          <p style="margin: 0;">Greetings from Jincor Team,</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">
-            You have successfully signed in to your Jincor account at <b>${ datetime }</b><br/>
-          </p>
+          <p style="margin: 0;">Just wanted to let you know that your friend ${ data.referralName } thinks you might find our ICO interesting.</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">If this was not you, please contact us immediately at <a href="mailto:support@jincor.com">support@jincor.com</a></p>
+          <p style="margin: 0;">We are building a private blockchain, that will be a base for a wholesome, secure, regulatory, compliant, and breezy-to-use product, that will allow any business to work with smart contracts and cryptocurrency payments easily with no legal, technical, or operational complications.</p>
+        </td>
+      </tr>
+
+      <tr>
+        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
+          <p style="margin: 0;">We already have a private beta and 30 companies from all around the world testing the basic functionalities. By in November, we are planning to launch a public beta (around 200 companies have already signed up to try it).</p>
+        </td>
+      </tr>
+
+      <tr>
+        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
+          <p style="margin: 0;">If that sounds interesting, ${ data.referralName } recommends you to register for the upcoming ICO, which starts on 01.12.2017, and access more details about the project.</p>
+        </td>
+      </tr>
+
+      <tr>
+        <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: Helvetica, Arial, sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto">
+            <tr>
+              <td style="border-radius: 3px; background: #222222; text-align: center;" class="button-td">
+                <a href="${ data.link }" style="background: #0080ff; border: 12px solid #0080ff; font-family: Helvetica, Arial, sans-serif; font-size: 17px; line-height: 20px; text-align: center; text-decoration: none; display: block; border-radius: 4px; font-weight: bold;" class="button-a">
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ffffff;">Register at Jincor.com</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                </a>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 13px; line-height: 22px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Stay safe,<br/>Jincor Team</p>
+          <p style="margin: 0;">Have an awesome day,<br/>Jincor Team</p>
         </td>
       </tr>
 

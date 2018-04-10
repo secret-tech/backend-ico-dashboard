@@ -23,6 +23,7 @@ import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayme
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
 import { IPNServiceType, IPNService } from './services/ipn.service';
 import { GatewayController } from './controllers/gateway.controller';
+import { EmailTemplateService, EmailTemplateServiceType } from './services/email.template.service';
 
 let container = new Container();
 
@@ -52,6 +53,7 @@ container.bind<UserServiceInterface>(UserServiceType).to(UserService).inSingleto
 container.bind<CoinpaymentsClientInterface>(CoinpaymentsClientType).to(CoinpaymentsClient).inSingletonScope();
 container.bind<PaymentsServiceInterface>(PaymentsServiceType).to(PaymentsService).inSingletonScope();
 container.bind<IPNServiceInterface>(IPNServiceType).to(IPNService).inSingletonScope();
+container.bind<EmailTemplateServiceInterface>(EmailTemplateServiceType).to(EmailTemplateService).inSingletonScope();
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
