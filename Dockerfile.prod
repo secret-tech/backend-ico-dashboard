@@ -11,7 +11,6 @@ RUN cp -r src/certs dist/
 RUN apk add --update --no-cache git python make g++ && \
     npm i -g yarn && \
     yarn install && \
-    yarn run && \
     apk del --purge git python make g++ && \
     rm -rf ./src
 
