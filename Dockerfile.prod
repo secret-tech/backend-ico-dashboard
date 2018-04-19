@@ -9,9 +9,9 @@ RUN mkdir -p /usr/src/app/dist
 RUN cp -r src/certs dist/
 
 RUN apk add --update --no-cache git python make g++ && \
-    npm install && \
-    npm run build && \
-    npm prune --production && \
+    npm i -g yarn
+    yarn install && \
+    yarn run && \
     apk del --purge git python make g++ && \
     rm -rf ./src
 

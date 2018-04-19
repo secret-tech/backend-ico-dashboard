@@ -30,7 +30,7 @@ describe('Dashboard', () => {
           jcrTokensSold: '5000',
           jcrTokenPrice: {
             ETH: '0.005',
-            USD: '1'
+            USD: 1
           },
           raised: {
             ETH: '2000',
