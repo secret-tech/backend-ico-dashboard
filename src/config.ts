@@ -42,6 +42,7 @@ const {
   KYC_SECRET,
   KYC_BASE_URL,
   KYC_TOKEN_LIFETIME,
+  KYC_STATUS_DEFAULT,
   COINPAYMENTS_API_KEY,
   COINPAYMENTS_API_SECRET,
   COINPAYMENTS_API_CURRENCY1,
@@ -147,7 +148,10 @@ export default {
     apiToken: KYC_TOKEN,
     apiSecret: KYC_SECRET,
     baseUrl: KYC_BASE_URL,
-    defaultTokenLifetime: KYC_TOKEN_LIFETIME || 5184000 // 60 days - Jumio max allowed value
+    defaultTokenLifetime: KYC_TOKEN_LIFETIME || 5184000, // 60 days - Jumio max allowed value
+    status: {
+      default: KYC_STATUS_DEFAULT
+    }
   },
   rpc: {
     type: RPC_TYPE,
