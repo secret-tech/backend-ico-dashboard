@@ -148,7 +148,7 @@ export default {
     apiToken: KYC_TOKEN,
     apiSecret: KYC_SECRET,
     baseUrl: KYC_BASE_URL,
-    defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME) || 5184000 // 60 days - Jumio max allowed value
+    defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000, // 60 days - Jumio max allowed value
     status: {
       default: KYC_STATUS_DEFAULT
     }
