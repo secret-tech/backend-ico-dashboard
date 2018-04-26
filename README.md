@@ -25,8 +25,8 @@ It was implemented to provide following functionality:
 1. Run `docker-compose build --no-cache`.
 1. Run `docker-compose up -d`.
 1. Run `cp .env.test .env`.
-1. To install dependencies run `docker-compose exec ico npm i`.
-1. Run tests `docker-compose exec ico npm test`.
+1. To install dependencies run `docker-compose exec ico yarn`.
+1. Run tests `docker-compose exec ico yarn test`.
 
 ## How to generate docs?
 

@@ -56,7 +56,7 @@ export class DashboardController {
       tokenBalance: await this.web3Client.getTokenBalanceOf(req.user.ethWallet.address),
       tokenPrice: {
         ETH: (config.contracts.token.priceUsd / Number(currentTokenEthPrice)).toString(),
-        USD: config.contracts.token.priceUsd
+        USD: config.contracts.token.priceUsd.toString()
       },
       raised: {
         ETH: ethCollected,

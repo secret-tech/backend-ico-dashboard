@@ -4,7 +4,7 @@ import * as factory from './test.app.factory';
 const Web3 = require('web3');
 const bip39 = require('bip39');
 import 'reflect-metadata';
-import config from "../../config";
+import config from '../../config';
 require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));
@@ -46,7 +46,7 @@ describe('Users', () => {
         if (config.kyc.enabled) {
           expect(res.body.kycStatus).to.eq('not_verified');
         } else {
-          expect(res.body.kycStatus).to.eq('verified');
+          expect(res.body.kycStatus).to.eq(config.kyc.status.default);
         }
 
         expect(res.body.defaultVerificationMethod).to.eq('email');
@@ -939,7 +939,7 @@ describe('Users', () => {
   });
 
   describe('POST /resendVerification', () => {
-    it('should require email', function (done) {
+    it('should require email', function(done) {
       const params = {};
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
@@ -951,9 +951,9 @@ describe('Users', () => {
         });
     });
 
-    it('should respond with 404 error on resend verification if email is wrong', function (done) {
+    it('should respond with 404 error on resend verification if email is wrong', function(done) {
       const params = {
-        email:'wrong@test.ru'
+        email: 'wrong@test.ru'
       };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
@@ -965,10 +965,10 @@ describe('Users', () => {
         });
     });
 
-    it('should respond with error on resend verification if user is activated', function (done) {
+    it('should respond with error on resend verification if user is activated', function(done) {
       const params = {
-        email:'activated@test.com'
-      }
+        email: 'activated@test.com'
+      };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
         .send(params)
@@ -979,9 +979,9 @@ describe('Users', () => {
         });
     });
 
-    it('should resend verification', function (done) {
+    it('should resend verification', function(done) {
       const params = {
-        email:'existing@test.com'
+        email: 'existing@test.com'
       };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
