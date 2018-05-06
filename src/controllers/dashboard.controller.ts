@@ -7,13 +7,13 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { Web3ClientInterface, Web3ClientType } from '../services/web3.client';
 import config from '../config';
 import { TransactionServiceInterface, TransactionServiceType } from '../services/transaction.service';
-import initiateBuyTemplate from '../emails/12_initiate_buy_jcr_code';
 import { IncorrectMnemonic, InsufficientEthBalance } from '../exceptions/exceptions';
 import { transformReqBodyToInvestInput } from '../transformers/transformers';
 import { Investor } from '../entities/investor';
 import { getConnection } from 'typeorm';
 
 import { Logger } from '../logger';
+import { EmailTemplateServiceType, EmailTemplateService } from '../services/email.template.service';
 
 const TRANSACTION_STATUS_PENDING = 'pending';
 
@@ -35,7 +35,8 @@ export class DashboardController {
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
-    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface
+    @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
+    @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateService
   ) { }
 
   /**
@@ -46,20 +47,20 @@ export class DashboardController {
     'AuthMiddleware'
   )
   async dashboard(req: AuthorizedRequest, res: Response): Promise<void> {
-    const currentJcrEthPrice = await this.web3Client.getJcrEthPrice();
+    const currentTokenEthPrice = await this.web3Client.getTokenEthPrice();
     const ethCollected = await this.web3Client.getEthCollected();
 
     res.json({
       ethBalance: await this.web3Client.getEthBalance(req.user.ethWallet.address),
-      jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
-      jcrTokenBalance: await this.web3Client.getJcrBalanceOf(req.user.ethWallet.address),
-      jcrTokenPrice: {
-        ETH: (config.contracts.jcrToken.priceUsd / Number(currentJcrEthPrice)).toString(),
-        USD: config.contracts.jcrToken.priceUsd
+      tokensSold: await this.web3Client.getSoldIcoTokens(),
+      tokenBalance: await this.web3Client.getTokenBalanceOf(req.user.ethWallet.address),
+      tokenPrice: {
+        ETH: (config.contracts.token.priceUsd / Number(currentTokenEthPrice)).toString(),
+        USD: config.contracts.token.priceUsd.toString()
       },
       raised: {
         ETH: ethCollected,
-        USD: (Number(ethCollected) * currentJcrEthPrice).toString(),
+        USD: (Number(ethCollected) * currentTokenEthPrice).toString(),
         BTC: '0'
       },
       // calculate days left and add 1 as Math.floor always rounds to less value
@@ -75,7 +76,7 @@ export class DashboardController {
     const contributionsCount = await this.web3Client.getContributionsCount();
 
     res.json({
-      jcrTokensSold: await this.web3Client.getSoldIcoTokens(),
+      tokensSold: await this.web3Client.getSoldIcoTokens(),
       ethCollected,
       contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value
@@ -165,7 +166,7 @@ export class DashboardController {
         template: {
           fromEmail: config.email.from.general,
           subject: `You Purchase Validation Code to Use at ${config.app.companyName}`,
-          body: initiateBuyTemplate(req.user.name)
+          body: await this.emailTemplateService.getRenderedTemplate('12_initiate_buy_jcr_code', { name: req.user.name })
         },
         generateCode: {
           length: 6,

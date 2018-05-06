@@ -497,9 +497,9 @@ Authentication attempts with not verified token will result in 401 response.
 
         {
             "ethBalance": "1.0001",
-            "jcrTokensSold": "5000",
-            "jcrTokenBalance": "500.00012345678912345",
-            "jcrTokenPrice": {
+            "tokensSold": "5000",
+            "tokenBalance": "500.00012345678912345",
+            "tokenPrice": {
                 "ETH": "0.005",
                 "USD": "1"
             },
@@ -524,7 +524,7 @@ Authentication attempts with not verified token will result in 401 response.
 + Response 200 (application/json)
 
         {
-            "jcrTokensSold":"0",
+            "tokensSold":"0",
             "ethCollected":"0",
             "contributionsCount":0,
             "daysLeft":64
@@ -570,9 +570,9 @@ Authentication attempts with not verified token will result in 401 response.
                 "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
                 "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
                 "ethAmount": "0",
-                "jcrAmount": "1",
+                "tokenAmount": "1",
                 "status": "confirmed",
-                "type": "jcr_transfer",
+                "type": "token_transfer",
                 "direction": "out"
             },
             {
@@ -583,9 +583,9 @@ Authentication attempts with not verified token will result in 401 response.
                 "from": "0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8",
                 "to": "0x446cd17EE68bD5A567d43b696543615a94b01760",
                 "ethAmount": "0",
-                "jcrAmount": "1",
+                "tokenAmount": "1",
                 "status": "confirmed",
-                "type": "jcr_transfer",
+                "type": "token_transfer",
                 "direction": "out"
             },
             {

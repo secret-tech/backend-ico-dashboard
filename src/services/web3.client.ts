@@ -28,11 +28,11 @@ export interface Web3ClientInterface {
 
   getSoldIcoTokens(): Promise<string>;
 
-  getJcrBalanceOf(address: string): Promise<string>;
+  getTokenBalanceOf(address: string): Promise<string>;
 
   getEthCollected(): Promise<string>;
 
-  getJcrEthPrice(): Promise<number>;
+  getTokenEthPrice(): Promise<number>;
 
   sufficientBalance(input: TransactionInput): Promise<boolean>;
 
@@ -52,7 +52,7 @@ export class Web3Client implements Web3ClientInterface {
 
   whiteList: any;
   ico: any;
-  jcrToken: any;
+  token: any;
   web3: any;
 
   constructor() {
@@ -207,8 +207,8 @@ export class Web3Client implements Web3ClientInterface {
     ).toString();
   }
 
-  async getJcrBalanceOf(address: string): Promise<string> {
-    return this.web3.utils.fromWei(await this.jcrToken.methods.balanceOf(address).call()).toString();
+  async getTokenBalanceOf(address: string): Promise<string> {
+    return this.web3.utils.fromWei(await this.token.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
@@ -217,7 +217,7 @@ export class Web3Client implements Web3ClientInterface {
     ).toString();
   }
 
-  async getJcrEthPrice(): Promise<number> {
+  async getTokenEthPrice(): Promise<number> {
     return (await this.ico.methods.ethUsdRate().call()) / 100;
   }
 
@@ -253,7 +253,7 @@ export class Web3Client implements Web3ClientInterface {
   createContracts() {
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    this.token = new this.web3.eth.Contract(config.contracts.token.abi, config.contracts.token.address);
   }
 
   async getContributionsCount(): Promise<number> {

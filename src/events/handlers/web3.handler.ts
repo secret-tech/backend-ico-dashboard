@@ -6,7 +6,7 @@ const net = require('net');
 import {
   Transaction,
   TRANSACTION_STATUS_PENDING,
-  JCR_TRANSFER,
+  TOKEN_TRANSFER,
   TRANSACTION_STATUS_CONFIRMED,
   REFERRAL_TRANSFER
 } from '../../entities/transaction';
@@ -25,7 +25,7 @@ export class Web3Handler implements Web3HandlerInterface {
   private logger = Logger.getInstance('WEB3_HANDLER');
   web3: any;
   ico: any;
-  jcrToken: any;
+  token: any;
   private txService: TransactionServiceInterface;
   private queueWrapper: any;
 
@@ -90,7 +90,7 @@ export class Web3Handler implements Web3HandlerInterface {
 
   /**
    * This method saves only confirmed ETH transactions.
-   * To process confirmed success JCR transfers use JCR token Transfer event.
+   * To process confirmed success token transfers use token Transfer event.
    * @param transactionData
    * @param blockData
    * @param transactionReceipt
@@ -100,8 +100,8 @@ export class Web3Handler implements Web3HandlerInterface {
     const tx = await this.txService.getTxByTxData(transactionData);
     const status = this.txService.getTxStatusByReceipt(transactionReceipt);
 
-    if (tx && ((tx.type === JCR_TRANSFER && status === TRANSACTION_STATUS_CONFIRMED) || tx.status !== TRANSACTION_STATUS_PENDING)) {
-      // success jcr transfer or transaction already processed
+    if (tx && ((tx.type === TOKEN_TRANSFER && status === TRANSACTION_STATUS_CONFIRMED) || tx.status !== TRANSACTION_STATUS_PENDING)) {
+      // success token transfer or transaction already processed
       return;
     }
 
@@ -137,12 +137,12 @@ export class Web3Handler implements Web3HandlerInterface {
     }
   }
 
-  async processJcrTransfer(data: any): Promise<void> {
+  async processTokenTransfer(data: any): Promise<void> {
     const txRepo = getConnection().getMongoRepository(Transaction);
 
     const tx = await txRepo.findOne({
       transactionHash: data.transactionHash,
-      type: JCR_TRANSFER,
+      type: TOKEN_TRANSFER,
       from: data.returnValues.from,
       to: data.returnValues.to
     });
@@ -155,10 +155,10 @@ export class Web3Handler implements Web3HandlerInterface {
       const transformedTxData = {
         transactionHash: data.transactionHash,
         from: data.returnValues.from,
-        type: JCR_TRANSFER,
+        type: TOKEN_TRANSFER,
         to: data.returnValues.to,
         ethAmount: '0',
-        jcrAmount: this.web3.utils.fromWei(data.returnValues.value).toString(),
+        tokenAmount: this.web3.utils.fromWei(data.returnValues.value).toString(),
         status: status,
         timestamp: blockData.timestamp,
         blockNumber: blockData.number
@@ -200,7 +200,7 @@ export class Web3Handler implements Web3HandlerInterface {
         type: REFERRAL_TRANSFER,
         to: data.returnValues.referral,
         ethAmount: '0',
-        jcrAmount: this.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
+        tokenAmount: this.web3.utils.fromWei(data.returnValues.tokenAmount).toString(),
         status: status,
         timestamp: blockData.timestamp,
         blockNumber: blockData.number
@@ -212,10 +212,10 @@ export class Web3Handler implements Web3HandlerInterface {
   }
 
   async checkAndRestoreTransactions(job: any): Promise<boolean> {
-    const transferEvents = await this.jcrToken.getPastEvents('Transfer', { fromBlock: 0 });
+    const transferEvents = await this.token.getPastEvents('Transfer', { fromBlock: 0 });
 
     for (let event of transferEvents) {
-      await this.processJcrTransfer(event);
+      await this.processTokenTransfer(event);
     }
 
     const referralEvents = await this.ico.getPastEvents('NewReferralTransfer', { fromBlock: 0 });
@@ -256,7 +256,7 @@ export class Web3Handler implements Web3HandlerInterface {
 
   createContracts() {
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    this.token = new this.web3.eth.Contract(config.contracts.token.abi, config.contracts.token.address);
   }
 
   attachHandlers() {
@@ -268,9 +268,9 @@ export class Web3Handler implements Web3HandlerInterface {
     this.web3.eth.subscribe('pendingTransactions')
       .on('data', (txHash) => this.processPendingTransaction(txHash));
 
-    // process JCR transfers
-    this.jcrToken.events.Transfer()
-      .on('data', (data) => this.processJcrTransfer(data));
+    // process token transfers
+    this.token.events.Transfer()
+      .on('data', (data) => this.processTokenTransfer(data));
 
     // process referral transfers
     this.ico.events.NewReferralTransfer()

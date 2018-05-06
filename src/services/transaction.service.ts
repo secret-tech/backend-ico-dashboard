@@ -1,7 +1,7 @@
 import {
   Transaction,
   REFERRAL_TRANSFER,
-  JCR_TRANSFER,
+  TOKEN_TRANSFER,
   TRANSACTION_STATUS_CONFIRMED,
   TRANSACTION_STATUS_FAILED,
   ETHEREUM_TRANSFER
@@ -34,10 +34,10 @@ interface ReferralResult {
   users: ReferralData[];
 }
 
-interface FromToJcrAmount {
+interface FromToTokenAmount {
   from: string;
   to: string;
-  jcrAmount: string;
+  tokenAmount: string;
 }
 
 export interface TransactionServiceInterface {
@@ -45,7 +45,7 @@ export interface TransactionServiceInterface {
 
   getReferralIncome(user: Investor): Promise<ReferralResult>;
 
-  getFromToJcrAmountByTxDataAndType(txData: any, type: string): FromToJcrAmount;
+  getFromToTokenAmountByTxDataAndType(txData: any, type: string): FromToTokenAmount;
 
   getTxStatusByReceipt(receipt: any): string;
 
@@ -178,7 +178,7 @@ export class TransactionService implements TransactionServiceInterface {
         for (let transaction of transactions) {
           users.push({
             date: transaction.timestamp,
-            tokens: transaction.jcrAmount,
+            tokens: transaction.tokenAmount,
             walletAddress: transaction.from,
             name: referral.name
           });
@@ -195,7 +195,7 @@ export class TransactionService implements TransactionServiceInterface {
 
   async getTxByTxData(transactionData: any): Promise<Transaction> {
     const type = this.getTxTypeByData(transactionData);
-    const { from, to } = this.getFromToJcrAmountByTxDataAndType(transactionData, type);
+    const { from, to } = this.getFromToTokenAmountByTxDataAndType(transactionData, type);
 
     const txRepo = getConnection().getMongoRepository(Transaction);
     return await txRepo.findOne({
@@ -206,18 +206,18 @@ export class TransactionService implements TransactionServiceInterface {
     });
   }
 
-  getFromToJcrAmountByTxDataAndType(txData: any, type: string): FromToJcrAmount {
+  getFromToTokenAmountByTxDataAndType(txData: any, type: string): FromToTokenAmount {
     let from = this.web3.utils.toChecksumAddress(txData.from);
     let to = null;
-    let jcrAmount = null;
+    let tokenAmount = null;
 
-    // direct transfer calls of JCR tokens
-    if (type === JCR_TRANSFER) {
-      abiDecoder.addABI(config.contracts.jcrToken.abi);
+    // direct transfer calls of tokens
+    if (type === TOKEN_TRANSFER) {
+      abiDecoder.addABI(config.contracts.token.abi);
       const decodedData = abiDecoder.decodeMethod(txData.input);
       if (decodedData.name === 'transfer') {
         to = this.web3.utils.toChecksumAddress(decodedData.params[0].value);
-        jcrAmount = this.web3.utils.fromWei(decodedData.params[1].value).toString();
+        tokenAmount = this.web3.utils.fromWei(decodedData.params[1].value).toString();
       }
     } else if (txData.to) {
       to = this.web3.utils.toChecksumAddress(txData.to);
@@ -226,7 +226,7 @@ export class TransactionService implements TransactionServiceInterface {
     return {
       from,
       to,
-      jcrAmount
+      tokenAmount
     };
   }
 
@@ -239,8 +239,8 @@ export class TransactionService implements TransactionServiceInterface {
   }
 
   getTxTypeByData(transactionData: any): string {
-    if (transactionData.to && transactionData.to.toLowerCase() === config.contracts.jcrToken.address.toLowerCase()) {
-      return JCR_TRANSFER;
+    if (transactionData.to && transactionData.to.toLowerCase() === config.contracts.token.address.toLowerCase()) {
+      return TOKEN_TRANSFER;
     }
 
     return ETHEREUM_TRANSFER;
@@ -250,7 +250,7 @@ export class TransactionService implements TransactionServiceInterface {
     let query;
 
     const type = this.getTxTypeByData(txData);
-    const { from, to } = this.getFromToJcrAmountByTxDataAndType(txData, type);
+    const { from, to } = this.getFromToTokenAmountByTxDataAndType(txData, type);
     if (to) {
       query = {
         '$or': [
@@ -282,7 +282,7 @@ export class TransactionService implements TransactionServiceInterface {
   async createAndSaveTransaction(transactionData: any, status: string, blockData?: any ): Promise<void> {
     const txRepo = getConnection().getMongoRepository(Transaction);
     const type = this.getTxTypeByData(transactionData);
-    const { from, to, jcrAmount } = this.getFromToJcrAmountByTxDataAndType(transactionData, type);
+    const { from, to, tokenAmount } = this.getFromToTokenAmountByTxDataAndType(transactionData, type);
 
     let timestamp;
     let blockNumber;
@@ -300,7 +300,7 @@ export class TransactionService implements TransactionServiceInterface {
       type,
       to,
       ethAmount: this.web3.utils.fromWei(transactionData.value).toString(),
-      jcrAmount: jcrAmount,
+      tokenAmount: tokenAmount,
       status,
       timestamp,
       blockNumber

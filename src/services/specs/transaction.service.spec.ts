@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from '../transaction.service';
 import {
-  ETHEREUM_TRANSFER, JCR_TRANSFER, TRANSACTION_STATUS_CONFIRMED,
+  ETHEREUM_TRANSFER, TOKEN_TRANSFER, TRANSACTION_STATUS_CONFIRMED,
   TRANSACTION_STATUS_FAILED
 } from '../../entities/transaction';
 import { container } from '../../ioc.container';
@@ -11,7 +11,7 @@ require('../../../test/load.fixtures');
 const transactionService = container.get<TransactionServiceInterface>(TransactionServiceType);
 
 describe('TransactionService', () => {
-  it('should return proper from/to/jcrAmount for jcr token transfer transaction', () => {
+  it('should return proper from/to/tokenAmount for token transfer transaction', () => {
     const input = {
       blockHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
       blockNumber: null,
@@ -29,12 +29,12 @@ describe('TransactionService', () => {
       s: '0x49f77089865ef4d84d49f2eee2e7524a711d882496e44105edefe3e824a26811'
     };
 
-    const result = transactionService.getFromToJcrAmountByTxDataAndType(input, JCR_TRANSFER);
+    const result = transactionService.getFromToTokenAmountByTxDataAndType(input, TOKEN_TRANSFER);
 
     expect(result).to.deep.eq({
       from: '0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8',
       to: '0x446cd17EE68bD5A567d43b696543615a94b01760',
-      jcrAmount: '1'
+      tokenAmount: '1'
     });
   });
 
@@ -56,12 +56,12 @@ describe('TransactionService', () => {
       s: '0x571953ac37a0a337036709bd0cca86413e035050d2d2210b50eb56cab891824'
     };
 
-    const result = transactionService.getFromToJcrAmountByTxDataAndType(input, ETHEREUM_TRANSFER);
+    const result = transactionService.getFromToTokenAmountByTxDataAndType(input, ETHEREUM_TRANSFER);
 
     expect(result).to.deep.eq({
       from: '0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8',
       to: '0x446cd17EE68bD5A567d43b696543615a94b01760',
-      jcrAmount: null
+      tokenAmount: null
     });
   });
 
@@ -81,8 +81,8 @@ describe('TransactionService', () => {
     })).to.eq(ETHEREUM_TRANSFER);
 
     expect(transactionService.getTxTypeByData({
-      to: config.contracts.jcrToken.address
-    })).to.eq(JCR_TRANSFER);
+      to: config.contracts.token.address
+    })).to.eq(TOKEN_TRANSFER);
   });
 
   it('should return correct count by from/to', (done) => {
