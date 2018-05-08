@@ -418,3 +418,11 @@ declare interface PaymentGateTransactionView {
 declare interface EmailTemplateServiceInterface {
   getRenderedTemplate(templateName: string, data: any): Promise<string>;
 }
+
+declare interface KycProviderInterface {
+  init(investor: any);
+  getInitStatus(req, res, next);
+  getScanReferenceStatus(scanId: string);
+  successUpload(req, res, next);
+  callback(req, res, next);
+}

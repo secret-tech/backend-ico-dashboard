@@ -7,7 +7,7 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { MailgunService } from './services/mailgun.service';
-import { EmailServiceType, Web3QueueType } from './types';
+import { EmailServiceType, Web3QueueType, KycProviderType } from './types';
 import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';
@@ -24,6 +24,7 @@ import { PaymentsServiceType, PaymentsService } from './services/payments.servic
 import { IPNServiceType, IPNService } from './services/ipn.service';
 import { GatewayController } from './controllers/gateway.controller';
 import { EmailTemplateService, EmailTemplateServiceType } from './services/email.template.service';
+import { JumioProvider } from './providers/kyc/jumio.provider';
 
 let container = new Container();
 
@@ -32,6 +33,10 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
   container.bind<EmailServiceInterface>(EmailServiceType).to(MailjetService).inSingletonScope();
 } else {
   container.bind<EmailServiceInterface>(EmailServiceType).to(MailgunService).inSingletonScope();
+}
+
+if (process.env.KYC_PROVIDER === 'JUMIO') {
+  container.bind<KycProviderInterface>(KycProviderType).to(JumioProvider).inSingletonScope();
 }
 
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
