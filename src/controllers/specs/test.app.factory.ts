@@ -28,7 +28,6 @@ import * as bodyParser from 'body-parser';
 import { Auth } from '../../middlewares/auth';
 import handle from '../../middlewares/error.handler';
 import { EmailQueue, EmailQueueInterface, EmailQueueType } from '../../queues/email.queue';
-import { KycClient, KycClientType } from '../../services/kyc.client';
 import {
   ACTIVATE_USER_SCOPE,
   CHANGE_PASSWORD_SCOPE,
@@ -39,28 +38,18 @@ import {
 } from '../../services/user.service';
 import { INVEST_SCOPE } from '../dashboard.controller';
 import { CoinpaymentsTransactionResult } from '../../entities/coinpayments.transaction.result';
+import { JumioProvider } from '../../providers/kyc/jumio.provider';
+import { KycProviderType } from '../../types';
+import * as nock from 'nock';
+import config from '../../config';
 
-const mockKycClient = () => {
-  const kycClientMock = TypeMoq.Mock.ofType(KycClient);
-  const kycInitResult = {
+const jumioEndpoint = nock(config.kyc.baseUrl)
+  .post('/').reply(200, {
     timestamp: '2017-11-09T06:47:31.467Z',
     authorizationToken: 'c87447f8-fa43-4f98-a933-3c88be4e86ea',
     clientRedirectUrl: 'https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea',
     jumioIdScanReference: '7b58a08e-19cf-4d28-a828-4bb577c6f69a'
-  };
-
-  const scanStatus = {
-    status: 'PENDING'
-  };
-
-  kycClientMock.setup(x => x.init(TypeMoq.It.isAny()))
-    .returns((): any => kycInitResult);
-
-  kycClientMock.setup(x => x.getScanReferenceStatus(TypeMoq.It.isAny()))
-    .returns((): any => scanStatus);
-
-  container.rebind<KycClientInterface>(KycClientType).toConstantValue(kycClientMock.object);
-};
+  });
 
 const mockEmailQueue = () => {
   const emailMock = TypeMoq.Mock.ofType(EmailQueue);
@@ -360,7 +349,6 @@ export const buildApp = () => {
 
 export const testAppForSuccessRegistration = () => {
   mockWeb3();
-  mockKycClient();
 
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
   const authMock = TypeMoq.Mock.ofType(AuthClient);
@@ -470,7 +458,6 @@ export const testAppForVerifyLogin = () => {
 };
 
 export const testAppForUserMe = () => {
-  mockKycClient();
   mockAuthMiddleware();
   return buildApp();
 };
@@ -479,7 +466,6 @@ export const testAppForDashboard = () => {
   mockAuthMiddleware();
   mockVerifyClient();
   mockWeb3();
-  mockKycClient();
   mockCoinpaymentsClient();
   return buildApp();
 };

@@ -11,6 +11,7 @@ import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../../
 import { getConnection } from 'typeorm';
 import { JUMIO_SCAN_STATUS_SUCCESS, JUMIO_SCAN_STATUS_ERROR, KycResult } from '../../entities/kyc.result';
 import { Web3ClientType, Web3ClientInterface } from '../../services/web3.client';
+import { AuthorizedRequest } from '../../requests/authorized.request';
 
 const mongo = require('mongodb');
 const userAgent = config.app.companyName.replace(/[^a-zA-Z0-9]/g, '') + ' ICO/1.0.0';
@@ -68,14 +69,14 @@ export class JumioProvider implements KycProviderInterface {
           }
         };
 
-        return await request.json<KycInitResult>('/initiateNetverify', kycOptions);
+        return await request.json<JumioInitResult>('/initiateNetverify', kycOptions);
       } else {
         return {
           timestamp: '1520846090',
           authorizationToken: 'token',
           jumioIdScanReference: 'id',
           clientRedirectUrl: 'http://localhost'
-        };
+        } as JumioInitResult;
       }
 
     } catch (error) {
@@ -85,7 +86,7 @@ export class JumioProvider implements KycProviderInterface {
     }
   }
 
-  async getInitStatus(req, res, next) {
+  async getInitStatus(req: AuthorizedRequest, res, next) {
     switch (req.user.kycStatus) {
       case KYC_STATUS_VERIFIED:
         throw new KycAlreadyVerifiedError('Your account is verified already');
@@ -93,33 +94,8 @@ export class JumioProvider implements KycProviderInterface {
         throw new KycFailedError(`Your account verification failed. Please contact ${config.app.companyName} team`);
       case KYC_STATUS_PENDING:
         throw new KycPendingError('Your account verification is pending. Please wait for status update');
-      default:
-        res.json(req.user.kycInitResult);
     }
-  }
-
-  async getScanReferenceStatus(scanId: string): Promise<KycScanStatus> {
-    const logger = this.logger.sub({ scanId }, '[getScanReferenceStatus] ');
-
-    try {
-      logger.debug('Get scan data');
-
-      return await request.json<KycScanStatus>(`/scans/${ scanId }`, {
-        baseUrl: this.baseUrl,
-        method: 'GET',
-        auth: {
-          user: this.apiToken,
-          password: this.apiSecret
-        },
-        headers: {
-          'User-Agent': userAgent
-        }
-      });
-    } catch (error) {
-      logger.exception({ error });
-
-      throw error;
-    }
+    res.json(req.user.kycInitResult);
   }
 
   async successUpload(req, res, next): Promise<void> {
@@ -136,7 +112,6 @@ export class JumioProvider implements KycProviderInterface {
         await investorRepo.save(investor[0]);
       }
     }
-
     res.redirect(`${ config.app.frontendUrl }/dashboard/verification/success`);
   }
 

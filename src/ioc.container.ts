@@ -17,7 +17,6 @@ import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/han
 import { Web3QueueInterface, Web3Queue } from './queues/web3.queue';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
 import { KycController } from './controllers/kyc.controller';
-import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments/coinpayments.client';
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
@@ -40,7 +39,6 @@ if (process.env.KYC_PROVIDER === 'JUMIO') {
 }
 
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
-container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();

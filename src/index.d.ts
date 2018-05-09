@@ -243,6 +243,9 @@ declare interface Enable2faResult {
 
 declare interface KycInitResult {
   timestamp: string;
+}
+
+declare interface JumioInitResult extends KycInitResult {
   authorizationToken: string;
   jumioIdScanReference: string;
   clientRedirectUrl: string;
@@ -292,11 +295,6 @@ declare interface UserServiceInterface {
   invite(user: any, params: any): Promise<InviteResultArray>;
   getUserInfo(user: any): Promise<UserInfo>;
   resendVerification(userData: ResendVerificationInput): Promise<CreatedUserData>;
-}
-
-declare interface KycClientInterface {
-  init(investor: any): Promise<KycInitResult>;
-  getScanReferenceStatus(scanId: string): Promise<KycScanStatus>;
 }
 
 declare interface EmailServiceInterface {
@@ -420,9 +418,8 @@ declare interface EmailTemplateServiceInterface {
 }
 
 declare interface KycProviderInterface {
-  init(investor: any);
+  init(user: any);
   getInitStatus(req, res, next);
-  getScanReferenceStatus(scanId: string);
   successUpload(req, res, next);
   callback(req, res, next);
 }
