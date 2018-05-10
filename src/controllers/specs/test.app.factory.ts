@@ -39,6 +39,7 @@ import {
 } from '../../services/user.service';
 import { INVEST_SCOPE } from '../dashboard.controller';
 import { CoinpaymentsTransactionResult } from '../../entities/coinpayments.transaction.result';
+import config from '../../config';
 
 const mockKycClient = () => {
   const kycClientMock = TypeMoq.Mock.ofType(KycClient);
@@ -89,7 +90,13 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.getEthCollected())
     .returns(async(): Promise<string> => '2000');
 
+  web3Mock.setup(x => x.getEthCollectedFromAddress(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '2000');
+
   web3Mock.setup(x => x.getSoldIcoTokens())
+    .returns(async(): Promise<string> => '5000');
+
+  web3Mock.setup(x => x.getSoldIcoTokensFromAddress(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '5000');
 
   web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
@@ -476,6 +483,17 @@ export const testAppForUserMe = () => {
 };
 
 export const testAppForDashboard = () => {
+  config.contracts.ico.oldAddresses = [];
+  mockAuthMiddleware();
+  mockVerifyClient();
+  mockWeb3();
+  mockKycClient();
+  mockCoinpaymentsClient();
+  return buildApp();
+};
+
+export const testAppForDashboardWithOldSmartContracts = () => {
+  config.contracts.ico.oldAddresses = ['0x7672210729e053B2462D39CF3746A5d19B405aAD','0x7672210729e053B2462D39CF3746A5d19B405aAD','0x7672210729e053B2462D39CF3746A5d19B405aAD'];
   mockAuthMiddleware();
   mockVerifyClient();
   mockWeb3();

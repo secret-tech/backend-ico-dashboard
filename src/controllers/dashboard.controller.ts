@@ -48,11 +48,11 @@ export class DashboardController {
   )
   async dashboard(req: AuthorizedRequest, res: Response): Promise<void> {
     const currentTokenEthPrice = await this.web3Client.getTokenEthPrice();
-    const ethCollected = await this.web3Client.getEthCollected();
+    const ethCollected = await this.getEthCollected();
 
     res.json({
       ethBalance: await this.web3Client.getEthBalance(req.user.ethWallet.address),
-      tokensSold: await this.web3Client.getSoldIcoTokens(),
+      tokensSold: await this.getTokenSolds(),
       tokenBalance: await this.web3Client.getTokenBalanceOf(req.user.ethWallet.address),
       tokenPrice: {
         ETH: (config.contracts.token.priceUsd / Number(currentTokenEthPrice)).toString(),
@@ -249,5 +249,29 @@ export class DashboardController {
       status: TRANSACTION_STATUS_PENDING,
       type: TRANSACTION_TYPE_TOKEN_PURCHASE
     });
+  }
+
+  async getTokenSolds(): Promise<string> {
+    if (config.contracts.ico.oldAddresses.length > 0) {
+      let sum = 0;
+      for (const address of config.contracts.ico.oldAddresses) {
+        sum += parseFloat(await this.web3Client.getSoldIcoTokensFromAddress(address));
+      }
+      return sum.toString();
+    } else {
+      return await this.web3Client.getSoldIcoTokens();
+    }
+  }
+
+  async getEthCollected(): Promise<string> {
+    if (config.contracts.ico.oldAddresses.length > 0) {
+      let sum = 0;
+      for (const address of config.contracts.ico.oldAddresses) {
+        sum += parseFloat(await this.web3Client.getEthCollectedFromAddress(address));
+      }
+      return sum.toString();
+    } else {
+      return await this.web3Client.getEthCollected();
+    }
   }
 }

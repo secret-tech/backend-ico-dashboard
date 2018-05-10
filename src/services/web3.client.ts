@@ -43,6 +43,10 @@ export interface Web3ClientInterface {
   investmentFee(): Promise<any>;
 
   queryIcoMethod(name: string, ...args): Promise<any>;
+
+  getSoldIcoTokensFromAddress(address: string): Promise<string>;
+
+  getEthCollectedFromAddress(address: string): Promise<string>;
 }
 
 /* istanbul ignore next */
@@ -281,6 +285,22 @@ export class Web3Client implements Web3ClientInterface {
 
   async queryIcoMethod(name: string, ...args): Promise<any> {
     return await this.ico.methods[name](...args).call();
+  }
+
+  async getSoldIcoTokensFromAddress(address: string): Promise<string> {
+    const ico = new this.web3.eth.Contract(config.contracts.ico.abi, address);
+
+    return this.web3.utils.fromWei(
+      await ico.methods.tokensSold().call()
+    ).toString();
+  }
+
+  async getEthCollectedFromAddress(address: string): Promise<string> {
+    const ico = new this.web3.eth.Contract(config.contracts.ico.abi, address);
+
+    return this.web3.utils.fromWei(
+      await ico.methods.collected().call()
+    ).toString();
   }
 }
 
