@@ -38,6 +38,7 @@ const {
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
   WL_OWNER_PK,
+  KYC_PROVIDER,
   KYC_ENABLED,
   KYC_TOKEN,
   KYC_SECRET,
@@ -53,7 +54,11 @@ const {
   EMAIL_FROM,
   EMAIL_REFERRAL,
   EMAIL_TEMPLATE_FOLDER,
-  TOKEN_PRICE_USD
+  TOKEN_PRICE_USD,
+  KYC_SHUFTIPRO_CLIENT_ID,
+  KYC_SHUFTIPRO_SECRET_KEY,
+  KYC_SHUFTIPRO_CALLBACK_URL,
+  KYC_SHUFTIPRO_REDIRECT_URL
 } = process.env;
 
 export default {
@@ -149,14 +154,24 @@ export default {
     ]
   },
   kyc: {
-    enabled: (KYC_ENABLED == 'true'),
-    apiToken: KYC_TOKEN,
-    apiSecret: KYC_SECRET,
-    baseUrl: KYC_BASE_URL,
-    defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000, // 60 days - Jumio max allowed value
+    enabled: (KYC_ENABLED == 'true'), // 60 days - Jumio max allowed value
     status: {
       default: KYC_STATUS_DEFAULT
-    }
+    },
+    jumio: {
+      apiToken: KYC_TOKEN,
+      apiSecret: KYC_SECRET,
+      baseUrl: KYC_BASE_URL,
+      defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000 // 60 days - Jumio max allowed value  
+    },
+    shuftipro: {
+      clientId: KYC_SHUFTIPRO_CLIENT_ID,
+      secretKey: KYC_SHUFTIPRO_SECRET_KEY,
+      baseUrl: 'https://api.shuftipro.com',
+      callbackUrl: KYC_SHUFTIPRO_CALLBACK_URL,
+      redirectUrl: KYC_SHUFTIPRO_REDIRECT_URL
+    },
+    provider: KYC_PROVIDER || 'JUMIO'
   },
   rpc: {
     type: RPC_TYPE,

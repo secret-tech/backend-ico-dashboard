@@ -28,10 +28,10 @@ export class JumioProvider implements KycProviderInterface {
   constructor(
     @inject(Web3ClientType) private web3Client: Web3ClientInterface
   ) {
-    this.apiToken = config.kyc.apiToken;
-    this.apiSecret = config.kyc.apiSecret;
-    this.baseUrl = config.kyc.baseUrl;
-    this.defaultTokenLifetime = config.kyc.defaultTokenLifetime;
+    this.apiToken = config.kyc.jumio.apiToken;
+    this.apiSecret = config.kyc.jumio.apiSecret;
+    this.baseUrl = config.kyc.jumio.baseUrl;
+    this.defaultTokenLifetime = config.kyc.jumio.defaultTokenLifetime;
     this.kycEnabled = config.kyc.enabled;
 
     request.defaults({
@@ -47,7 +47,7 @@ export class JumioProvider implements KycProviderInterface {
 
       if (this.kycEnabled) {
         const id = investor.id.toHexString();
-        const hash = base64encode(bcrypt.hashSync(id + config.kyc.apiSecret));
+        const hash = base64encode(bcrypt.hashSync(id + config.kyc.jumio.apiSecret));
 
         const kycOptions = {
           baseUrl: this.baseUrl,
@@ -101,7 +101,7 @@ export class JumioProvider implements KycProviderInterface {
   async successUpload(req, res, next): Promise<void> {
     const decodedHash = base64decode(req.params.base64hash);
 
-    if (bcrypt.compareSync(req.params.id + config.kyc.apiSecret, decodedHash)) {
+    if (bcrypt.compareSync(req.params.id + config.kyc.jumio.apiSecret, decodedHash)) {
       const investorRepo = getConnection().getMongoRepository(Investor);
       const investor = await investorRepo.createEntityCursor({
         _id: new mongo.ObjectId(req.params.id)

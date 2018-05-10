@@ -24,6 +24,7 @@ import { IPNServiceType, IPNService } from './services/ipn.service';
 import { GatewayController } from './controllers/gateway.controller';
 import { EmailTemplateService, EmailTemplateServiceType } from './services/email.template.service';
 import { JumioProvider } from './providers/kyc/jumio.provider';
+import { ShuftiproProvider } from './providers/kyc/shuftipro.provider';
 
 let container = new Container();
 
@@ -36,6 +37,8 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
 
 if (process.env.KYC_PROVIDER === 'JUMIO') {
   container.bind<KycProviderInterface>(KycProviderType).to(JumioProvider).inSingletonScope();
+} else if (process.env.KYC_PROVIDER === 'SHUFTIPRO') {
+  container.bind<KycProviderInterface>(KycProviderType).to(ShuftiproProvider).inSingletonScope();
 }
 
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();

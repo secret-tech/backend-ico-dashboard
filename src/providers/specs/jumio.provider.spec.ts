@@ -6,7 +6,7 @@ import { KycProviderType } from '../../types';
 
 const kycProvider = container.get<KycProviderInterface>(KycProviderType);
 
-describe('kycProvider', () => {
+describe('jumioProvider', () => {
   it('init ', async() => {
     const userData = {
       email: 'investortesting@test.com',

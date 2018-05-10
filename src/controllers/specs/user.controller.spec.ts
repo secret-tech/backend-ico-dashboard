@@ -36,7 +36,7 @@ describe('Users', () => {
         }
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.property('id');
         expect(res.body.name).to.eq('ICO investor');
@@ -71,7 +71,7 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         done();
       });
@@ -86,7 +86,7 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body.referral).to.equal('activated@test.com');
         expect(res.body).to.not.have.property('passwordHash');
@@ -104,7 +104,7 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error).to.eq('Not valid referral code');
         done();
@@ -120,7 +120,7 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error).to.eq('Not valid referral code');
         done();
@@ -136,14 +136,14 @@ describe('Users', () => {
         agreeTos: true
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('Not valid referral code');
         done();
       });
     });
 
-    it('should create user when additional fields are present in request', (done) => {
+    it('should create user when additional fields are present in request (jumio provider)', (done) => {
       const params = {
         email: 'test@test.com',
         name: 'ICO investor',
@@ -151,7 +151,21 @@ describe('Users', () => {
         agreeTos: true,
         additional: 'value'
       };
-      postRequest(factory.testAppForSuccessRegistration(), '/user').send(params).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(200);
+        done();
+      });
+    });
+
+    it('should create user when additional fields are present in request (shuftipro provider)', (done) => {
+      const params = {
+        email: 'test@test.com',
+        name: 'ICO investor',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        agreeTos: true,
+        additional: 'value'
+      };
+      postRequest(factory.testAppForSuccessRegistrationWithShuftiproProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         done();
       });
@@ -164,7 +178,7 @@ describe('Users', () => {
         code: '123456'
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user/activate').send(activateParams).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user/activate').send(activateParams).end((err, res) => {
         expect(res.status).to.eq(200);
         expect(res.body.accessToken).to.eq('token');
         expect(res.body.wallets[0].ticker).to.eq('ETH');
@@ -183,7 +197,7 @@ describe('Users', () => {
         code: '123456'
       };
 
-      postRequest(factory.testAppForSuccessRegistration(), '/user/activate').send(activateParams).end((err, res) => {
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user/activate').send(activateParams).end((err, res) => {
         expect(res.status).to.eq(422);
         expect(res.body.error.details[0].message).to.equal('"email" is required');
         done();

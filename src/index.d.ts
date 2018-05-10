@@ -251,6 +251,14 @@ declare interface JumioInitResult extends KycInitResult {
   clientRedirectUrl: string;
 }
 
+declare interface ShuftiproInitResult extends KycInitResult {
+  status_code?: string;
+  message: string;
+  reference?: string;
+  signature?: string;
+  error?: boolean;
+}
+
 declare interface KycScanStatus {
   timestamp: string;
   scanReference: string;

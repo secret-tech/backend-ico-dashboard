@@ -36,8 +36,7 @@ export class KycController {
   }
 
   @httpPost(
-    '/callback',
-    'OnlyJumioIp'
+    '/callback'
   )
   async callback(req: Request, res: Response, next: NextFunction): Promise<void> {
     await this.kycProvider.callback(req, res, next);
