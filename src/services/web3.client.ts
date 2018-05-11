@@ -26,11 +26,11 @@ export interface Web3ClientInterface {
 
   getEthBalance(address: string): Promise<string>;
 
-  getSoldIcoTokens(): Promise<string>;
+  getSoldIcoTokens(addresses: Array<string>): Promise<string>;
 
   getTokenBalanceOf(address: string): Promise<string>;
 
-  getEthCollected(): Promise<string>;
+  getEthCollected(addresses: Array<string>): Promise<string>;
 
   getTokenEthPrice(): Promise<number>;
 
@@ -142,7 +142,7 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   addAddressToWhiteList(address: string) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
       const account = this.web3.eth.accounts.privateKeyToAccount(config.contracts.whiteList.ownerPk);
       const params = {
         value: '0',
@@ -205,20 +205,24 @@ export class Web3Client implements Web3ClientInterface {
     );
   }
 
-  async getSoldIcoTokens(): Promise<string> {
-    return this.web3.utils.fromWei(
-      await this.ico.methods.tokensSold().call()
-    ).toString();
+  async getSoldIcoTokens(addresses: Array<string>): Promise<string> {
+    let sum = 0;
+    for (const address of addresses) {
+      sum += parseFloat(await this.getSoldIcoTokensFromAddress(address));
+    }
+    return sum.toString();
   }
 
   async getTokenBalanceOf(address: string): Promise<string> {
     return this.web3.utils.fromWei(await this.token.methods.balanceOf(address).call()).toString();
   }
 
-  async getEthCollected(): Promise<string> {
-    return this.web3.utils.fromWei(
-      await this.ico.methods.collected().call()
-    ).toString();
+  async getEthCollected(addresses: Array<string>): Promise<string> {
+    let sum = 0;
+    for (const address of addresses) {
+      sum += parseFloat(await this.getEthCollectedFromAddress(address));
+    }
+    return sum.toString();
   }
 
   async getTokenEthPrice(): Promise<number> {

@@ -21,6 +21,7 @@ const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
 export const INVEST_SCOPE = 'invest';
+const icoContractAddresses: Array<string> = [];
 
 /**
  * Dashboard controller
@@ -37,7 +38,12 @@ export class DashboardController {
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
     @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
     @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateService
-  ) { }
+  ) {
+    icoContractAddresses.push(config.contracts.ico.address);
+    if (config.contracts.ico.oldAddresses.length > 0) {
+      icoContractAddresses.push(...config.contracts.ico.oldAddresses);
+    }
+  }
 
   /**
    * Get main dashboard data
@@ -48,11 +54,11 @@ export class DashboardController {
   )
   async dashboard(req: AuthorizedRequest, res: Response): Promise<void> {
     const currentTokenEthPrice = await this.web3Client.getTokenEthPrice();
-    const ethCollected = await this.getEthCollected();
+    const ethCollected = await this.web3Client.getEthCollected(icoContractAddresses);
 
     res.json({
       ethBalance: await this.web3Client.getEthBalance(req.user.ethWallet.address),
-      tokensSold: await this.getTokenSolds(),
+      tokensSold: await this.web3Client.getSoldIcoTokens(icoContractAddresses),
       tokenBalance: await this.web3Client.getTokenBalanceOf(req.user.ethWallet.address),
       tokenPrice: {
         ETH: (config.contracts.token.priceUsd / Number(currentTokenEthPrice)).toString(),
@@ -72,11 +78,11 @@ export class DashboardController {
     '/public'
   )
   async publicData(req: Request, res: Response): Promise<void> {
-    const ethCollected = await this.web3Client.getEthCollected();
+    const ethCollected = await this.web3Client.getEthCollected(icoContractAddresses);
     const contributionsCount = await this.web3Client.getContributionsCount();
 
     res.json({
-      tokensSold: await this.web3Client.getSoldIcoTokens(),
+      tokensSold: await this.web3Client.getSoldIcoTokens(icoContractAddresses),
       ethCollected,
       contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value
@@ -249,29 +255,5 @@ export class DashboardController {
       status: TRANSACTION_STATUS_PENDING,
       type: TRANSACTION_TYPE_TOKEN_PURCHASE
     });
-  }
-
-  async getTokenSolds(): Promise<string> {
-    if (config.contracts.ico.oldAddresses.length > 0) {
-      let sum = 0;
-      for (const address of config.contracts.ico.oldAddresses) {
-        sum += parseFloat(await this.web3Client.getSoldIcoTokensFromAddress(address));
-      }
-      return sum.toString();
-    } else {
-      return await this.web3Client.getSoldIcoTokens();
-    }
-  }
-
-  async getEthCollected(): Promise<string> {
-    if (config.contracts.ico.oldAddresses.length > 0) {
-      let sum = 0;
-      for (const address of config.contracts.ico.oldAddresses) {
-        sum += parseFloat(await this.web3Client.getEthCollectedFromAddress(address));
-      }
-      return sum.toString();
-    } else {
-      return await this.web3Client.getEthCollected();
-    }
   }
 }
