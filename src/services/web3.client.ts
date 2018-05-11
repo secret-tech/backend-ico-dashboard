@@ -12,6 +12,8 @@ import { Logger } from '../logger';
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string>;
+
   generateMnemonic(): string;
 
   getAccountByMnemonicAndSalt(mnemonic: string, salt: string): any;
@@ -91,25 +93,48 @@ export class Web3Client implements Web3ClientInterface {
     };
 
     return new Promise<string>((resolve, reject) => {
-      this.sufficientBalance(input).then((sufficient) => {
-        if (!sufficient) {
-          reject({
-            message: 'Insufficient funds to perform this operation and pay tx fee'
+      this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
           });
-        }
+      });
+    });
+  }
 
-        this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
-            .on('transactionHash', transactionHash => {
-              resolve(transactionHash);
-            })
-            .on('error', (error) => {
-              reject(error);
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        });
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      if (!this.web3.utils.isHex(privateKey)) {
+        reject('Wrong private key');
+      }
+
+      const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+
+      const params = {
+        value: this.web3.utils.toWei(input.amount.toString()),
+        from: account.address,
+        to: input.to,
+        gas: input.gas,
+        gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
+      };
+
+      account.signTransaction(params).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }

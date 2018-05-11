@@ -53,7 +53,8 @@ const {
   EMAIL_FROM,
   EMAIL_REFERRAL,
   EMAIL_TEMPLATE_FOLDER,
-  TOKEN_PRICE_USD
+  TOKEN_PRICE_USD,
+  TEST_FUND_PK,
 } = process.env;
 
 export default {
@@ -170,5 +171,8 @@ export default {
     merchantId: COINPAYMENTS_API_MERCHANT_ID || 'api_merchant_id',
     merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET || 'api_merchant_secret',
     incomingPaymentsFee: 0.005
+  },
+  test_fund: {
+    private_key: TEST_FUND_PK || 'private_key'
   }
 };
