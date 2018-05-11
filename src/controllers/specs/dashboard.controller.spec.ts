@@ -42,6 +42,16 @@ describe('Dashboard', () => {
         done();
       });
     });
+
+    it('should equal balance to 0.1 ETH after actiovation user', (done) => {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForDashboardAfterActivationUser(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.eq(200);
+        expect(res.body.ethBalance).to.eq('0.1');
+        done();
+      });
+    });
   });
 
   describe('GET /dashboard/referral', () => {
