@@ -93,17 +93,25 @@ export class Web3Client implements Web3ClientInterface {
     };
 
     return new Promise<string>((resolve, reject) => {
-      this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
-        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
-          .on('transactionHash', transactionHash => {
-            resolve(transactionHash);
-          })
-          .on('error', (error) => {
-            reject(error);
-          })
-          .catch((error) => {
-            reject(error);
+      this.sufficientBalance(input).then((sufficient) => {
+        if (!sufficient) {
+          reject({
+            message: 'Insufficient funds to perform this operation and pay tx fee'
           });
+        }
+
+        this.web3.eth.accounts.signTransaction(params, privateKey).then(transaction => {
+          this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+            .on('transactionHash', transactionHash => {
+              resolve(transactionHash);
+            })
+            .on('error', (error) => {
+              reject(error);
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        });
       });
     });
   }
