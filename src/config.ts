@@ -173,6 +173,6 @@ export default {
     incomingPaymentsFee: 0.005
   },
   test_fund: {
-    private_key: TEST_FUND_PK || 'private_key'
+    private_key: TEST_FUND_PK
   }
 };

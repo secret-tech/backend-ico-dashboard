@@ -45,6 +45,8 @@ export interface Web3ClientInterface {
   investmentFee(): Promise<any>;
 
   queryIcoMethod(name: string, ...args): Promise<any>;
+
+  isHex(key: any): boolean;
 }
 
 /* istanbul ignore next */
@@ -117,21 +119,17 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string> {
+    const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+
+    const params = {
+      value: this.web3.utils.toWei(input.amount.toString()),
+      from: account.address,
+      to: input.to,
+      gas: input.gas,
+      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
+    };
+
     return new Promise<string>((resolve, reject) => {
-      if (!this.web3.utils.isHex(privateKey)) {
-        reject('Wrong private key');
-      }
-
-      const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
-
-      const params = {
-        value: this.web3.utils.toWei(input.amount.toString()),
-        from: account.address,
-        to: input.to,
-        gas: input.gas,
-        gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
-      };
-
       account.signTransaction(params).then(transaction => {
         this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
           .on('transactionHash', transactionHash => {
@@ -314,6 +312,10 @@ export class Web3Client implements Web3ClientInterface {
 
   async queryIcoMethod(name: string, ...args): Promise<any> {
     return await this.ico.methods[name](...args).call();
+  }
+
+  isHex(key: any): boolean {
+    return this.web3.utils.isHex(key);
   }
 }
 
