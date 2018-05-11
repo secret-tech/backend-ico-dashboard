@@ -18,8 +18,11 @@ const passwordRegex = /^[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
-    name: Joi.string().min(3).required(),
+    firstName: Joi.string().min(3).required(),
+    lastName: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
+    phone: Joi.string().min(7).required(),
+    country: Joi.string().min(2).required(),
     password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({

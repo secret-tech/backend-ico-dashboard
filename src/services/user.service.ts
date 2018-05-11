@@ -101,7 +101,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: userData.name, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: `${userData.firstName} ${userData.lastName}`, link: link})
       },
       generateCode: {
         length: 6,
@@ -158,7 +158,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: user.name, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: `${user.firstName} ${user.lastName}`, link: link})
       },
       policy: {
         expiredOn: '24:00:00',
@@ -222,7 +222,7 @@ export class UserService implements UserServiceInterface {
           fromEmail: config.email.from.general,
           subject: `${config.app.companyName} Login Verification Code`,
           body: await this.emailTemplateService.getRenderedTemplate('3_initiate_signin_code', {
-            name: user.name,
+            name: `${user.firstName} ${user.lastName}`,
             datetime: new Date().toUTCString(),
             ip: ip
           })
@@ -311,7 +311,7 @@ export class UserService implements UserServiceInterface {
       subject: `${config.app.companyName} Successful Login Notification`,
       recipient: user.email,
       text: await this.emailTemplateService.getRenderedTemplate('5_success_signin', {
-        name: user.name,
+        name: `${user.firstName} ${user.lastName}`,
         datetime: new Date().toUTCString()
       })
     });
@@ -406,7 +406,7 @@ export class UserService implements UserServiceInterface {
       sender: config.email.from.general,
       recipient: user.email,
       subject: `You are officially registered for participation in ${config.app.companyName}\'s ICO`,
-      text: await this.emailTemplateService.getRenderedTemplate('2_success_signup', { name: user.name })
+      text: await this.emailTemplateService.getRenderedTemplate('2_success_signup', { name: `${user.firstName} ${user.lastName}` })
     });
 
     return {
@@ -430,7 +430,7 @@ export class UserService implements UserServiceInterface {
         template: {
           fromEmail: config.email.from.general,
           subject: `Here’s the Code to Change Your Password at ${config.app.companyName}`,
-          body: await this.emailTemplateService.getRenderedTemplate('27_initiate_password_change_code', { name: user.name })
+          body: await this.emailTemplateService.getRenderedTemplate('27_initiate_password_change_code', { name: `${user.firstName} ${user.lastName}` })
         },
         generateCode: {
           length: 6,
@@ -474,7 +474,7 @@ export class UserService implements UserServiceInterface {
       sender: config.email.from.general,
       recipient: user.email,
       subject: `${config.app.companyName} Password Change Notification`,
-      text: await this.emailTemplateService.getRenderedTemplate('28_success_password_change', { name: user.name })
+      text: await this.emailTemplateService.getRenderedTemplate('28_success_password_change', { name: `${user.firstName} ${user.lastName}` })
     });
 
     logger.debug('Recreate user in auth');
@@ -517,7 +517,7 @@ export class UserService implements UserServiceInterface {
         issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          body: await this.emailTemplateService.getRenderedTemplate('6_initiate_password_reset_code', { name: user.name }),
+          body: await this.emailTemplateService.getRenderedTemplate('6_initiate_password_reset_code', { name: `${user.firstName} ${user.lastName}` }),
           subject: `Here’s the Code to Reset Your Password at ${config.app.companyName}`
         },
         generateCode: {
@@ -575,7 +575,7 @@ export class UserService implements UserServiceInterface {
       sender: config.email.from.general,
       recipient: user.email,
       subject: `${config.app.companyName} Password Reset Notification`,
-      text: await this.emailTemplateService.getRenderedTemplate('8_success_password_reset', { name: user.name })
+      text: await this.emailTemplateService.getRenderedTemplate('8_success_password_reset', { name: `${user.firstName} ${user.lastName}` })
     });
 
     return verificationResult;
@@ -603,9 +603,9 @@ export class UserService implements UserServiceInterface {
       this.emailQueue.addJob({
         sender: config.email.from.referral,
         recipient: email,
-        subject: `${ user.name } thinks you will like this project…`,
+        subject: `${ user.firstName } ${ user.lastName } thinks you will like this project…`,
         text: await this.emailTemplateService.getRenderedTemplate('26_invite', {
-          name: user.name,
+          name: `${user.firstName} ${user.lastName}`,
           link: `${ config.app.frontendUrl }/auth/signup/${ user.referralCode }`
         })
       });
@@ -712,7 +712,7 @@ export class UserService implements UserServiceInterface {
     return {
       ethAddress: user.ethWallet.address,
       email: user.email,
-      name: user.name,
+      name: `${user.firstName} ${user.lastName}`,
       kycStatus: user.kycStatus,
       defaultVerificationMethod: user.defaultVerificationMethod
     };

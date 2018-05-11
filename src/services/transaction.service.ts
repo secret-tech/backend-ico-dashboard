@@ -172,7 +172,7 @@ export class TransactionService implements TransactionServiceInterface {
         users.push({
           tokens: 0,
           walletAddress: referral.ethWallet.address,
-          name: referral.name
+          name: `${referral.firstName} ${referral.lastName}`
         });
       } else {
         for (let transaction of transactions) {
@@ -180,7 +180,7 @@ export class TransactionService implements TransactionServiceInterface {
             date: transaction.timestamp,
             tokens: transaction.tokenAmount,
             walletAddress: transaction.from,
-            name: referral.name
+            name: `${referral.firstName} ${referral.lastName}`
           });
         }
       }

@@ -35,10 +35,10 @@ export class ShuftiproProvider implements KycProviderInterface {
     });
   }
 
-  async init(investor: any): Promise<ShuftiproInitResult> {
+  async init(investor: Investor): Promise<ShuftiproInitResult> {
     const verificationServices = {
-      first_name: investor.name,
-      last_name: investor.name,
+      first_name: investor.firstName,
+      last_name: investor.lastName,
       dob: '1970-01-01',
       background_check: '0'
     };
@@ -47,9 +47,9 @@ export class ShuftiproProvider implements KycProviderInterface {
       client_id: this.clientId,
       reference: investor.id.toString(),
       email: investor.email,
-      phone_number: '+440000000000',
-      country: 'ru',
-      lang: 'ru',
+      phone_number: investor.phone,
+      country: investor.country,
+      lang: 'en',
       callback_url: config.kyc.shuftipro.callbackUrl,
       redirect_url: config.kyc.shuftipro.redirectUrl,
       verification_services: JSON.stringify(verificationServices)

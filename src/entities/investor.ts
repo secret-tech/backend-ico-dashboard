@@ -23,7 +23,16 @@ export class Investor {
   email: string;
 
   @Column()
-  name: string;
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  phone: string;
+
+  @Column()
+  country: string;
 
   @Column()
   passwordHash: string;
@@ -64,7 +73,10 @@ export class Investor {
   static createInvestor(data: UserData, verification) {
     const user = new Investor();
     user.email = data.email;
-    user.name = data.name;
+    user.firstName = data.firstName;
+    user.lastName = data.lastName;
+    user.phone = data.phone;
+    user.country = data.country;
     user.agreeTos = data.agreeTos;
     user.passwordHash = data.passwordHash;
     user.isVerified = false;

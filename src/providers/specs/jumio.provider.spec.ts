@@ -10,7 +10,10 @@ describe('jumioProvider', () => {
   it('init ', async() => {
     const userData = {
       email: 'investortesting@test.com',
-      name: 'ICO test investor',
+      firstName: 'ICO',
+      lastName: 'test investor',
+      phone: '+45550000000',
+      country: 'ru',
       agreeTos: true
     };
 

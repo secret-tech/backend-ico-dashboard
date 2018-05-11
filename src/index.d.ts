@@ -131,7 +131,10 @@ declare interface VerificationClientInterface {
 
 declare interface UserData {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  country: string;
   agreeTos: boolean;
   referral?: string;
   passwordHash?: string;
@@ -156,6 +159,7 @@ declare interface NewWallet extends Wallet {
 
 declare interface CreatedUserData extends UserData {
   id: string;
+  name: string;
   verification: {
     id: string,
     method: string
