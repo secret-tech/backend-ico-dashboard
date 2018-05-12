@@ -31,6 +31,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: true,
         source: {
@@ -91,6 +92,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         referral: 'YWN0aXZhdGVkQHRlc3QuY29t',
         agreeTos: true
@@ -112,6 +114,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         referral: 'dGVzdEB0ZXN0LmNvbQ',
         agreeTos: true
@@ -131,6 +134,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         referral: 'ZXhpc3RpbmdAdGVzdC5jb20',
         agreeTos: true
@@ -150,6 +154,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         referral: 'randomstuff',
         agreeTos: true
@@ -169,6 +174,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: true,
         additional: 'value'
@@ -186,6 +192,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: true,
         additional: 'value'
@@ -255,6 +262,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1970-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: true,
         referral: 'test.test.com'
@@ -319,8 +327,18 @@ describe('Users', () => {
       });
     });
 
+    it('should require dob', (done) => {
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', country: 'ru', phone: '+45550000000', password: 'test12A6!@#$%^&*()_-=+|/', agreeTos: true};
+
+      postRequest(app, '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        expect(res.body.error.details[0].message).to.equal('"dob" is required');
+        done();
+      });
+    });
+
     it('should require password', (done) => {
-      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', agreeTos: true};
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', dob: '1960-01-01', agreeTos: true};
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
@@ -331,7 +349,7 @@ describe('Users', () => {
     });
 
     it('should require agreeTos to be true', (done) => {
-      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', password: 'test12A6!@#$%^&*()_-=+|/'};
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', dob: '1960-01-01', password: 'test12A6!@#$%^&*()_-=+|/'};
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
@@ -348,6 +366,7 @@ describe('Users', () => {
         lastName: 'investor',
         phone: '+45550000000',
         country: 'us',
+        dob: '1960-01-01',
         password: 'test12A6!@#$%^&*()_-=+|/',
         agreeTos: false
       };

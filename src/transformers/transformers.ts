@@ -20,6 +20,7 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
     lastName: investor.lastName,
     phone: investor.phone,
     country: investor.country,
+    dob: investor.dob,
     agreeTos: investor.agreeTos,
     verification: {
       id: investor.verification.id.toString(),

@@ -35,6 +35,9 @@ export class Investor {
   country: string;
 
   @Column()
+  dob: string;
+
+  @Column()
   passwordHash: string;
 
   @Column()

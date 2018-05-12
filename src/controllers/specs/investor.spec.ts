@@ -12,6 +12,7 @@ describe('Investor Entity', () => {
       lastName: 'investor',
       phone: '+45550000000',
       country: 'ru',
+      dob: '1970-01-01',
       agreeTos: true
     };
 

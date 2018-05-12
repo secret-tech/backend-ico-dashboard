@@ -135,6 +135,7 @@ declare interface UserData {
   lastName: string;
   phone: string;
   country: string;
+  dob: string;
   agreeTos: boolean;
   referral?: string;
   passwordHash?: string;

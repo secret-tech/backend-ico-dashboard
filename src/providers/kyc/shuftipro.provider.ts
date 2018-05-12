@@ -39,7 +39,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     const verificationServices = {
       first_name: investor.firstName,
       last_name: investor.lastName,
-      dob: '1970-01-01',
+      dob: investor.dob,
       background_check: '0'
     };
 
@@ -106,7 +106,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
 
-    const result = shuftiproKycResultRepo.create({ ...req.body, timestamp: Date.now().toString() });
+    const result = shuftiproKycResultRepo.create({ ...req.body, statusCode: req.body.status_code, timestamp: Date.now().toString() });
     await shuftiproKycResultRepo.save(result);
 
     const investor = await getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(req.body.reference));

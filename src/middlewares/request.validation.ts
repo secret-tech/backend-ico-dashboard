@@ -23,6 +23,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     email: Joi.string().email().required(),
     phone: Joi.string().min(7).required(),
     country: Joi.string().min(2).required(),
+    dob: Joi.string().isoDate().required(),
     password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
