@@ -102,6 +102,9 @@ container.bind<express.RequestHandler>('OnlyJumioIp').toConstantValue(
 container.bind<express.RequestHandler>('ResendVerificationValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.resendVerification(req, res, next)
 );
+container.bind<express.RequestHandler>('OnlyAcceptApplicationJson').toConstantValue(
+  (req: any, res: any, next: any) => validation.onlyAcceptApplicationJson(req, res, next)
+);
 
 // controllers
 container.bind<interfaces.Controller>(TYPE.Controller).to(UserController).whenTargetNamed('UserController');

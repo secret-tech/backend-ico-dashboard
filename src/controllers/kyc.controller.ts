@@ -21,7 +21,8 @@ export class KycController {
 
   @httpGet(
     '/init',
-    'AuthMiddleware'
+    'AuthMiddleware',
+    'OnlyAcceptApplicationJson'
   )
   async init(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
     await this.kycProvider.getInitStatus(req, res, next);
@@ -29,7 +30,8 @@ export class KycController {
 
   // route to redirect customer on success document upload to update status to pending
   @httpGet(
-    '/uploaded/:id/:base64hash'
+    '/uploaded/:id/:base64hash',
+    'OnlyAcceptApplicationJson'
   )
   async successUpload(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
     await this.kycProvider.successUpload(req, res, next);
