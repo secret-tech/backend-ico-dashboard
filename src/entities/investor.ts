@@ -80,6 +80,7 @@ export class Investor {
     user.lastName = data.lastName;
     user.phone = data.phone;
     user.country = data.country;
+    user.dob = data.dob;
     user.agreeTos = data.agreeTos;
     user.passwordHash = data.passwordHash;
     user.isVerified = false;
