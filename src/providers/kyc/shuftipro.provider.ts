@@ -77,7 +77,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     if (!result.error) {
       const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
       if (signature === result.signature) {
-        return { ...result, timestamp: Date.now().toString() } as ShuftiproInitResult;
+        return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
       }
 
       throw new Error('Invalid signature');
@@ -133,5 +133,12 @@ export class ShuftiproProvider implements KycProviderInterface {
 
     await investorRepo.save(investor);
     res.status(200).send();
+  }
+
+  async reinit(req: AuthorizedRequest, res: any, next: any) {
+    const user = req.user;
+    user.kycInitResult = await this.init(user);
+    await getConnection().mongoManager.getMongoRepository(Investor).save(user);
+    res.json(user.kycInitResult);
   }
 }

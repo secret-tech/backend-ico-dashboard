@@ -43,4 +43,13 @@ export class KycController {
   async callback(req: Request, res: Response, next: NextFunction): Promise<void> {
     await this.kycProvider.callback(req, res, next);
   }
+
+  @httpGet(
+    '/reinit',
+    'AuthMiddleware',
+    'OnlyAcceptApplicationJson'
+  )
+  async reinit(req: AuthorizedRequest, res: Response, next: NextFunction): Promise<void> {
+    await this.kycProvider.reinit(req, res, next);
+  }
 }

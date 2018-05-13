@@ -166,4 +166,8 @@ export class JumioProvider implements KycProviderInterface {
     await investorRepo.save(investor);
     res.status(200).send();
   }
+
+  async reinit(req, res, next): Promise<void> {
+    throw new Error('Method not supported.');
+  }
 }

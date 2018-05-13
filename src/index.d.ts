@@ -435,4 +435,5 @@ declare interface KycProviderInterface {
   getInitStatus(req, res, next);
   successUpload(req, res, next);
   callback(req, res, next);
+  reinit(req, res, next);
 }

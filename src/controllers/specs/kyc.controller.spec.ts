@@ -104,6 +104,26 @@ describe('Kyc', () => {
       });
     });
 
+    describe('GET /kyc/reinit', () => {
+      it('should reinit kyc process - provide user initiated info', (done) => {
+        const token = 'verified_token_shuftipro';
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2018-05-13T07:15:13.994Z';
+        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/reinit').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.eq({
+            timestamp: '2018-05-13T07:15:13.994Z',
+            message: 'message',
+            reference: '59f07e23b41f6373f64a8dcb',
+            signature: '149678856aa4b314fb5ff23aa9c746518b1e753932851fe530a0abb79c2f2e0a',
+            status_code: 'SP2'
+          });
+          Date.prototype.toISOString = originalToISOString;
+          done();
+        });
+      });
+    });
+
     describe('GET /kyc/callback', () => {
       it('should callback kyc process - status SP2', (done) => {
         const params = {

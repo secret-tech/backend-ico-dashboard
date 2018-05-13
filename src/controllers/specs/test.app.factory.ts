@@ -573,8 +573,9 @@ export const testAppForDashboardWithShuftiproProvider = () => {
   process.env.KYC_PROVIDER = 'SHUFTIPRO';
   container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new ShuftiproProvider(container.get(Web3ClientType)));
 
+  nock.cleanAll();
   const shuftiProEndpoint = nock(config.kyc.shuftipro.baseUrl)
-  .post('/')
+  .post('/').times(4)
   .reply(200, {
     message: 'message',
     reference: '59f07e23b41f6373f64a8dcb',
