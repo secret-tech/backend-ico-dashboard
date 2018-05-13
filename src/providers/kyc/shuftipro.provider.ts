@@ -86,7 +86,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     throw new Error(result.message);
   }
 
-  getInitStatus(req: AuthorizedRequest, res: any, next: any) {
+  async getInitStatus(req: AuthorizedRequest, res: any, next: any): Promise<void> {
     switch (req.user.kycStatus) {
       case KYC_STATUS_VERIFIED:
         throw new KycAlreadyVerifiedError('Your account is verified already');
@@ -95,7 +95,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       case KYC_STATUS_PENDING:
         throw new KycPendingError('Your account verification is pending. Please wait for status update');
     }
-    res.json(req.user.kycInitResult);
+    res.json(await this.updateKycInit(req.user));
   }
 
   successUpload(req: any, res: any, next: any) {
@@ -135,10 +135,13 @@ export class ShuftiproProvider implements KycProviderInterface {
     res.status(200).send();
   }
 
-  async reinit(req: AuthorizedRequest, res: any, next: any) {
-    const user = req.user;
+  async reinit(req: AuthorizedRequest, res: any, next: any): Promise<void> {
+    res.json(await this.updateKycInit(req.user));
+  }
+
+  private async updateKycInit(user: Investor): Promise<KycInitResult> {
     user.kycInitResult = await this.init(user);
     await getConnection().mongoManager.getMongoRepository(Investor).save(user);
-    res.json(user.kycInitResult);
+    return user.kycInitResult;
   }
 }

@@ -89,6 +89,8 @@ describe('Kyc', () => {
   describe('ShuftiproProvider', () => {
     describe('GET /kyc/init', () => {
       it('should init kyc process - provide user initiated info', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
         const token = 'verified_token_shuftipro';
         getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(200);
@@ -99,6 +101,7 @@ describe('Kyc', () => {
             signature: '149678856aa4b314fb5ff23aa9c746518b1e753932851fe530a0abb79c2f2e0a',
             status_code: 'SP2'
           });
+          Date.prototype.toISOString = originalToISOString;
           done();
         });
       });
