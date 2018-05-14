@@ -142,7 +142,7 @@ export class ShuftiproProvider implements KycProviderInterface {
 
   private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
     const currentStatus = await this.getKycStatus(user);
-    if (currentStatus.status_code !== 'SP2' && currentStatus.status_code !== 'SP1') {
+    if (currentStatus.error || (currentStatus.status_code !== 'SP2' && currentStatus.status_code !== 'SP1')) {
       return await this.init(user);
     }
     return user.kycInitResult as ShuftiproInitResult;
@@ -164,14 +164,21 @@ export class ShuftiproProvider implements KycProviderInterface {
       'body': qs.stringify(postData)
     };
 
-    const result = await request.json<ShuftiproInitResult>(this.baseUrl + '/status', options);
-    if (!result.error) {
-      const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
-      if (signature === result.signature) {
-        return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+    const response = await request.post(this.baseUrl + '/status', options);
+    if (response.content.length > 0) {
+      const result = JSON.parse(response.content);
+      if (!result.error) {
+        const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
+        if (signature === result.signature) {
+          return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+        }
+        throw new Error('Invalid signature');
       }
-
-      throw new Error('Invalid signature');
     }
+
+    return {
+      error: true,
+      message: 'Empty response'
+    } as ShuftiproInitResult;
   }
 }
