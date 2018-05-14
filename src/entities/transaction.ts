@@ -7,7 +7,7 @@ export const TRANSACTION_STATUS_CONFIRMED = 'confirmed';
 export const TRANSACTION_STATUS_FAILED = 'failed';
 
 export const ETHEREUM_TRANSFER = 'eth_transfer';
-export const JCR_TRANSFER = 'jcr_transfer';
+export const TOKEN_TRANSFER = 'token_transfer';
 export const REFERRAL_TRANSFER = 'referral_transfer';
 
 @Entity()
@@ -40,7 +40,7 @@ export class Transaction {
   ethAmount: string;
 
   @Column()
-  jcrAmount: string;
+  tokenAmount: string;
 
   @Column()
   status: string;

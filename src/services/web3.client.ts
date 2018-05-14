@@ -12,6 +12,8 @@ import { Logger } from '../logger';
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string>;
+
   generateMnemonic(): string;
 
   getAccountByMnemonicAndSalt(mnemonic: string, salt: string): any;
@@ -28,11 +30,11 @@ export interface Web3ClientInterface {
 
   getSoldIcoTokens(): Promise<string>;
 
-  getJcrBalanceOf(address: string): Promise<string>;
+  getTokenBalanceOf(address: string): Promise<string>;
 
   getEthCollected(): Promise<string>;
 
-  getJcrEthPrice(): Promise<number>;
+  getTokenEthPrice(): Promise<number>;
 
   sufficientBalance(input: TransactionInput): Promise<boolean>;
 
@@ -43,6 +45,8 @@ export interface Web3ClientInterface {
   investmentFee(): Promise<any>;
 
   queryIcoMethod(name: string, ...args): Promise<any>;
+
+  isHex(key: any): boolean;
 }
 
 /* istanbul ignore next */
@@ -52,7 +56,7 @@ export class Web3Client implements Web3ClientInterface {
 
   whiteList: any;
   ico: any;
-  jcrToken: any;
+  token: any;
   web3: any;
 
   constructor() {
@@ -110,6 +114,33 @@ export class Web3Client implements Web3ClientInterface {
               reject(error);
             });
         });
+      });
+    });
+  }
+
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string> {
+    const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+
+    const params = {
+      value: this.web3.utils.toWei(input.amount.toString()),
+      from: account.address,
+      to: input.to,
+      gas: input.gas,
+      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
+    };
+
+    return new Promise<string>((resolve, reject) => {
+      account.signTransaction(params).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
@@ -207,8 +238,8 @@ export class Web3Client implements Web3ClientInterface {
     ).toString();
   }
 
-  async getJcrBalanceOf(address: string): Promise<string> {
-    return this.web3.utils.fromWei(await this.jcrToken.methods.balanceOf(address).call()).toString();
+  async getTokenBalanceOf(address: string): Promise<string> {
+    return this.web3.utils.fromWei(await this.token.methods.balanceOf(address).call()).toString();
   }
 
   async getEthCollected(): Promise<string> {
@@ -217,7 +248,7 @@ export class Web3Client implements Web3ClientInterface {
     ).toString();
   }
 
-  async getJcrEthPrice(): Promise<number> {
+  async getTokenEthPrice(): Promise<number> {
     return (await this.ico.methods.ethUsdRate().call()) / 100;
   }
 
@@ -253,7 +284,7 @@ export class Web3Client implements Web3ClientInterface {
   createContracts() {
     this.whiteList = new this.web3.eth.Contract(config.contracts.whiteList.abi, config.contracts.whiteList.address);
     this.ico = new this.web3.eth.Contract(config.contracts.ico.abi, config.contracts.ico.address);
-    this.jcrToken = new this.web3.eth.Contract(config.contracts.jcrToken.abi, config.contracts.jcrToken.address);
+    this.token = new this.web3.eth.Contract(config.contracts.token.abi, config.contracts.token.address);
   }
 
   async getContributionsCount(): Promise<number> {
@@ -281,6 +312,10 @@ export class Web3Client implements Web3ClientInterface {
 
   async queryIcoMethod(name: string, ...args): Promise<any> {
     return await this.ico.methods[name](...args).call();
+  }
+
+  isHex(key: any): boolean {
+    return this.web3.utils.isHex(key);
   }
 }
 

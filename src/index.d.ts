@@ -269,7 +269,7 @@ declare interface UserInfo {
 }
 
 interface TransactionInput {
-  from: string;
+  from?: string;
   to: string;
   amount: string;
   gas: number;
@@ -413,4 +413,8 @@ declare interface PaymentGateTransactionView {
   expiredOn: number;
   txnId: string;
   statusUrl: string;
+}
+
+declare interface EmailTemplateServiceInterface {
+  getRenderedTemplate(templateName: string, data: any): Promise<string>;
 }
