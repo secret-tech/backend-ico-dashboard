@@ -571,7 +571,6 @@ export const testAppForDashboardWithJumioProvider = () => {
 
 export const testAppForDashboardWithShuftiproProvider = () => {
   process.env.KYC_PROVIDER = 'SHUFTIPRO';
-  container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new ShuftiproProvider(container.get(Web3ClientType)));
 
   nock.cleanAll();
   const shuftiProEndpoint = nock(config.kyc.shuftipro.baseUrl)
@@ -594,6 +593,9 @@ export const testAppForDashboardWithShuftiproProvider = () => {
   mockVerifyClient();
   mockWeb3();
   mockCoinpaymentsClient();
+
+  container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new ShuftiproProvider(container.get(Web3ClientType)));
+
   return buildApp();
 };
 
