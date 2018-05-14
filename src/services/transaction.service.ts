@@ -231,7 +231,7 @@ export class TransactionService implements TransactionServiceInterface {
   }
 
   getTxStatusByReceipt(receipt: any): string {
-    if (receipt.status === '0x1') {
+    if (receipt.status === true) {
       return TRANSACTION_STATUS_CONFIRMED;
     } else {
       return TRANSACTION_STATUS_FAILED;
