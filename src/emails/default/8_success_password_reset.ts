@@ -1,4 +1,4 @@
-export default function(name, datetime, ip) {
+export function render(data) {
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -198,16 +198,14 @@ export default function(name, datetime, ip) {
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Hello ${ name },</p>
+          <p style="margin: 0;">Hello ${ data.name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
           <p style="margin: 0;">
-            You (or someone who looks exactly like you) requested login verification code at <b>${ datetime }</b><br/>
-            The attempt was made from the following IP address: <b>${ ip }</b><br/>
-            Login operation verification code is: <b>{{{CODE}}}</b>
+            Your password was successfully reset.
           </p>
         </td>
       </tr>

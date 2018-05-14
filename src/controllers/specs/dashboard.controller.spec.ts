@@ -26,11 +26,11 @@ describe('Dashboard', () => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           ethBalance: '1.0001',
-          jcrTokenBalance: '500.00012345678912345',
-          jcrTokensSold: '5000',
-          jcrTokenPrice: {
+          tokenBalance: '500.00012345678912345',
+          tokensSold: '5000',
+          tokenPrice: {
             ETH: '0.005',
-            USD: 1
+            USD: '1'
           },
           raised: {
             ETH: '2000',
@@ -39,6 +39,16 @@ describe('Dashboard', () => {
           },
           daysLeft: Math.floor((1517443200 - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
         });
+        done();
+      });
+    });
+
+    it('should equal balance to 0.1 ETH after actiovation user', (done) => {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForDashboardAfterActivationUser(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.eq(200);
+        expect(res.body.ethBalance).to.eq('0.1');
         done();
       });
     });
@@ -230,9 +240,9 @@ describe('Dashboard', () => {
             from: '0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8',
             to: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
             ethAmount: '0',
-            jcrAmount: '1',
+            tokenAmount: '1',
             status: 'confirmed',
-            type: 'jcr_transfer',
+            type: 'token_transfer',
             direction: 'in'
           },
           {

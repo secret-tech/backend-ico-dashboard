@@ -347,9 +347,9 @@ Authentication attempts with not verified token will result in 401 response.</p>
   ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="invite-users-post" class="action post"><h4 class="action-heading"><div class="name">Invite users by email</div><a href="#invite-users-post" class="method post">POST</a><code class="uri">/user/invite</code></h4></div></div><hr class="split"><div class="middle"><div id="get-dashboard-info" class="resource"><h3 class="resource-heading">Get dashboard info <a href="#get-dashboard-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Authorization</span>: <span class="hljs-string">Bearer token</span><br><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
   "<span class="hljs-attribute">ethBalance</span>": <span class="hljs-value"><span class="hljs-string">"1.0001"</span></span>,
-  "<span class="hljs-attribute">jcrTokensSold</span>": <span class="hljs-value"><span class="hljs-string">"5000"</span></span>,
-  "<span class="hljs-attribute">jcrTokenBalance</span>": <span class="hljs-value"><span class="hljs-string">"500.00012345678912345"</span></span>,
-  "<span class="hljs-attribute">jcrTokenPrice</span>": <span class="hljs-value">{
+  "<span class="hljs-attribute">tokensSold</span>": <span class="hljs-value"><span class="hljs-string">"5000"</span></span>,
+  "<span class="hljs-attribute">tokenBalance</span>": <span class="hljs-value"><span class="hljs-string">"500.00012345678912345"</span></span>,
+  "<span class="hljs-attribute">tokenPrice</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">ETH</span>": <span class="hljs-value"><span class="hljs-string">"0.005"</span></span>,
     "<span class="hljs-attribute">USD</span>": <span class="hljs-value"><span class="hljs-string">"1"</span>
   </span>}</span>,
@@ -360,7 +360,7 @@ Authentication attempts with not verified token will result in 401 response.</p>
   </span>}</span>,
   "<span class="hljs-attribute">daysLeft</span>": <span class="hljs-value"><span class="hljs-number">10</span>
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="get-dashboard-info-get" class="action get"><h4 class="action-heading"><div class="name">Get dashboard info</div><a href="#get-dashboard-info-get" class="method get">GET</a><code class="uri">/dashboard</code></h4></div></div><hr class="split"><div class="middle"><div id="get-public-dashboard-info" class="resource"><h3 class="resource-heading">Get public dashboard info <a href="#get-public-dashboard-info" class="permalink">&para;</a></h3></div></div><div class="right"><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://ico-dashboard:3000/</span>/dashboard/public</span></div><div class="tabs"><div class="example-names"><span>Requests</span><span class="tab-button">example 1</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">jcrTokensSold</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+  "<span class="hljs-attribute">tokensSold</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
   "<span class="hljs-attribute">ethCollected</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
   "<span class="hljs-attribute">contributionsCount</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
   "<span class="hljs-attribute">daysLeft</span>": <span class="hljs-value"><span class="hljs-number">64</span>
@@ -377,9 +377,9 @@ Authentication attempts with not verified token will result in 401 response.</p>
         "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
         "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
         "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
-        "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">tokenAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
         "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"token_transfer"</span></span>,
         "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
     </span>},
     {
@@ -390,9 +390,9 @@ Authentication attempts with not verified token will result in 401 response.</p>
         "<span class="hljs-attribute">from</span>": <span class="hljs-value"><span class="hljs-string">"0xBd0cb067A75C23EFB290B4e223059Af8E4AF4fd8"</span></span>,
         "<span class="hljs-attribute">to</span>": <span class="hljs-value"><span class="hljs-string">"0x446cd17EE68bD5A567d43b696543615a94b01760"</span></span>,
         "<span class="hljs-attribute">ethAmount</span>": <span class="hljs-value"><span class="hljs-string">"0"</span></span>,
-        "<span class="hljs-attribute">jcrAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">tokenAmount</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
         "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"confirmed"</span></span>,
-        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"jcr_transfer"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"token_transfer"</span></span>,
         "<span class="hljs-attribute">direction</span>": <span class="hljs-value"><span class="hljs-string">"out"</span>
     </span>},
     {
@@ -584,7 +584,7 @@ Authentication attempts with not verified token will result in 401 response.</p>
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></div></div></div><div class="middle"><div id="resend-verification-post" class="action post"><h4 class="action-heading"><div class="name">Resend verification</div><a href="#resend-verification-post" class="method post">POST</a><code class="uri">/user/resendVerification</code></h4><ul>
 <li>email <code>test@test.com</code> (string, required, email)</li>
 </ul>
-</div></div><hr class="split"><div class="middle"><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 05 Apr 2018</p></div></div></div></div><script>/* eslint-env browser */
+</div></div><hr class="split"><div class="middle"><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 04 May 2018</p></div></div></div></div><script>/* eslint-env browser */
 /* eslint quotes: [2, "single"] */
 'use strict';
 

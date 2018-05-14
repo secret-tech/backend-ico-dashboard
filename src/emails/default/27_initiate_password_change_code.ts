@@ -1,4 +1,4 @@
-export default function(name) {
+export function render(data) {
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -198,31 +198,29 @@ export default function(name) {
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Congratulations, ${ name }</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 24px; line-height: 34px; color: #111111; text-align: left; font-weight: 400;">
-          <p style="margin: 0;">You are all set to take part in Jincor’s ICO which starts on the 1st of December, 2017.</p>
+          <p style="margin: 0;">Hello ${ data.name },</p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">My name is Vlad, I’m one of the two cofounders of Jincor, and on behalf of the team I want to thank you for joining us on a mission to build wholesome, secure, regulatory, compliant, and breezy-to-use private blockchain-based product, that will allow any business to take advantage of smart contracts and cryptocurrency payments easily with no legal, technical, or operational complications.</p>
+          <p style="margin: 0;">
+            We’ve noticed that you were trying to change your password at Jincor.com.<br/>
+            Please use the code <b>{{{CODE}}}</b> to proceed.<br/><br/>
+            This code expires in 24 hours, so be sure to use it right away.
+          </p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 40px; font-family: sans-serif; font-size: 17px; line-height: 30px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">I really believe that by combining our efforts we can tremendously change the blockchain industry and the way how businesses were traditionally operating, making all the transactions smoother, faster, more cost-efficient. And I am really excited to greet and personally say hi to YOU, one of those who could contribute to make it happen.</p>
+          <p style="margin: 0;">If this was not you, please contact us immediately at <a href="mailto:support@jincor.com">support@jincor.com</a></p>
         </td>
       </tr>
 
       <tr>
         <td bgcolor="#ffffff" style="padding: 0 20px 20px; font-family: sans-serif; font-size: 13px; line-height: 22px; color: #111111; text-align: left; font-weight: 300;">
-          <p style="margin: 0;">Sincerely yours,<br/><br/>Vlad Kirichenko<br/>Co-founder and CEO of Jincor</p>
+          <p style="margin: 0;">Stay safe,<br/>Jincor Team</p>
         </td>
       </tr>
 
