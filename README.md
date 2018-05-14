@@ -41,7 +41,7 @@ It was implemented to provide following functionality:
 
 1. Clone the repo.
 2. Write the necessary environment variables in `.env`. For a basis it is possible to take `.env.stage` or `.env.prod`.
-3. Build services `docker-compose build -no-cache`
+3. Build services `docker-compose build --no-cache`
 4. Run the services `docker-compose up -d`
 
   > Note: The [auth](https://github.com/JincorTech/backend-auth) and [verify](https://github.com/JincorTech/backend-verify) services should be accessible from the outside. More in detail with the configuration of these services can be found in their readme.
