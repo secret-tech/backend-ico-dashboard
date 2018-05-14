@@ -160,7 +160,7 @@ describe('Kyc', () => {
           getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((res) => {
             expect(res.signature).to.equal(params.signature);
             getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(params.reference)).then(res => {
-              expect(res.kycStatus).to.equal(KYC_STATUS_NOT_VERIFIED);
+              expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
               done();
             });
           });

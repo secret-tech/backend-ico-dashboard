@@ -4,6 +4,7 @@ import { Logger } from '../../logger';
 import config from '../../config';
 import * as crypto from 'crypto';
 import * as qs from 'querystring';
+import * as uuid from 'node-uuid';
 import { AuthorizedRequest } from '../../requests/authorized.request';
 import { KYC_STATUS_VERIFIED, KYC_STATUS_FAILED, KYC_STATUS_PENDING, Investor, KYC_STATUS_NOT_VERIFIED } from '../../entities/investor';
 import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../../exceptions/exceptions';
@@ -45,7 +46,7 @@ export class ShuftiproProvider implements KycProviderInterface {
 
     const postData = {
       client_id: this.clientId,
-      reference: investor.id.toString(),
+      reference: uuid.v4(),
       email: investor.email,
       phone_number: investor.phone,
       country: investor.country,
@@ -109,7 +110,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     const result = shuftiproKycResultRepo.create({ ...req.body, statusCode: req.body.status_code, timestamp: Date.now().toString() });
     await shuftiproKycResultRepo.save(result);
 
-    const investor = await getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(req.body.reference));
+    const investor = await investorRepo.findOne({where: {'kycInitResult.reference': req.body.reference}});
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached
@@ -120,13 +121,13 @@ export class ShuftiproProvider implements KycProviderInterface {
 
     const signature = crypto.createHash('sha256').update(req.body.status_code + req.body.message + req.body.reference + this.secretKey, 'utf8').digest('hex');
     if (signature === req.body.signature) {
-      switch (req.body.code_status) {
+      switch (req.body.status_code) {
         case 'SP1':
           investor.kycStatus = KYC_STATUS_VERIFIED;
           await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
           break;
         case 'SP0':
-          investor.kycStatus = KYC_STATUS_NOT_VERIFIED;
+          investor.kycStatus = KYC_STATUS_FAILED;
           break;
       }
     }
@@ -139,9 +140,38 @@ export class ShuftiproProvider implements KycProviderInterface {
     res.json(await this.updateKycInit(req.user));
   }
 
-  private async updateKycInit(user: Investor): Promise<KycInitResult> {
-    user.kycInitResult = await this.init(user);
-    await getConnection().mongoManager.getMongoRepository(Investor).save(user);
-    return user.kycInitResult;
+  private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
+    const currentStatus = await this.getKycStatus(user);
+    if (currentStatus.status_code !== 'SP2' && currentStatus.status_code !== 'SP1') {
+      return await this.init(user);
+    }
+    return user.kycInitResult as ShuftiproInitResult;
+  }
+
+  private async getKycStatus(user: Investor): Promise<ShuftiproInitResult> {
+    const kycInitResult = user.kycInitResult as ShuftiproInitResult;
+    const postData = {
+      client_id: this.clientId,
+      reference: kycInitResult.reference,
+      signature: crypto.createHash('sha256').update(`${this.clientId}${kycInitResult.reference}${this.secretKey}`, 'utf8').digest('hex')
+    };
+
+    const options = {
+      'method': 'POST',
+      'headers': {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      'body': qs.stringify(postData)
+    };
+
+    const result = await request.json<ShuftiproInitResult>(this.baseUrl + '/status', options);
+    if (!result.error) {
+      const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
+      if (signature === result.signature) {
+        return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+      }
+
+      throw new Error('Invalid signature');
+    }
   }
 }

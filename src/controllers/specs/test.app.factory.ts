@@ -581,6 +581,13 @@ export const testAppForDashboardWithShuftiproProvider = () => {
     reference: '59f07e23b41f6373f64a8dcb',
     signature: '149678856aa4b314fb5ff23aa9c746518b1e753932851fe530a0abb79c2f2e0a',
     status_code: 'SP2'
+  })
+  .post('/status')
+  .reply(200, {
+    message: 'message',
+    reference: '59f07e23b41f6373f64a8dcb',
+    signature: 'eeccb1dab308e5bdbe1bb80a325eb7790d099cf8c766437b98ee8a24d29be774',
+    status_code: 'SP25'
   });
 
   mockAuthMiddleware();
