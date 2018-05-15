@@ -37,6 +37,7 @@ const {
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
+  WEB3_BLOCK_OFFSET,
   WL_OWNER_PK,
   KYC_PROVIDER,
   KYC_ENABLED,
@@ -80,7 +81,8 @@ export default {
     colorize: LOGGING_COLORIZE || false
   },
   web3: {
-    startBlock: parseInt(WEB3_RESTORE_START_BLOCK) || 1,
+    startBlock: parseInt(WEB3_RESTORE_START_BLOCK, 10) || 1,
+    blockOffset: parseInt(WEB3_BLOCK_OFFSET, 10) || 200,
     defaultInvestGas: 130000,
     purchaseGasLimit: 100000
   },

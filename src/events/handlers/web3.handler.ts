@@ -1,5 +1,8 @@
 import config from '../../config';
 import { injectable } from 'inversify';
+import * as redis from 'redis';
+import { promisify } from 'util';
+
 const Web3 = require('web3');
 const net = require('net');
 
@@ -28,10 +31,20 @@ export class Web3Handler implements Web3HandlerInterface {
   token: any;
   private txService: TransactionServiceInterface;
   private queueWrapper: any;
+  private redisClient: redis.RedisClient;
+  private redisGetAsync: any;
+  private redisSetAsync: any;
 
   constructor(
     txService
   ) {
+    this.redisClient = redis.createClient({
+      url: config.redis.url,
+      prefix: config.redis.prefix
+    });
+    this.redisGetAsync = promisify(this.redisClient.get).bind(this.redisClient);
+    this.redisSetAsync = promisify(this.redisClient.set).bind(this.redisClient);
+
     this.txService = txService;
 
     switch (config.rpc.type) {
@@ -225,7 +238,10 @@ export class Web3Handler implements Web3HandlerInterface {
     }
 
     const currentBlock = await this.web3.eth.getBlockNumber();
-    for (let i = config.web3.startBlock; i < currentBlock; i++) {
+    const lastCheckedBlock = await this.redisGetAsync('lastCheckedBlock');
+    const startBlock = lastCheckedBlock ? lastCheckedBlock : config.web3.startBlock;
+
+    for (let i = startBlock - config.web3.blockOffset; i < currentBlock; i++) {
       const blockData = await this.web3.eth.getBlock(i, true);
       const transactions = blockData.transactions;
       for (let transaction of transactions) {
@@ -235,6 +251,8 @@ export class Web3Handler implements Web3HandlerInterface {
         }
       }
     }
+
+    await this.redisSetAsync('lastCheckedBlock', currentBlock);
 
     return true;
   }
