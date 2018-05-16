@@ -11,9 +11,17 @@ export class EmailTemplateService implements EmailTemplateServiceInterface {
       const template = await import(`../emails/${config.email.template.folder}/${templateName}`);
       return template.render(data);
     } catch (error) {
-      this.logger.exception('getRenderedTemplate', error);
-      throw error;
+      if (this.isRequired(templateName)) {
+        this.logger.exception('getRenderedTemplate', error);
+        throw error;
+      }
     }
+
+    return '';
+  }
+
+  isRequired(templateName: string): boolean {
+    return config.email.template.required.indexOf(templateName) >= 0;
   }
 }
 

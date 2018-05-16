@@ -92,3 +92,7 @@ It was implemented to provide following functionality:
 ## Other
 
 For set kycVerify into verified status use bash script `changeKYCStatus.sh` as `changeKYCStatus.sh [email] [status]`, where the  `status` option default value is `verified`.
+
+## Email
+
+[How to configure email notifications](src/emails/README.md)

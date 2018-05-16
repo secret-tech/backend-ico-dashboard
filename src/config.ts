@@ -113,7 +113,15 @@ export default {
       referral: EMAIL_REFERRAL || 'partners@jincor.com'
     },
     template: {
-      folder: EMAIL_TEMPLATE_FOLDER || 'default'
+      folder: EMAIL_TEMPLATE_FOLDER || 'default',
+      required: [
+        'init-buy-tokens',
+        'init-change-password',
+        'init-reset-password',
+        'init-signin',
+        'init-signup',
+        'invite'
+      ]
     }
   },
   contracts: {

@@ -166,7 +166,7 @@ export class DashboardController {
         template: {
           fromEmail: config.email.from.general,
           subject: `You Purchase Validation Code to Use at ${config.app.companyName}`,
-          body: await this.emailTemplateService.getRenderedTemplate('12_initiate_buy_jcr_code', { name: req.user.name })
+          body: await this.emailTemplateService.getRenderedTemplate('init-buy-tokens', { name: req.user.name })
         },
         generateCode: {
           length: 6,
