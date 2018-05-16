@@ -306,7 +306,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('5_success_signin', {
+    const template = await this.emailTemplateService.getRenderedTemplate('success-signin', {
       name: user.name,
       datetime: new Date().toUTCString()
     });
@@ -407,7 +407,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send email notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('2_success_signup', { name: user.name });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-signup', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
@@ -479,7 +479,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('28_success_password_change', { name: user.name });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-change', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
@@ -584,7 +584,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('8_success_password_reset', { name: user.name });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-reset', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
