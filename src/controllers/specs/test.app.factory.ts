@@ -690,7 +690,6 @@ export function testAppForResendVerification() {
 
 export function testAppForSuccessSendTransactionByPrivateKey() {
   mockWeb3Client();
-  mockKycClient();
 
   const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
   const authMock = TypeMoq.Mock.ofType(AuthClient);
@@ -746,7 +745,6 @@ export function testAppForDashboardAfterActivationUser() {
   mockAuthMiddleware();
   mockVerifyClient();
   mockWeb3Client();
-  mockKycClient();
   mockCoinpaymentsClient();
   return buildApp();
 }
