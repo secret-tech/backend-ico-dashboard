@@ -285,7 +285,7 @@ declare interface UserInfo {
 }
 
 interface TransactionInput {
-  from: string;
+  from?: string;
   to: string;
   amount: string;
   gas: number;

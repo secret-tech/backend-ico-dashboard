@@ -223,6 +223,19 @@ describe('Users', () => {
       });
     });
 
+    it('should send transaction by private key during activation user', (done) => {
+      const activateParams = {
+        email: 'existing@test.com',
+        verificationId: 'activate_user_verification',
+        code: '123456'
+      }
+
+      postRequest(factory.testAppForSuccessSendTransactionByPrivateKey(), '/user/activate').send(activateParams).end((err, res) => {
+        expect(res.status).to.eq(200);
+        done();
+      });
+    });
+
     it('should require email on activate user', (done) => {
       const activateParams = {
         verificationId: '123',
