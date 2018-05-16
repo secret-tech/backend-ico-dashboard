@@ -15,7 +15,7 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
   return {
     id: investor.id.toString(),
     email: investor.email,
-    name: `${investor.firstName} ${investor.lastName}`,
+    name: investor.name,
     firstName: investor.firstName,
     lastName: investor.lastName,
     phone: investor.phone,

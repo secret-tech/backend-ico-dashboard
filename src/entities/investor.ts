@@ -73,6 +73,10 @@ export class Investor {
   @Column()
   kycInitResult: KycInitResult;
 
+  get name() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
   static createInvestor(data: UserData, verification) {
     const user = new Investor();
     user.email = data.email;

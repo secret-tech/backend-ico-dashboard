@@ -101,7 +101,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: `${userData.firstName} ${userData.lastName}`, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: userData, link: link})
       },
       generateCode: {
         length: 6,
@@ -158,7 +158,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: `${user.firstName} ${user.lastName}`, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: user.name, link: link})
       },
       policy: {
         expiredOn: '24:00:00',
@@ -222,7 +222,7 @@ export class UserService implements UserServiceInterface {
           fromEmail: config.email.from.general,
           subject: `${config.app.companyName} Login Verification Code`,
           body: await this.emailTemplateService.getRenderedTemplate('init-signin', {
-            name: `${user.firstName} ${user.lastName}`,
+            name: user.name,
             datetime: new Date().toUTCString(),
             ip: ip
           })
@@ -307,7 +307,7 @@ export class UserService implements UserServiceInterface {
     logger.debug('Send notification');
 
     const template = await this.emailTemplateService.getRenderedTemplate('success-signin', {
-      name: `${user.firstName} ${user.lastName}`,
+      name: user.name,
       datetime: new Date().toUTCString()
     });
 
@@ -407,7 +407,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send email notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('success-signup', { name: `${user.firstName} ${user.lastName}` });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-signup', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
@@ -450,7 +450,7 @@ export class UserService implements UserServiceInterface {
         template: {
           fromEmail: config.email.from.general,
           subject: `Here’s the Code to Change Your Password at ${config.app.companyName}`,
-          body: await this.emailTemplateService.getRenderedTemplate('init-change-password', { name: `${user.firstName} ${user.lastName}` })
+          body: await this.emailTemplateService.getRenderedTemplate('init-change-password', { name: user.name })
         },
         generateCode: {
           length: 6,
@@ -490,7 +490,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('success-password-change', { name: `${user.firstName} ${user.lastName}` });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-change', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
@@ -541,7 +541,7 @@ export class UserService implements UserServiceInterface {
         issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          body: await this.emailTemplateService.getRenderedTemplate('init-reset-password', { name: `${user.firstName} ${user.lastName}` }),
+          body: await this.emailTemplateService.getRenderedTemplate('init-reset-password', { name: user.name }),
           subject: `Here’s the Code to Reset Your Password at ${config.app.companyName}`
         },
         generateCode: {
@@ -595,7 +595,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    const template = await this.emailTemplateService.getRenderedTemplate('success-password-reset', { name: `${user.firstName} ${user.lastName}` });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-reset', { name: user.name });
 
     if (template !== '') {
       this.emailQueue.addJob({
@@ -631,9 +631,9 @@ export class UserService implements UserServiceInterface {
       this.emailQueue.addJob({
         sender: config.email.from.referral,
         recipient: email,
-        subject: `${ user.firstName } ${ user.lastName } thinks you will like this project…`,
+        subject: `${ user.name } thinks you will like this project…`,
         text: await this.emailTemplateService.getRenderedTemplate('invite', {
-          name: `${user.firstName} ${user.lastName}`,
+          name: user.name,
           link: `${ config.app.frontendUrl }/auth/signup/${ user.referralCode }`
         })
       });
@@ -740,7 +740,7 @@ export class UserService implements UserServiceInterface {
     return {
       ethAddress: user.ethWallet.address,
       email: user.email,
-      name: `${user.firstName} ${user.lastName}`,
+      name: user.name,
       kycStatus: user.kycStatus,
       defaultVerificationMethod: user.defaultVerificationMethod
     };
