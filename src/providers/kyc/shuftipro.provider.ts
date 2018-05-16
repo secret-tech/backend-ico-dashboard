@@ -37,54 +37,70 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   async init(investor: Investor): Promise<ShuftiproInitResult> {
-    const verificationServices = {
-      first_name: investor.firstName,
-      last_name: investor.lastName,
-      dob: investor.dob,
-      background_check: '0'
-    };
+    const logger = this.logger.sub({ email: investor.email }).addPrefix('[init] ');
 
-    const postData = {
-      client_id: this.clientId,
-      reference: uuid.v4(),
-      email: investor.email,
-      phone_number: investor.phone,
-      country: investor.country,
-      lang: 'en',
-      callback_url: config.kyc.shuftipro.callbackUrl,
-      redirect_url: config.kyc.shuftipro.redirectUrl,
-      verification_services: JSON.stringify(verificationServices)
-    };
+    try {
+      logger.debug('Prepare investor for identification');
 
-    let rawData: string = '';
-    Object.keys(postData).sort().forEach(function(value) {
-      rawData += postData[value];
-    });
+      if (this.kycEnabled) {
+        const verificationServices = {
+          first_name: investor.firstName,
+          last_name: investor.lastName,
+          dob: investor.dob,
+          background_check: '0'
+        };
 
-    rawData += this.secretKey;
-    postData['signature'] = crypto.createHash('sha256').update(rawData, 'utf8').digest('hex');
+        const postData = {
+          client_id: this.clientId,
+          reference: uuid.v4(),
+          email: investor.email,
+          phone_number: investor.phone,
+          country: investor.country,
+          lang: 'en',
+          callback_url: config.kyc.shuftipro.callbackUrl,
+          redirect_url: config.kyc.shuftipro.redirectUrl,
+          verification_services: JSON.stringify(verificationServices)
+        };
 
-    const options = {
-      'method': 'POST',
-      'headers': {
-        'content-type': 'application/x-www-form-urlencoded'
-      },
-      'path': '/',
-      'body': qs.stringify(postData)
-    };
+        let rawData: string = '';
+        Object.keys(postData).sort().forEach(function(value) {
+          rawData += postData[value];
+        });
 
-    const result = await request.json<ShuftiproInitResult>(this.baseUrl, options);
+        postData['signature'] = this.signature(rawData);
 
-    if (!result.error) {
-      const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
-      if (signature === result.signature) {
-        return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+        const options = {
+          'method': 'POST',
+          'headers': {
+            'content-type': 'application/x-www-form-urlencoded'
+          },
+          'path': '/',
+          'body': qs.stringify(postData)
+        };
+
+        const result = await request.json<ShuftiproInitResult>(this.baseUrl, options);
+
+        if (!result.error) {
+          const signature = this.signature(result.status_code + result.message + result.reference);
+          if (signature === result.signature) {
+            return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+          }
+
+          throw new Error('Invalid signature');
+        }
+
+        throw new Error(result.message);
+      } else {
+        return {
+          message: 'KYC disabled',
+          status_code: 'SP1'
+        } as ShuftiproInitResult;
       }
+    } catch (error) {
+      logger.exception({ error });
 
-      throw new Error('Invalid signature');
+      throw error;
     }
-
-    throw new Error(result.message);
   }
 
   async getInitStatus(req: AuthorizedRequest, res: any, next: any): Promise<void> {
@@ -92,7 +108,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       case KYC_STATUS_VERIFIED:
         throw new KycAlreadyVerifiedError('Your account is verified already');
       case KYC_STATUS_FAILED:
-        throw new KycFailedError(`Your account verification failed. Please contact ${config.app.companyName} team`);
+        throw new KycFailedError(`Your account verification failed. Please contact ${ config.app.companyName } team`);
       case KYC_STATUS_PENDING:
         throw new KycPendingError('Your account verification is pending. Please wait for status update');
     }
@@ -110,7 +126,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     const result = shuftiproKycResultRepo.create({ ...req.body, statusCode: req.body.status_code, timestamp: Date.now().toString() });
     await shuftiproKycResultRepo.save(result);
 
-    const investor = await investorRepo.findOne({where: {'kycInitResult.reference': req.body.reference}});
+    const investor = await investorRepo.findOne({ where: {'kycInitResult.reference': req.body.reference} });
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached
@@ -119,7 +135,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       return;
     }
 
-    const signature = crypto.createHash('sha256').update(req.body.status_code + req.body.message + req.body.reference + this.secretKey, 'utf8').digest('hex');
+    const signature = this.signature(req.body.status_code + req.body.message + req.body.reference);
     if (signature === req.body.signature) {
       switch (req.body.status_code) {
         case 'SP1':
@@ -153,7 +169,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     const postData = {
       client_id: this.clientId,
       reference: kycInitResult.reference,
-      signature: crypto.createHash('sha256').update(`${this.clientId}${kycInitResult.reference}${this.secretKey}`, 'utf8').digest('hex')
+      signature: this.signature(this.clientId + kycInitResult.reference)
     };
 
     const options = {
@@ -168,7 +184,7 @@ export class ShuftiproProvider implements KycProviderInterface {
     if (response.content.length > 0) {
       const result = JSON.parse(response.content);
       if (!result.error) {
-        const signature = crypto.createHash('sha256').update(result.status_code + result.message + result.reference + this.secretKey, 'utf8').digest('hex');
+        const signature = this.signature(result.status_code + result.message + result.reference);
         if (signature === result.signature) {
           return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
         }
@@ -180,5 +196,9 @@ export class ShuftiproProvider implements KycProviderInterface {
       error: true,
       message: 'Empty response'
     } as ShuftiproInitResult;
+  }
+
+  private signature(data: string): string {
+    return crypto.createHash('sha256').update(data + this.secretKey, 'utf8').digest('hex');
   }
 }

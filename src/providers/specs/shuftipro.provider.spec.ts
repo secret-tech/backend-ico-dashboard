@@ -12,6 +12,7 @@ import { ShuftiproProvider } from '../kyc/shuftipro.provider';
 import { Web3ClientType } from '../../services/web3.client';
 
 process.env.KYC_PROVIDER = 'SHUFTIPRO';
+config.kyc.enabled = true;
 
 const mongo = require('mongodb');
 container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new ShuftiproProvider(container.get(Web3ClientType)));
@@ -27,6 +28,11 @@ const shuftiProEndpoint = nock(config.kyc.shuftipro.baseUrl)
   });
 
 describe('ShuftiPro Provider', () => {
+  after(() => {
+    config.kyc.enabled = false;
+    config.kyc.provider = 'JUMIO';
+  });
+
   it('init ', async() => {
     const userData = {
       email: 'investortesting@test.com',

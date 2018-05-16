@@ -87,6 +87,16 @@ describe('Kyc', () => {
   });
 
   describe('ShuftiproProvider', () => {
+    before(() => {
+      config.kyc.enabled = true;
+      config.kyc.provider = 'SHUFTIPRO';
+    });
+
+    after(() => {
+      config.kyc.enabled = false;
+      config.kyc.provider = 'JUMIO';
+    });
+
     describe('GET /kyc/init', () => {
       it('should init kyc process - provide user initiated info', (done) => {
         const originalToISOString = Date.prototype.toISOString;
