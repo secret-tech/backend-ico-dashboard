@@ -77,11 +77,58 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => 'transactionHash');
 
+  web3Mock.setup(x => x.sendTransactionByPrivateKey(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => 'transactionHash');
+
   web3Mock.setup(x => x.getTokenEthPrice())
     .returns(async(): Promise<number> => 200);
 
   web3Mock.setup(x => x.getEthBalance(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '1.0001');
+
+  web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '500.00012345678912345');
+
+  web3Mock.setup(x => x.getEthCollected())
+    .returns(async(): Promise<string> => '2000');
+
+  web3Mock.setup(x => x.getSoldIcoTokens())
+    .returns(async(): Promise<string> => '5000');
+
+  web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<boolean> => true);
+
+  web3Mock.setup(x => x.isAllowed(TypeMoq.It.isAny()))
+    .returns(async(): Promise<boolean> => true);
+
+  const generatedAccount = {
+    address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+    privateKey: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA'
+  };
+
+  web3Mock.setup(x => x.getAccountByMnemonicAndSalt(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns((): any => generatedAccount);
+
+  web3Mock.setup(x => x.generateMnemonic())
+    .returns((): string => 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit');
+
+  container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
+};
+
+const mockWeb3Client = () => {
+  const web3Mock = TypeMoq.Mock.ofType(Web3Client);
+
+  web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => 'transactionHash');
+
+  web3Mock.setup(x => x.sendTransactionByPrivateKey(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => 'transactionHash');
+
+  web3Mock.setup(x => x.getTokenEthPrice())
+    .returns(async(): Promise<number> => 200);
+
+  web3Mock.setup(x => x.getEthBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '0.1');
 
   web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '500.00012345678912345');
@@ -523,5 +570,68 @@ export function testAppForResendVerification() {
 
   container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
 
+  return buildApp();
+}
+
+export function testAppForSuccessSendTransactionByPrivateKey() {
+  mockWeb3Client();
+  mockKycClient();
+
+  const verifyMock = TypeMoq.Mock.ofType(VerificationClient);
+  const authMock = TypeMoq.Mock.ofType(AuthClient);
+
+  const initiateResult: InitiateResult = {
+    status: 200,
+    verificationId: '123',
+    attempts: 0,
+    expiredOn: 124545,
+    method: 'email'
+  };
+
+  const validationResult: ValidationResult = {
+    status: 200,
+    data: {
+      verificationId: '123',
+      consumer: 'test@test.com',
+      expiredOn: 123456,
+      attempts: 0
+    }
+  };
+
+  const registrationResult: UserRegistrationResult = {
+    id: 'id',
+    email: 'test@test.com',
+    login: 'test@test.com',
+    tenant: 'tenant',
+    sub: 'sub'
+  };
+
+  const loginResult: AccessTokenResponse = {
+    accessToken: 'token'
+  };
+
+  verifyMock.setup(x => x.initiateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<InitiateResult> => initiateResult);
+
+  verifyMock.setup(x => x.validateVerification(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<ValidationResult> => validationResult);
+
+  authMock.setup(x => x.createUser(TypeMoq.It.isAny()))
+    .returns(async(): Promise<UserRegistrationResult> => registrationResult);
+
+  authMock.setup(x => x.loginUser(TypeMoq.It.isAny()))
+    .returns(async(): Promise<AccessTokenResponse> => loginResult);
+
+  container.rebind<VerificationClientInterface>(VerificationClientType).toConstantValue(verifyMock.object);
+  container.rebind<AuthClientInterface>(AuthClientType).toConstantValue(authMock.object);
+  return buildApp();
+}
+
+export function testAppForDashboardAfterActivationUser() {
+  mockAuthMiddleware();
+  mockVerifyClient();
+  mockWeb3Client();
+  mockKycClient();
+  mockCoinpaymentsClient();
   return buildApp();
 }
