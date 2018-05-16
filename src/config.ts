@@ -119,7 +119,6 @@ export default {
         'init-reset-password',
         'init-signin',
         'init-signup',
-        'init-withdraw-tokens',
         'invite'
       ]
     }
