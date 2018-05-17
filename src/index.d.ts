@@ -282,6 +282,11 @@ declare interface UserInfo {
   name: string;
   kycStatus: string;
   defaultVerificationMethod: string;
+  firstName: string;
+  lastName: string;
+  country: string;
+  dob: string;
+  phone: string;
 }
 
 interface TransactionInput {

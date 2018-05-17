@@ -576,9 +576,14 @@ describe('Users', () => {
         expect(res.body).to.deep.equal({
           ethAddress: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
           email: 'activated@test.com',
-          name: 'ICO investor',
+          name: 'ICO Investor',
           kycStatus: 'not_verified',
-          defaultVerificationMethod: 'email'
+          defaultVerificationMethod: 'email',
+          firstName: 'ICO',
+          lastName: 'Investor',
+          dob: '1970-01-01',
+          country: 'RU',
+          phone: '+70000000000'
         });
         done();
       });
