@@ -19,9 +19,9 @@ import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION, Verification } from '..
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
-import { KycClientType } from './kyc.client';
 import { Logger } from '../logger';
 import { EmailTemplateServiceType } from './email.template.service';
+import { KycProviderType } from '../types';
 
 export const ACTIVATE_USER_SCOPE = 'activate_user';
 export const LOGIN_USER_SCOPE = 'login_user';
@@ -44,7 +44,7 @@ export class UserService implements UserServiceInterface {
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
    * @param  emailQueue email queue
-   * @param  kycClient kycClient
+   * @param  kycProvider kycProvider
    * @param  emailTemplateService email template service
    */
   constructor(
@@ -52,7 +52,7 @@ export class UserService implements UserServiceInterface {
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
     @inject(EmailQueueType) private emailQueue: EmailQueueInterface,
-    @inject(KycClientType) private kycClient: KycClientInterface,
+    @inject(KycProviderType) private kycProvider: KycProviderInterface,
     @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateServiceInterface
   ) { }
 
@@ -101,7 +101,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: userData.name, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: userData, link: link})
       },
       generateCode: {
         length: 6,
@@ -379,7 +379,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Initialization of KYC verification');
 
-    user.kycInitResult = await this.kycClient.init(user);
+    user.kycInitResult = await this.kycProvider.init(user);
     user.isVerified = true;
     await getConnection().getMongoRepository(Investor).save(user);
 

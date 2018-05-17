@@ -27,7 +27,8 @@ export const INVEST_SCOPE = 'invest';
  */
 @injectable()
 @controller(
-  '/dashboard'
+  '/dashboard',
+  'OnlyAcceptApplicationJson'
 )
 export class DashboardController {
   private logger = Logger.getInstance('DASHBOARD_CONTROLLER');

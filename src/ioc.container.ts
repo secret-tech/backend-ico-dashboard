@@ -7,7 +7,7 @@ import { AuthClientType, AuthClient } from './services/auth.client';
 import { VerificationClientType, VerificationClient } from './services/verify.client';
 import { Web3ClientInterface, Web3ClientType, Web3Client } from './services/web3.client';
 import { MailgunService } from './services/mailgun.service';
-import { EmailServiceType, Web3QueueType } from './types';
+import { EmailServiceType, Web3QueueType, KycProviderType } from './types';
 import { EmailQueueType, EmailQueueInterface, EmailQueue } from './queues/email.queue';
 import { Auth } from './middlewares/auth';
 import config from './config';
@@ -17,13 +17,14 @@ import { Web3HandlerType, Web3HandlerInterface, Web3Handler } from './events/han
 import { Web3QueueInterface, Web3Queue } from './queues/web3.queue';
 import { TransactionService, TransactionServiceInterface, TransactionServiceType } from './services/transaction.service';
 import { KycController } from './controllers/kyc.controller';
-import { KycClient, KycClientType } from './services/kyc.client';
 import { MailjetService } from './services/mailjet.service';
 import { CoinpaymentsClient, CoinpaymentsClientType } from './services/coinpayments/coinpayments.client';
 import { PaymentsServiceType, PaymentsService } from './services/payments.service';
 import { IPNServiceType, IPNService } from './services/ipn.service';
 import { GatewayController } from './controllers/gateway.controller';
 import { EmailTemplateService, EmailTemplateServiceType } from './services/email.template.service';
+import { JumioProvider } from './providers/kyc/jumio.provider';
+import { ShuftiproProvider } from './providers/kyc/shuftipro.provider';
 
 let container = new Container();
 
@@ -34,8 +35,13 @@ if (process.env.MAIL_DRIVER === 'mailjet') {
   container.bind<EmailServiceInterface>(EmailServiceType).to(MailgunService).inSingletonScope();
 }
 
+if (process.env.KYC_PROVIDER === 'JUMIO') {
+  container.bind<KycProviderInterface>(KycProviderType).to(JumioProvider).inSingletonScope();
+} else if (process.env.KYC_PROVIDER === 'SHUFTIPRO') {
+  container.bind<KycProviderInterface>(KycProviderType).to(ShuftiproProvider).inSingletonScope();
+}
+
 container.bind<EmailQueueInterface>(EmailQueueType).to(EmailQueue).inSingletonScope();
-container.bind<KycClientInterface>(KycClientType).to(KycClient).inSingletonScope();
 
 container.bind<Web3ClientInterface>(Web3ClientType).to(Web3Client).inSingletonScope();
 container.bind<TransactionServiceInterface>(TransactionServiceType).to(TransactionService).inSingletonScope();
@@ -95,6 +101,9 @@ container.bind<express.RequestHandler>('OnlyJumioIp').toConstantValue(
 );
 container.bind<express.RequestHandler>('ResendVerificationValidation').toConstantValue(
   (req: any, res: any, next: any) => validation.resendVerification(req, res, next)
+);
+container.bind<express.RequestHandler>('OnlyAcceptApplicationJson').toConstantValue(
+  (req: any, res: any, next: any) => validation.onlyAcceptApplicationJson(req, res, next)
 );
 
 // controllers

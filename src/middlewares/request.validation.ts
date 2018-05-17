@@ -18,8 +18,12 @@ const passwordRegex = /^[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
-    name: Joi.string().min(3).required(),
+    firstName: Joi.string().min(3).required(),
+    lastName: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
+    phone: Joi.string().min(7).required(),
+    country: Joi.string().min(2).required(),
+    dob: Joi.string().isoDate().required(),
     password: Joi.string().required().regex(passwordRegex),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
@@ -233,6 +237,16 @@ export function resendVerification(req: Request, res: Response, next: NextFuncti
 
   if (result.error) {
     return res.status(422).json(result);
+  } else {
+    return next();
+  }
+}
+
+export function onlyAcceptApplicationJson(req: Request, res: Response, next: NextFunction) {
+  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json' && req.header('Content-Type') === 'application/json') {
+    return res.status(406).json({
+      error: 'Unsupported "Accept" header'
+    });
   } else {
     return next();
   }

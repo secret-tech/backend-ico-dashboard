@@ -34,12 +34,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000');
   }
 
-  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json' && req.header('Content-Type') === 'application/json') {
-    return res.status(406).json({
-      error: 'Unsupported "Accept" header'
-    });
-  }
-
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'deny');
   res.setHeader('Content-Security-Policy', 'default-src \'none\'');

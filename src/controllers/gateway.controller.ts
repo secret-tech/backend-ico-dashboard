@@ -22,7 +22,8 @@ const cpMiddleware = CoinPayments.ipn({
 
 @injectable()
 @controller(
-  '/gateway'
+  '/gateway',
+  'OnlyAcceptApplicationJson'
 )
 export class GatewayController {
   private logger = Logger.getInstance('DASHBOARD_CONTROLLER');
