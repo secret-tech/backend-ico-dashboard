@@ -41,10 +41,10 @@ const {
   WL_OWNER_PK,
   KYC_PROVIDER,
   KYC_ENABLED,
-  KYC_TOKEN,
-  KYC_SECRET,
-  KYC_BASE_URL,
-  KYC_TOKEN_LIFETIME,
+  KYC_JUMIO_TOKEN,
+  KYC_JUMIO_SECRET,
+  KYC_JUMIO_BASE_URL,
+  KYC_JUMIO_TOKEN_LIFETIME,
   KYC_STATUS_DEFAULT,
   COINPAYMENTS_API_KEY,
   COINPAYMENTS_API_SECRET,
@@ -74,7 +74,7 @@ export default {
     forceHttps: FORCE_HTTPS || 'disabled',
     apiUrl: API_URL,
     frontendUrl: FRONTEND_URL,
-    accessLog: ACCESS_LOG
+    accessLog: ACCESS_LOG || true
   },
   logging: {
     level: LOGGING_LEVEL || 'warn',
@@ -170,10 +170,10 @@ export default {
       default: KYC_STATUS_DEFAULT
     },
     jumio: {
-      apiToken: KYC_TOKEN,
-      apiSecret: KYC_SECRET,
-      baseUrl: KYC_BASE_URL,
-      defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000 // 60 days - Jumio max allowed value
+      apiToken: KYC_JUMIO_TOKEN,
+      apiSecret: KYC_JUMIO_SECRET,
+      baseUrl: KYC_JUMIO_BASE_URL,
+      defaultTokenLifetime: parseInt(KYC_JUMIO_TOKEN_LIFETIME, 10) || 5184000 // 60 days - Jumio max allowed value
     },
     shuftipro: {
       clientId: KYC_SHUFTIPRO_CLIENT_ID,
