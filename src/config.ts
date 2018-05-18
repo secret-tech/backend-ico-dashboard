@@ -62,7 +62,9 @@ const {
   KYC_SHUFTIPRO_SECRET_KEY,
   KYC_SHUFTIPRO_CALLBACK_URL,
   KYC_SHUFTIPRO_REDIRECT_URL,
-  TEST_FUND_PK
+  TEST_FUND_PK,
+  DEFAULT_INVEST_GAS,
+  PURCHASE_GAS_LIMIT
 } = process.env;
 
 export default {
@@ -86,8 +88,8 @@ export default {
   web3: {
     startBlock: parseInt(WEB3_RESTORE_START_BLOCK, 10) || 1,
     blockOffset: parseInt(WEB3_BLOCK_OFFSET, 10) || 200,
-    defaultInvestGas: 130000,
-    purchaseGasLimit: 100000
+    defaultInvestGas: parseInt(DEFAULT_INVEST_GAS, 10) || 130000,
+    purchaseGasLimit: parseInt(PURCHASE_GAS_LIMIT, 10) || 100000
   },
   redis: {
     url: REDIS_URL || 'redis://redis:6379',
