@@ -112,7 +112,12 @@ export class ShuftiproProvider implements KycProviderInterface {
       case KYC_STATUS_PENDING:
         throw new KycPendingError('Your account verification is pending. Please wait for status update');
     }
-    res.json(await this.updateKycInit(req.user));
+
+    if ((req.user.kycInitResult as ShuftiproKycResult).statusCode === 'SP1') {
+      res.json(req.user.kycInitResult);
+    } else {
+      res.json(await this.updateKycInit(req.user));
+    }
   }
 
   successUpload(req: any, res: any, next: any) {
@@ -120,13 +125,19 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   async callback(req: any, res: any, next: any): Promise<void> {
+    const kycResult = ShuftiproKycResult.createShuftiproKycResult({
+      ...req.body,
+      statusCode: req.body.status_code,
+      timestamp: new Date().toISOString()
+    });
+
     const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
 
-    const result = shuftiproKycResultRepo.create({ ...req.body, statusCode: req.body.status_code, timestamp: Date.now().toString() });
+    const result = shuftiproKycResultRepo.create(kycResult);
     await shuftiproKycResultRepo.save(result);
 
-    const investor = await investorRepo.findOne({ where: {'kycInitResult.reference': req.body.reference} });
+    const investor = await investorRepo.findOne({ where: {'kycInitResult.reference': kycResult.reference} });
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached
@@ -134,12 +145,12 @@ export class ShuftiproProvider implements KycProviderInterface {
       res.status(200).send();
       return;
     }
-
-    const signature = this.signature(req.body.status_code + req.body.message + req.body.reference);
-    if (signature === req.body.signature) {
-      switch (req.body.status_code) {
+    const signature = this.signature(kycResult.statusCode + kycResult.message + kycResult.reference);
+    if (signature === kycResult.signature) {
+      switch (kycResult.statusCode) {
         case 'SP1':
           investor.kycStatus = KYC_STATUS_VERIFIED;
+          investor.kycInitResult = kycResult;
           await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
           break;
         case 'SP0':

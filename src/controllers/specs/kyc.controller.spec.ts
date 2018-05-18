@@ -157,8 +157,10 @@ describe('Kyc', () => {
       });
 
       it('should callback kyc process - status SP1', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+
         const params = {
-          timestamp: '2017-11-09T06:47:31.467Z',
           message: 'message',
           reference: '59f07e23b41f6373f64a8dcb',
           signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
@@ -171,6 +173,14 @@ describe('Kyc', () => {
             expect(res.signature).to.equal(params.signature);
             getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(params.reference)).then(res => {
               expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+              expect(res.kycInitResult).to.deep.equal({
+                message: 'message',
+                reference: '59f07e23b41f6373f64a8dcb',
+                signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                statusCode: 'SP1',
+                timestamp: '2017-11-09T06:47:31.467Z'
+              });
+              Date.prototype.toISOString = originalToISOString;
               done();
             });
           });

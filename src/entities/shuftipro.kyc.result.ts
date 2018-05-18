@@ -22,4 +22,19 @@ export class ShuftiproKycResult {
 
   @Column()
   timestamp: string;
+
+  static createShuftiproKycResult(data: ShuftiproInitResult): ShuftiproKycResult {
+    const kycResult = new ShuftiproKycResult();
+    kycResult.statusCode = data.status_code;
+    kycResult.message = data.message;
+    kycResult.reference = data.reference;
+    kycResult.signature = data.signature;
+    kycResult.timestamp = data.timestamp;
+
+    if (data.error) {
+      kycResult.error = data.error;
+    }
+
+    return kycResult;
+  }
 }
