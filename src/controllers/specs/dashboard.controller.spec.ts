@@ -43,6 +43,30 @@ describe('Dashboard', () => {
       });
     });
 
+    it('should get dashboard data - with the balance from old contracts', (done) => {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForDashboardWithOldSmartContracts(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.deep.eq({
+          ethBalance: '1.0001',
+          tokenBalance: '500.00012345678912345',
+          tokensSold: '15000',
+          tokenPrice: {
+            ETH: '0.005',
+            USD: '1'
+          },
+          raised: {
+            ETH: '6000',
+            USD: '1200000',
+            BTC: '0'
+          },
+          daysLeft: Math.floor((1517443200 - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
+        });
+        done();
+      });
+    });
+
     it('should equal balance to 0.1 ETH after actiovation user', (done) => {
       const token = 'verified_token';
 
