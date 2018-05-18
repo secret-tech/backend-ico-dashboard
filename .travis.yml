@@ -2,8 +2,7 @@ sudo: required
 services:
 - docker
 before_install:
-- docker login -u $DOCKER_USER -p $DOCKER_PASS
-- chmod ugo+x ./build.sh
+- chmod ugo+x ./scripts/build.sh
 script:
 - cp -r .env.test .env
 - docker-compose build
@@ -13,7 +12,8 @@ script:
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif [
   "$TRAVIS_BRANCH" == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse
   --short HEAD)" ; fi`
-- "./build.sh $TAG"
+after_success:
+  - "bash ./scripts/build.sh $TAG"
 notifications:
   slack:
     secure: YDfplGp9dwFLliajyhVrmxqYt77KexeY8A4id5SM18caiVhhsuFrc3pwUvf5cP8BBHueSsbipU2hektNEKsZDaSeQ/PsZWSOzfTYBuQKKnmJRBI/HlN7ls9Z3YXlEp3st8QldzKQPB54WNDVnM15yNeC223Z87jazF91i1LOU2D4OCHZyvNE7qj1wSgdCbZyBtJPyXwBswdW3siRxF3I9fXK8/NCA1/T5v0zNdnI2nznL6SuC6SIOTT2lEyDgDDiSjT/yUrr1Qi2P2WWhUqxiT9rB+OVoY9Z7vNDOehd2TTC/j6OkqPFNZhcxlfvhAEmOmh8jejJftGgwKFzT1OQkSVPFNm0XQTrRJ/of5ig6KL9eWdtXfqeFl97+oO+UKOYpbHpd6Oze0t2l5Ilg2fjnDXPWI/BiAgrc7xX5cna2IJLM6FLFBh1y5KtEL8rKV7EyOKYhO7fjPgnRFUGx7CZur+s9pKljgy1Jlp/34UCHN7pO84b/kag5L4T9FhQHIHnC9QU/Qrr9/cs4A062fjj0sfnJ7STyZsYGS+A5AX5p2Fl5vIAB6rbGJ7JHY2b3UT1New4AjrCIWh5tsPXHgZTpvyjBJ4TQcChQ6faZ1W8ZyrNuNje9tHDOYljnhjfSzglGw4Y74g6iaGsycDv1nYcdqomDzp/3UiOA2IJghLiZ74=

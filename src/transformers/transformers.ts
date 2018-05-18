@@ -16,6 +16,11 @@ export function transformCreatedInvestor(investor: Investor): CreatedUserData {
     id: investor.id.toString(),
     email: investor.email,
     name: investor.name,
+    firstName: investor.firstName,
+    lastName: investor.lastName,
+    phone: investor.phone,
+    country: investor.country,
+    dob: investor.dob,
     agreeTos: investor.agreeTos,
     verification: {
       id: investor.verification.id.toString(),

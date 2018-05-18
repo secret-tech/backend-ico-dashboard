@@ -131,7 +131,11 @@ declare interface VerificationClientInterface {
 
 declare interface UserData {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  country: string;
+  dob: string;
   agreeTos: boolean;
   referral?: string;
   passwordHash?: string;
@@ -156,6 +160,7 @@ declare interface NewWallet extends Wallet {
 
 declare interface CreatedUserData extends UserData {
   id: string;
+  name: string;
   verification: {
     id: string,
     method: string
@@ -243,9 +248,20 @@ declare interface Enable2faResult {
 
 declare interface KycInitResult {
   timestamp: string;
+}
+
+declare interface JumioInitResult extends KycInitResult {
   authorizationToken: string;
   jumioIdScanReference: string;
   clientRedirectUrl: string;
+}
+
+declare interface ShuftiproInitResult extends KycInitResult {
+  status_code?: string;
+  message: string;
+  reference?: string;
+  signature?: string;
+  error?: boolean;
 }
 
 declare interface KycScanStatus {
@@ -266,10 +282,15 @@ declare interface UserInfo {
   name: string;
   kycStatus: string;
   defaultVerificationMethod: string;
+  firstName: string;
+  lastName: string;
+  country: string;
+  dob: string;
+  phone: string;
 }
 
 interface TransactionInput {
-  from: string;
+  from?: string;
   to: string;
   amount: string;
   gas: number;
@@ -292,11 +313,6 @@ declare interface UserServiceInterface {
   invite(user: any, params: any): Promise<InviteResultArray>;
   getUserInfo(user: any): Promise<UserInfo>;
   resendVerification(userData: ResendVerificationInput): Promise<CreatedUserData>;
-}
-
-declare interface KycClientInterface {
-  init(investor: any): Promise<KycInitResult>;
-  getScanReferenceStatus(scanId: string): Promise<KycScanStatus>;
 }
 
 declare interface EmailServiceInterface {
@@ -417,4 +433,12 @@ declare interface PaymentGateTransactionView {
 
 declare interface EmailTemplateServiceInterface {
   getRenderedTemplate(templateName: string, data: any): Promise<string>;
+}
+
+declare interface KycProviderInterface {
+  init(user: any);
+  getInitStatus(req, res, next);
+  successUpload(req, res, next);
+  callback(req, res, next);
+  reinit(req, res, next);
 }

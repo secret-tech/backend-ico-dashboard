@@ -8,7 +8,11 @@ describe('Investor Entity', () => {
   beforeEach(() => {
     const userData = {
       email: 'invitor@test.com',
-      name: 'ICO investor',
+      firstName: 'ICO',
+      lastName: 'investor',
+      phone: '+45550000000',
+      country: 'ru',
+      dob: '1970-01-01',
       agreeTos: true
     };
 

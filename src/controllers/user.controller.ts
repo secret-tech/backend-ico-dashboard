@@ -11,7 +11,8 @@ import { AuthorizedRequest } from '../requests/authorized.request';
  */
 @injectable()
 @controller(
-  '/user'
+  '/user',
+  'OnlyAcceptApplicationJson'
 )
 export class UserController {
   constructor(

@@ -20,7 +20,7 @@ const getRequest = (customApp, url: string) => {
 describe('Gateway', () => {
   describe('GET /gateway/currencies', () => {
     it('should get expected currencies', (done) => {
-      getRequest(factory.testAppForDashboard(), '/gateway/currencies').end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/gateway/currencies').end((err, res) => {
         expect(res.status).to.equal(200);
 
         Object.keys(res.body).forEach(key => {
@@ -39,7 +39,7 @@ describe('Gateway', () => {
         currency: 'LTCT',
         amount: 0.5
       };
-      postRequest(factory.testAppForDashboard(), '/gateway/createTransaction').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/gateway/createTransaction').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.includes.keys('txnId', 'address', 'statusUrl', 'qrcodeUrl');
         done();
@@ -50,7 +50,7 @@ describe('Gateway', () => {
   describe('GET /gateway/getTransactions', () => {
     it('should get expected transaction', (done) => {
       const token = 'verified_token';
-      getRequest(factory.testAppForDashboard(), '/gateway/getTransactions').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/gateway/getTransactions').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body[0]).to.includes.keys('id', 'type', 'status', 'expiredOn');
         expect(res.body[0].buyIpns[0]).to.includes.keys('ipnVersion', 'merchant', 'txnId', 'status', 'statusText');

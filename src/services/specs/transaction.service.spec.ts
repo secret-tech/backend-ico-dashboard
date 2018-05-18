@@ -67,7 +67,7 @@ describe('TransactionService', () => {
 
   it('should return correct status by receipt', () => {
     expect(transactionService.getTxStatusByReceipt({
-      status: '0x1'
+      status: true
     })).to.eq(TRANSACTION_STATUS_CONFIRMED);
 
     expect(transactionService.getTxStatusByReceipt({

@@ -38,7 +38,9 @@ const {
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
   WEB3_RESTORE_START_BLOCK,
+  WEB3_BLOCK_OFFSET,
   WL_OWNER_PK,
+  KYC_PROVIDER,
   KYC_ENABLED,
   KYC_TOKEN,
   KYC_SECRET,
@@ -54,7 +56,12 @@ const {
   EMAIL_FROM,
   EMAIL_REFERRAL,
   EMAIL_TEMPLATE_FOLDER,
-  TOKEN_PRICE_USD
+  TOKEN_PRICE_USD,
+  KYC_SHUFTIPRO_CLIENT_ID,
+  KYC_SHUFTIPRO_SECRET_KEY,
+  KYC_SHUFTIPRO_CALLBACK_URL,
+  KYC_SHUFTIPRO_REDIRECT_URL,
+  TEST_FUND_PK
 } = process.env;
 
 export default {
@@ -76,7 +83,8 @@ export default {
     colorize: LOGGING_COLORIZE || false
   },
   web3: {
-    startBlock: parseInt(WEB3_RESTORE_START_BLOCK) || 1,
+    startBlock: parseInt(WEB3_RESTORE_START_BLOCK, 10) || 1,
+    blockOffset: parseInt(WEB3_BLOCK_OFFSET, 10) || 200,
     defaultInvestGas: 130000,
     purchaseGasLimit: 100000
   },
@@ -113,7 +121,15 @@ export default {
       referral: EMAIL_REFERRAL || 'partners@jincor.com'
     },
     template: {
-      folder: EMAIL_TEMPLATE_FOLDER || 'default'
+      folder: EMAIL_TEMPLATE_FOLDER || 'default',
+      required: [
+        'init-buy-tokens',
+        'init-change-password',
+        'init-reset-password',
+        'init-signin',
+        'init-signup',
+        'invite'
+      ]
     }
   },
   contracts: {
@@ -151,14 +167,24 @@ export default {
     ]
   },
   kyc: {
-    enabled: (KYC_ENABLED == 'true'),
-    apiToken: KYC_TOKEN,
-    apiSecret: KYC_SECRET,
-    baseUrl: KYC_BASE_URL,
-    defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000, // 60 days - Jumio max allowed value
+    enabled: (KYC_ENABLED == 'true'), // 60 days - Jumio max allowed value
     status: {
       default: KYC_STATUS_DEFAULT
-    }
+    },
+    jumio: {
+      apiToken: KYC_TOKEN,
+      apiSecret: KYC_SECRET,
+      baseUrl: KYC_BASE_URL,
+      defaultTokenLifetime: parseInt(KYC_TOKEN_LIFETIME, 10) || 5184000 // 60 days - Jumio max allowed value
+    },
+    shuftipro: {
+      clientId: KYC_SHUFTIPRO_CLIENT_ID,
+      secretKey: KYC_SHUFTIPRO_SECRET_KEY,
+      baseUrl: 'https://api.shuftipro.com',
+      callbackUrl: KYC_SHUFTIPRO_CALLBACK_URL,
+      redirectUrl: KYC_SHUFTIPRO_REDIRECT_URL
+    },
+    provider: KYC_PROVIDER || 'JUMIO'
   },
   rpc: {
     type: RPC_TYPE,
@@ -172,5 +198,8 @@ export default {
     merchantId: COINPAYMENTS_API_MERCHANT_ID || 'api_merchant_id',
     merchantSecret: COINPAYMENTS_API_MERCHANT_SECRET || 'api_merchant_secret',
     incomingPaymentsFee: 0.005
+  },
+  test_fund: {
+    private_key: TEST_FUND_PK
   }
 };

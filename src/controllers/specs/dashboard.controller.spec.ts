@@ -1,6 +1,5 @@
 import * as chai from 'chai';
 import * as factory from './test.app.factory';
-import { testAppForDashboardWithOldSmartContracts } from './test.app.factory';
 require('../../../test/load.fixtures');
 
 chai.use(require('chai-http'));
@@ -23,7 +22,7 @@ describe('Dashboard', () => {
     it('should get dashboard data', (done) => {
       const token = 'verified_token';
 
-      getRequest(factory.testAppForDashboard(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           ethBalance: '1.0001',
@@ -67,13 +66,23 @@ describe('Dashboard', () => {
         done();
       });
     });
+
+    it('should equal balance to 0.1 ETH after actiovation user', (done) => {
+      const token = 'verified_token';
+
+      getRequest(factory.testAppForDashboardAfterActivationUser(), '/dashboard').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+        expect(res.status).to.eq(200);
+        expect(res.body.ethBalance).to.eq('0.1');
+        done();
+      });
+    });
   });
 
   describe('GET /dashboard/referral', () => {
     it('should get dashboard referral data', (done) => {
       const token = 'verified_token';
 
-      getRequest(factory.testAppForDashboard(), '/dashboard/referral').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/referral').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           data: 'YWN0aXZhdGVkQHRlc3QuY29t',
@@ -99,7 +108,7 @@ describe('Dashboard', () => {
         mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"ethAmount" is required');
         done();
@@ -112,7 +121,7 @@ describe('Dashboard', () => {
         ethAmount: 0.1
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
         done();
@@ -126,7 +135,7 @@ describe('Dashboard', () => {
         mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
@@ -140,7 +149,7 @@ describe('Dashboard', () => {
         mnemonic: 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit'
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.equal({
           verification: {
@@ -159,7 +168,7 @@ describe('Dashboard', () => {
       const token = 'verified_token';
       const params = {};
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"ethAmount" is required');
         done();
@@ -173,7 +182,7 @@ describe('Dashboard', () => {
         mnemonic: 'mnemonic'
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"verification" is required');
         done();
@@ -191,7 +200,7 @@ describe('Dashboard', () => {
         }
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
@@ -209,7 +218,7 @@ describe('Dashboard', () => {
         }
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
         done();
@@ -228,7 +237,7 @@ describe('Dashboard', () => {
         }
       };
 
-      postRequest(factory.testAppForDashboard(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
+      postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq({
           transactionHash: 'transactionHash',
@@ -244,7 +253,7 @@ describe('Dashboard', () => {
     it('should get transaction history', (done) => {
       const token = 'verified_token';
 
-      getRequest(factory.testAppForDashboard(), '/dashboard/transactions').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/transactions').set('Authorization', `Bearer ${ token }`).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.eq([
           {
@@ -296,7 +305,7 @@ describe('Dashboard', () => {
     });
 
     it('should require authorization', (done) => {
-      getRequest(factory.testAppForDashboard(), '/dashboard/transactions').end((err, res) => {
+      getRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/transactions').end((err, res) => {
         expect(res.status).to.equal(401);
         done();
       });

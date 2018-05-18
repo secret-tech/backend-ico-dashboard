@@ -12,6 +12,8 @@ import { Logger } from '../logger';
 export interface Web3ClientInterface {
   sendTransactionByMnemonic(input: TransactionInput, mnemonic: string, salt: string): Promise<string>;
 
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string>;
+
   generateMnemonic(): string;
 
   getAccountByMnemonicAndSalt(mnemonic: string, salt: string): any;
@@ -47,6 +49,8 @@ export interface Web3ClientInterface {
   getSoldIcoTokensFromAddress(address: string): Promise<string>;
 
   getEthCollectedFromAddress(address: string): Promise<string>;
+
+  isHex(key: any): boolean;
 }
 
 /* istanbul ignore next */
@@ -114,6 +118,33 @@ export class Web3Client implements Web3ClientInterface {
               reject(error);
             });
         });
+      });
+    });
+  }
+
+  sendTransactionByPrivateKey(input: TransactionInput, privateKey: string): Promise<string> {
+    const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+
+    const params = {
+      value: this.web3.utils.toWei(input.amount.toString()),
+      from: account.address,
+      to: input.to,
+      gas: input.gas,
+      gasPrice: this.web3.utils.toWei(input.gasPrice, 'gwei')
+    };
+
+    return new Promise<string>((resolve, reject) => {
+      account.signTransaction(params).then(transaction => {
+        this.web3.eth.sendSignedTransaction(transaction.rawTransaction)
+          .on('transactionHash', transactionHash => {
+            resolve(transactionHash);
+          })
+          .on('error', (error) => {
+            reject(error);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       });
     });
   }
@@ -305,6 +336,10 @@ export class Web3Client implements Web3ClientInterface {
     return this.web3.utils.fromWei(
       await ico.methods.collected().call()
     ).toString();
+  }
+
+  isHex(key: any): boolean {
+    return this.web3.utils.isHex(key);
   }
 }
 

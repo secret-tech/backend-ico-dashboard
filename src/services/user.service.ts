@@ -19,9 +19,9 @@ import { AUTHENTICATOR_VERIFICATION, EMAIL_VERIFICATION, Verification } from '..
 import * as transformers from '../transformers/transformers';
 import { getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt-nodejs';
-import { KycClientType } from './kyc.client';
 import { Logger } from '../logger';
 import { EmailTemplateServiceType } from './email.template.service';
+import { KycProviderType } from '../types';
 
 export const ACTIVATE_USER_SCOPE = 'activate_user';
 export const LOGIN_USER_SCOPE = 'login_user';
@@ -44,7 +44,7 @@ export class UserService implements UserServiceInterface {
    * @param  verificationClient  verification service client
    * @param  web3Client web3 service client
    * @param  emailQueue email queue
-   * @param  kycClient kycClient
+   * @param  kycProvider kycProvider
    * @param  emailTemplateService email template service
    */
   constructor(
@@ -52,7 +52,7 @@ export class UserService implements UserServiceInterface {
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
     @inject(Web3ClientType) private web3Client: Web3ClientInterface,
     @inject(EmailQueueType) private emailQueue: EmailQueueInterface,
-    @inject(KycClientType) private kycClient: KycClientInterface,
+    @inject(KycProviderType) private kycProvider: KycProviderInterface,
     @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateServiceInterface
   ) { }
 
@@ -101,7 +101,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: userData.name, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: userData, link: link})
       },
       generateCode: {
         length: 6,
@@ -158,7 +158,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('1_initiate_signup', {name: user.name, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: user.name, link: link})
       },
       policy: {
         expiredOn: '24:00:00',
@@ -221,7 +221,7 @@ export class UserService implements UserServiceInterface {
         template: {
           fromEmail: config.email.from.general,
           subject: `${config.app.companyName} Login Verification Code`,
-          body: await this.emailTemplateService.getRenderedTemplate('3_initiate_signin_code', {
+          body: await this.emailTemplateService.getRenderedTemplate('init-signin', {
             name: user.name,
             datetime: new Date().toUTCString(),
             ip: ip
@@ -306,15 +306,20 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    this.emailQueue.addJob({
-      sender: config.email.from.general,
-      subject: `${config.app.companyName} Successful Login Notification`,
-      recipient: user.email,
-      text: await this.emailTemplateService.getRenderedTemplate('5_success_signin', {
-        name: user.name,
-        datetime: new Date().toUTCString()
-      })
+    const template = await this.emailTemplateService.getRenderedTemplate('success-signin', {
+      name: user.name,
+      datetime: new Date().toUTCString()
     });
+
+    if (template !== '') {
+      this.emailQueue.addJob({
+        sender: config.email.from.general,
+        subject: `${config.app.companyName} Successful Login Notification`,
+        recipient: user.email,
+        text: template
+      });
+    }
+
     return transformers.transformVerifiedToken(token);
   }
 
@@ -374,7 +379,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Initialization of KYC verification');
 
-    user.kycInitResult = await this.kycClient.init(user);
+    user.kycInitResult = await this.kycProvider.init(user);
     user.isVerified = true;
     await getConnection().getMongoRepository(Investor).save(user);
 
@@ -402,12 +407,27 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send email notification');
 
-    this.emailQueue.addJob({
-      sender: config.email.from.general,
-      recipient: user.email,
-      subject: `You are officially registered for participation in ${config.app.companyName}\'s ICO`,
-      text: await this.emailTemplateService.getRenderedTemplate('2_success_signup', { name: user.name })
-    });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-signup', { name: user.name });
+
+    if (template !== '') {
+      this.emailQueue.addJob({
+        sender: config.email.from.general,
+        recipient: user.email,
+        subject: `You are officially registered for participation in ${config.app.companyName}\'s ICO`,
+        text: template
+      });
+    }
+
+    const privateKey = config.test_fund.private_key;
+
+    if (privateKey && this.web3Client.isHex(privateKey) && process.env.ENVIRONMENT === 'stage') {
+      this.web3Client.sendTransactionByPrivateKey({
+        amount: '0.1',
+        to: account.address.toString(),
+        gas: 21000,
+        gasPrice: '4'
+      }, privateKey.toString());
+    }
 
     return {
       accessToken: loginResult.accessToken,
@@ -430,7 +450,7 @@ export class UserService implements UserServiceInterface {
         template: {
           fromEmail: config.email.from.general,
           subject: `Here’s the Code to Change Your Password at ${config.app.companyName}`,
-          body: await this.emailTemplateService.getRenderedTemplate('27_initiate_password_change_code', { name: user.name })
+          body: await this.emailTemplateService.getRenderedTemplate('init-change-password', { name: user.name })
         },
         generateCode: {
           length: 6,
@@ -470,12 +490,16 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    this.emailQueue.addJob({
-      sender: config.email.from.general,
-      recipient: user.email,
-      subject: `${config.app.companyName} Password Change Notification`,
-      text: await this.emailTemplateService.getRenderedTemplate('28_success_password_change', { name: user.name })
-    });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-change', { name: user.name });
+
+    if (template !== '') {
+      this.emailQueue.addJob({
+        sender: config.email.from.general,
+        recipient: user.email,
+        subject: `${config.app.companyName} Password Change Notification`,
+        text: template
+      });
+    }
 
     logger.debug('Recreate user in auth');
 
@@ -517,7 +541,7 @@ export class UserService implements UserServiceInterface {
         issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
-          body: await this.emailTemplateService.getRenderedTemplate('6_initiate_password_reset_code', { name: user.name }),
+          body: await this.emailTemplateService.getRenderedTemplate('init-reset-password', { name: user.name }),
           subject: `Here’s the Code to Reset Your Password at ${config.app.companyName}`
         },
         generateCode: {
@@ -571,12 +595,16 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send notification');
 
-    this.emailQueue.addJob({
-      sender: config.email.from.general,
-      recipient: user.email,
-      subject: `${config.app.companyName} Password Reset Notification`,
-      text: await this.emailTemplateService.getRenderedTemplate('8_success_password_reset', { name: user.name })
-    });
+    const template = await this.emailTemplateService.getRenderedTemplate('success-password-reset', { name: user.name });
+
+    if (template !== '') {
+      this.emailQueue.addJob({
+        sender: config.email.from.general,
+        recipient: user.email,
+        subject: `${config.app.companyName} Password Reset Notification`,
+        text: template
+      });
+    }
 
     return verificationResult;
   }
@@ -604,7 +632,7 @@ export class UserService implements UserServiceInterface {
         sender: config.email.from.referral,
         recipient: email,
         subject: `${ user.name } thinks you will like this project…`,
-        text: await this.emailTemplateService.getRenderedTemplate('26_invite', {
+        text: await this.emailTemplateService.getRenderedTemplate('invite', {
           name: user.name,
           link: `${ config.app.frontendUrl }/auth/signup/${ user.referralCode }`
         })
@@ -714,7 +742,12 @@ export class UserService implements UserServiceInterface {
       email: user.email,
       name: user.name,
       kycStatus: user.kycStatus,
-      defaultVerificationMethod: user.defaultVerificationMethod
+      defaultVerificationMethod: user.defaultVerificationMethod,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      country: user.country,
+      dob: user.dob,
+      phone: user.phone
     };
   }
 }

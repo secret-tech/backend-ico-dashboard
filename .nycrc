@@ -2,7 +2,7 @@
   "lines": 80,
   "statements": 80,
   "functions": 80,
-  "branches": 65,
+  "branches": 64,
   "include": [
     "**/*.ts"
   ],
