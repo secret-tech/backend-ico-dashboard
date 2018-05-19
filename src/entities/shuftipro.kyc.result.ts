@@ -23,6 +23,9 @@ export class ShuftiproKycResult {
   @Column()
   timestamp: string;
 
+  @Column()
+  user: ObjectID;
+
   static createShuftiproKycResult(data: ShuftiproInitResult): ShuftiproKycResult {
     const kycResult = new ShuftiproKycResult();
     kycResult.statusCode = data.status_code;

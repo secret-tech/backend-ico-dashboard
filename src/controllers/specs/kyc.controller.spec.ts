@@ -149,8 +149,9 @@ describe('Kyc', () => {
 
         postRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/callback').send(params).end((err, res) => {
           expect(res.status).to.equal(200);
-          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((res) => {
-            expect(res.signature).to.equal(params.signature);
+          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((kycResult) => {
+            expect(kycResult.signature).to.equal(params.signature);
+            expect(kycResult.user.toHexString()).to.equal('59f07e23b41f6373f64a8dcb');
             done();
           });
         });

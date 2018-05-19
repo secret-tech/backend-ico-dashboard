@@ -133,11 +133,10 @@ export class ShuftiproProvider implements KycProviderInterface {
 
     const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
-
-    const result = shuftiproKycResultRepo.create(kycResult);
-    await shuftiproKycResultRepo.save(result);
-
     const investor = await investorRepo.findOne({ where: {'kycInitResult.reference': kycResult.reference} });
+
+    const result = shuftiproKycResultRepo.create({ ...kycResult, user: investor.id });
+    await shuftiproKycResultRepo.save(result);
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
       // no such user/already verified/max attempts reached
