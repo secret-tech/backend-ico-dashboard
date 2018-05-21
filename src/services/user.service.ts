@@ -213,6 +213,8 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Init verification');
 
+    console.log('##########################', user.name);
+
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
       {
