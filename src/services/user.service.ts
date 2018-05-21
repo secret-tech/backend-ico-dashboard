@@ -101,7 +101,7 @@ export class UserService implements UserServiceInterface {
       template: {
         fromEmail: config.email.from.general,
         subject: `Verify your email at ${config.app.companyName}`,
-        body: await this.emailTemplateService.getRenderedTemplate('init-signup', {name: userData, link: link})
+        body: await this.emailTemplateService.getRenderedTemplate('init-signup', { name: `${userData.firstName} ${userData.lastName}`, link: link })
       },
       generateCode: {
         length: 6,
