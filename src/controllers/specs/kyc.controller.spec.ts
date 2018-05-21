@@ -149,16 +149,19 @@ describe('Kyc', () => {
 
         postRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/callback').send(params).end((err, res) => {
           expect(res.status).to.equal(200);
-          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((res) => {
-            expect(res.signature).to.equal(params.signature);
+          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((kycResult) => {
+            expect(kycResult.signature).to.equal(params.signature);
+            expect(kycResult.user.toHexString()).to.equal('59f07e23b41f6373f64a8dcb');
             done();
           });
         });
       });
 
       it('should callback kyc process - status SP1', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+
         const params = {
-          timestamp: '2017-11-09T06:47:31.467Z',
           message: 'message',
           reference: '59f07e23b41f6373f64a8dcb',
           signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
@@ -171,7 +174,122 @@ describe('Kyc', () => {
             expect(res.signature).to.equal(params.signature);
             getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(params.reference)).then(res => {
               expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+              expect(res.kycInitResult).to.deep.equal({
+                message: 'message',
+                reference: '59f07e23b41f6373f64a8dcb',
+                signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                statusCode: 'SP1',
+                timestamp: '2017-11-09T06:47:31.467Z'
+              });
+              Date.prototype.toISOString = originalToISOString;
               done();
+            });
+          });
+        });
+      });
+
+      it('should callback kyc process - status SP1 (recall)', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+
+        const params = {
+          message: 'message',
+          reference: '59f07e23b41f6373f64a8dcb',
+          signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+          status_code: 'SP1'
+        };
+
+        const customApp = factory.testAppForDashboardWithShuftiproProvider();
+
+        postRequest(customApp, '/kyc/callback').send(params).end((err, res) => {
+          expect(res.status).to.equal(200);
+          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((res) => {
+            expect(res.signature).to.equal(params.signature);
+            getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(params.reference)).then(res => {
+              expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+              expect(res.kycInitResult).to.deep.equal({
+                message: 'message',
+                reference: '59f07e23b41f6373f64a8dcb',
+                signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                statusCode: 'SP1',
+                timestamp: '2017-11-09T06:47:31.467Z'
+              });
+              Date.prototype.toISOString = () => '2017-11-09T06:47:31.468Z';
+              postRequest(customApp, '/kyc/callback').send(params).end((err, res) => {
+                expect(res.status).to.equal(200);
+                getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: params.signature}).then((res) => {
+                  expect(res.signature).to.equal(params.signature);
+                  getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(params.reference)).then(res => {
+                    expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+                    expect(res.kycInitResult).to.deep.equal({
+                      message: 'message',
+                      reference: '59f07e23b41f6373f64a8dcb',
+                      signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                      statusCode: 'SP1',
+                      timestamp: '2017-11-09T06:47:31.467Z'
+                    });
+                    Date.prototype.toISOString = originalToISOString;
+                    done();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('should callback kyc process - status SP1 (recall with a different status)', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+
+        const paramsFirst = {
+          message: 'message',
+          reference: '59f07e23b41f6373f64a8dcb',
+          signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+          status_code: 'SP1'
+        };
+
+        const paramsSecond = {
+          message: 'message 2',
+          reference: '59f07e23b41f6373f64a8dcb',
+          signature: '3d5bbb9442aecf6b19f6cfc71dda41e05bab58f63f7e019c5beb323a1b27fdcb',
+          status_code: 'SP2'
+        };
+
+        const customApp = factory.testAppForDashboardWithShuftiproProvider();
+
+        postRequest(customApp, '/kyc/callback').send(paramsFirst).end((err, res) => {
+          expect(res.status).to.equal(200);
+          getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: paramsFirst.signature}).then((res) => {
+            expect(res.signature).to.equal(paramsFirst.signature);
+            getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(paramsFirst.reference)).then(res => {
+              expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+              expect(res.kycInitResult).to.deep.equal({
+                message: 'message',
+                reference: '59f07e23b41f6373f64a8dcb',
+                signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                statusCode: 'SP1',
+                timestamp: '2017-11-09T06:47:31.467Z'
+              });
+              Date.prototype.toISOString = () => '2017-11-09T06:47:31.468Z';
+              postRequest(customApp, '/kyc/callback').send(paramsSecond).end((err, res) => {
+                expect(res.status).to.equal(200);
+                getConnection().mongoManager.findOne(ShuftiproKycResult, {signature: paramsFirst.signature}).then((res) => {
+                  expect(res.signature).to.equal(paramsFirst.signature);
+                  getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId(paramsFirst.reference)).then(res => {
+                    expect(res.kycStatus).to.equal(KYC_STATUS_VERIFIED);
+                    expect(res.kycInitResult).to.deep.equal({
+                      message: 'message',
+                      reference: '59f07e23b41f6373f64a8dcb',
+                      signature: '57b6aa8b377a4818aafa462051d319037a052f5f61ad06c763657674d8063579',
+                      statusCode: 'SP1',
+                      timestamp: '2017-11-09T06:47:31.467Z'
+                    });
+                    Date.prototype.toISOString = originalToISOString;
+                    done();
+                  });
+                });
+              });
             });
           });
         });
