@@ -15,13 +15,14 @@ const verificationSchema = Joi.object().keys({
 }).required();
 
 const passwordRegex = /^[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
+const phoneNumberRegex = /^\+[1-9]\d{1,14}$/;
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
   const schema = Joi.object().keys({
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
-    phone: Joi.string().min(7).required(),
+    phone: Joi.string().required().regex(phoneNumberRegex),
     country: Joi.string().min(2).required(),
     dob: Joi.string().isoDate().required(),
     password: Joi.string().required().regex(passwordRegex),
