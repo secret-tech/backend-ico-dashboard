@@ -29,6 +29,7 @@ const {
   MONGO_URL,
   SC_ABI_FOLDER,
   ICO_SC_ADDRESS,
+  ICO_OLD_SC_ADDRESSES,
   WHITELIST_SC_ADDRESS,
   TOKEN_ADDRESS,
   RPC_TYPE,
@@ -145,6 +146,7 @@ export default {
     // old ropsten ico: 0xfd7345eaa260ec6259223ca996abac70a7cc8ac3
     ico: {
       address: ICO_SC_ADDRESS,
+      oldAddresses: ICO_OLD_SC_ADDRESSES ? ICO_OLD_SC_ADDRESSES.split(',') : [],
       abi: JSON.parse(fs.readFileSync(SC_ABI_FOLDER + '/ico-sc-abi.json').toString())
     },
     token: {

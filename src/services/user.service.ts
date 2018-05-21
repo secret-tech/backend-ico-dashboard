@@ -742,7 +742,12 @@ export class UserService implements UserServiceInterface {
       email: user.email,
       name: user.name,
       kycStatus: user.kycStatus,
-      defaultVerificationMethod: user.defaultVerificationMethod
+      defaultVerificationMethod: user.defaultVerificationMethod,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      country: user.country,
+      dob: user.dob,
+      phone: user.phone
     };
   }
 }

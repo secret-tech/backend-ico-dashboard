@@ -71,10 +71,10 @@ const mockWeb3 = () => {
   web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '500.00012345678912345');
 
-  web3Mock.setup(x => x.getEthCollected())
+  web3Mock.setup(x => x.getEthCollected(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '2000');
 
-  web3Mock.setup(x => x.getSoldIcoTokens())
+  web3Mock.setup(x => x.getSoldIcoTokens(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '5000');
 
   web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
@@ -115,11 +115,52 @@ const mockWeb3Client = () => {
   web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '500.00012345678912345');
 
-  web3Mock.setup(x => x.getEthCollected())
+  web3Mock.setup(x => x.getEthCollected(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '2000');
 
-  web3Mock.setup(x => x.getSoldIcoTokens())
+  web3Mock.setup(x => x.getSoldIcoTokens(TypeMoq.It.isAny()))
     .returns(async(): Promise<string> => '5000');
+
+  web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<boolean> => true);
+
+  web3Mock.setup(x => x.isAllowed(TypeMoq.It.isAny()))
+    .returns(async(): Promise<boolean> => true);
+
+  const generatedAccount = {
+    address: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA',
+    privateKey: '0x54c0B824d575c60F3B80ba1ea3A0cCb5EE3F56eA'
+  };
+
+  web3Mock.setup(x => x.getAccountByMnemonicAndSalt(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns((): any => generatedAccount);
+
+  web3Mock.setup(x => x.generateMnemonic())
+    .returns((): string => 'pig turn bounce jeans left mouse hammer sketch hold during grief spirit');
+
+  container.rebind<Web3ClientInterface>(Web3ClientType).toConstantValue(web3Mock.object);
+};
+
+const mockWeb3WithOldContracts = () => {
+  const web3Mock = TypeMoq.Mock.ofType(Web3Client);
+
+  web3Mock.setup(x => x.sendTransactionByMnemonic(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => 'transactionHash');
+
+  web3Mock.setup(x => x.getTokenEthPrice())
+    .returns(async(): Promise<number> => 200);
+
+  web3Mock.setup(x => x.getEthBalance(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '1.0001');
+
+  web3Mock.setup(x => x.getTokenBalanceOf(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '500.00012345678912345');
+
+  web3Mock.setup(x => x.getEthCollected(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '6000');
+
+  web3Mock.setup(x => x.getSoldIcoTokens(TypeMoq.It.isAny()))
+    .returns(async(): Promise<string> => '15000');
 
   web3Mock.setup(x => x.sufficientBalance(TypeMoq.It.isAny()))
     .returns(async(): Promise<boolean> => true);
@@ -599,6 +640,7 @@ export const testAppForUserMe = () => {
 
 export const testAppForDashboardWithJumioProvider = () => {
   process.env.KYC_PROVIDER = 'JUMIO';
+  config.contracts.ico.oldAddresses = [];
   container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new JumioProvider(container.get(Web3ClientType)));
 
   const jumioEndpoint = nock(config.kyc.jumio.baseUrl)
@@ -618,6 +660,7 @@ export const testAppForDashboardWithJumioProvider = () => {
 
 export const testAppForDashboardWithShuftiproProvider = () => {
   process.env.KYC_PROVIDER = 'SHUFTIPRO';
+  config.contracts.ico.oldAddresses = [];
 
   nock.cleanAll();
   const shuftiProEndpoint = nock(config.kyc.shuftipro.baseUrl)
@@ -643,6 +686,27 @@ export const testAppForDashboardWithShuftiproProvider = () => {
 
   container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new ShuftiproProvider(container.get(Web3ClientType)));
 
+  return buildApp();
+};
+
+export const testAppForDashboardWithOldSmartContracts = () => {
+  config.contracts.ico.oldAddresses = ['0x7672210729e053B2462D39CF3746A5d19B405aAD','0x7672210729e053B2462D39CF3746A5d19B405aAD','0x7672210729e053B2462D39CF3746A5d19B405aAD'];
+  process.env.KYC_PROVIDER = 'JUMIO';
+  config.contracts.ico.oldAddresses = [];
+  container.rebind<KycProviderInterface>(KycProviderType).toConstantValue(new JumioProvider(container.get(Web3ClientType)));
+
+  const jumioEndpoint = nock(config.kyc.jumio.baseUrl)
+    .post('/').reply(200, {
+      timestamp: '2017-11-09T06:47:31.467Z',
+      authorizationToken: 'c87447f8-fa43-4f98-a933-3c88be4e86ea',
+      clientRedirectUrl: 'https://lon.netverify.com/widget/jumio-verify/2.0/form?authorizationToken=c87447f8-fa43-4f98-a933-3c88be4e86ea',
+      jumioIdScanReference: '7b58a08e-19cf-4d28-a828-4bb577c6f69a'
+    });
+
+  mockAuthMiddleware();
+  mockVerifyClient();
+  mockWeb3WithOldContracts();
+  mockCoinpaymentsClient();
   return buildApp();
 };
 
