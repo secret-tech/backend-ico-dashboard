@@ -64,3 +64,5 @@ typings/
 .env
 
 .DS_Store
+storage/mongodb/WiredTiger
+storage/redis/dump.rdb
