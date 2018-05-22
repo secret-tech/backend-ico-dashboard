@@ -85,7 +85,7 @@ export class TransactionService implements TransactionServiceInterface {
     const data: Array<GenericTransaction> = [];
     const paymentGateTransactionRepository = getConnection().mongoManager.getMongoRepository(PaymentGateTransaction);
     const txs = await paymentGateTransactionRepository.find({
-      where: {userEmail: user.email}
+      where: {userEmail: user.email.toLowerCase()}
     });
 
     txs.forEach(item => {

@@ -63,7 +63,7 @@ export class UserService implements UserServiceInterface {
    * @return promise
    */
   async create(userData: InputUserData): Promise<CreatedUserData> {
-    const { email } = userData;
+    const email = userData.email.toLowerCase();
     const existingUser = await getConnection().getMongoRepository(Investor).findOne({
       email: email
     });
@@ -78,7 +78,7 @@ export class UserService implements UserServiceInterface {
       logger.debug('Find referral');
 
       const referral = await getConnection().getMongoRepository(Investor).findOne({
-        email: userData.referral
+        email: userData.referral.toLowerCase()
       });
 
       if (!referral) {
@@ -132,7 +132,7 @@ export class UserService implements UserServiceInterface {
   }
 
   async resendVerification(userData: ResendVerificationInput): Promise<CreatedUserData> {
-    const email = userData.email;
+    const email = userData.email.toLowerCase();
     const user = await getConnection().getMongoRepository(Investor).findOne({
       email: email
     });
@@ -184,7 +184,7 @@ export class UserService implements UserServiceInterface {
    */
   async initiateLogin(loginData: InitiateLoginInput, ip: string): Promise<InitiateLoginResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
-      email: loginData.email
+      email: loginData.email.toLowerCase()
     });
 
     if (!user) {
@@ -206,14 +206,12 @@ export class UserService implements UserServiceInterface {
     logger.debug('Login user');
 
     const tokenData = await this.authClient.loginUser({
-      login: user.email,
+      login: user.email.toLowerCase(),
       password: user.passwordHash,
       deviceId: 'device'
     });
 
     logger.debug('Init verification');
-
-    console.log('##########################', user.name);
 
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
@@ -280,7 +278,7 @@ export class UserService implements UserServiceInterface {
     const verifyAuthResult = await this.authClient.verifyUserToken(inputData.accessToken);
 
     const user = await getConnection().getMongoRepository(Investor).findOne({
-      email: verifyAuthResult.login
+      email: verifyAuthResult.login.toLowerCase()
     });
 
     if (!user) {
@@ -327,7 +325,7 @@ export class UserService implements UserServiceInterface {
 
   async activate(activationData: ActivationUserData): Promise<ActivationResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
-      email: activationData.email
+      email: activationData.email.toLowerCase()
     });
 
     if (!user) {
@@ -371,7 +369,7 @@ export class UserService implements UserServiceInterface {
       logger.debug('Find referral user', user.referral);
 
       const referral = await getConnection().getMongoRepository(Investor).findOne({
-        email: user.referral
+        email: user.referral.toLowerCase()
       });
 
       logger.debug('Add referral to the list');
@@ -506,8 +504,8 @@ export class UserService implements UserServiceInterface {
     logger.debug('Recreate user in auth');
 
     await this.authClient.createUser({
-      email: user.email,
-      login: user.email,
+      email: user.email.toLowerCase(),
+      login: user.email.toLowerCase(),
       password: user.passwordHash,
       sub: params.verification.verificationId
     });
@@ -515,7 +513,7 @@ export class UserService implements UserServiceInterface {
     logger.debug('Login user in auth');
 
     const loginResult = await this.authClient.loginUser({
-      login: user.email,
+      login: user.email.toLowerCase(),
       password: user.passwordHash,
       deviceId: 'device'
     });
@@ -527,7 +525,7 @@ export class UserService implements UserServiceInterface {
 
   async initiateResetPassword(params: ResetPasswordInput): Promise<BaseInitiateResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
-      email: params.email
+      email: params.email.toLowerCase()
     });
 
     if (!user) {
@@ -566,7 +564,7 @@ export class UserService implements UserServiceInterface {
 
   async verifyResetPassword(params: ResetPasswordInput): Promise<ValidationResult> {
     const user = await getConnection().getMongoRepository(Investor).findOne({
-      email: params.email
+      email: params.email.toLowerCase()
     });
 
     if (!user) {
@@ -589,8 +587,8 @@ export class UserService implements UserServiceInterface {
     logger.debug('Recreate user in auth');
 
     await this.authClient.createUser({
-      email: user.email,
-      login: user.email,
+      email: user.email.toLowerCase(),
+      login: user.email.toLowerCase(),
       password: user.passwordHash,
       sub: params.verification.verificationId
     });
@@ -614,8 +612,8 @@ export class UserService implements UserServiceInterface {
   async invite(user: Investor, params: any): Promise<InviteResultArray> {
     let result = [];
 
-    for (let email of params.emails) {
-      const user = await getConnection().getMongoRepository(Investor).findOne({ email });
+    for (let email of params.emails as Array<string>) {
+      const user = await getConnection().getMongoRepository(Investor).findOne({ email: email.toLowerCase() });
       if (user) {
         throw new InviteIsNotAllowed(`${ email } account already exists`);
       }
@@ -627,7 +625,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Send invites');
 
-    for (let email of params.emails) {
+    for (let email of params.emails as Array<string>) {
       logger.debug('Send invite for', email);
 
       this.emailQueue.addJob({
@@ -641,7 +639,7 @@ export class UserService implements UserServiceInterface {
       });
 
       result.push({
-        email,
+        email: email.toLowerCase(),
         invited: true
       });
     }
@@ -727,7 +725,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Validate verification');
 
-    await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email, payload, true);
+    await this.verificationClient.checkVerificationPayloadAndCode(params.verification, user.email.toLowerCase(), payload, true);
 
     user.defaultVerificationMethod = EMAIL_VERIFICATION;
 
@@ -741,7 +739,7 @@ export class UserService implements UserServiceInterface {
   async getUserInfo(user: Investor): Promise<UserInfo> {
     return {
       ethAddress: user.ethWallet.address,
-      email: user.email,
+      email: user.email.toLowerCase(),
       name: user.name,
       kycStatus: user.kycStatus,
       defaultVerificationMethod: user.defaultVerificationMethod,
