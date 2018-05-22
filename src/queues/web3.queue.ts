@@ -64,7 +64,7 @@ export class Web3Queue implements Web3QueueInterface {
       }
 
       const referral = await getConnection().mongoManager.findOne(Investor, {
-        email: investor.referral
+        email: investor.referral.toLowerCase()
       });
 
       if (referral) {

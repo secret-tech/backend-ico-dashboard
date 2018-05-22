@@ -146,7 +146,7 @@ export class DashboardController {
 
     if (req.user.referral) {
       const referral = await getConnection().mongoManager.findOne(Investor, {
-        email: req.user.referral
+        email: req.user.referral.toLowerCase()
       });
 
       logger.debug('Check referral from whitelist');
@@ -210,7 +210,7 @@ export class DashboardController {
 
     if (req.user.referral) {
       const referral = await getConnection().mongoManager.findOne(Investor, {
-        email: req.user.referral
+        email: req.user.referral.toLowerCase()
       });
 
       logger.debug('Check referral from whitelist');

@@ -79,7 +79,7 @@ export class Investor {
 
   static createInvestor(data: UserData, verification) {
     const user = new Investor();
-    user.email = data.email;
+    user.email = data.email.toLowerCase();
     user.firstName = data.firstName;
     user.lastName = data.lastName;
     user.phone = data.phone;
@@ -102,7 +102,7 @@ export class Investor {
   }
 
   checkAndUpdateInvitees(emails: string[]) {
-    if (emails.indexOf(this.email) !== -1) {
+    if (emails.indexOf(this.email.toLowerCase()) !== -1) {
       throw new InviteIsNotAllowed('You are not able to invite yourself.');
     }
 
@@ -122,7 +122,7 @@ export class Investor {
         }
       }
 
-      const index = emails.indexOf(invitee.email);
+      const index = emails.indexOf(invitee.email.toLowerCase());
       if (index !== -1) {
         // remove found email from array as we will add not found emails later
         emails.splice(index, 1);

@@ -96,7 +96,7 @@ export class IPNService implements IPNServiceInterface {
 
     const ipnResponse = IPNResponse.createIPNResponse(data);
     tx.buyIpns.push({...ipnResponse});
-    const investor = await investorRepository.findOne({where: {email: tx.userEmail}});
+    const investor = await investorRepository.findOne({where: {email: tx.userEmail.toLowerCase()}});
 
     try {
       logger.debug('Convert Coins');
