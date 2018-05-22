@@ -537,7 +537,7 @@ export class UserService implements UserServiceInterface {
     const verificationData = await this.verificationClient.initiateVerification(
       user.defaultVerificationMethod,
       {
-        consumer: user.email,
+        consumer: user.email.toLowerCase(),
         issuer: config.app.companyName,
         template: {
           fromEmail: config.email.from.general,
@@ -579,7 +579,7 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Validate verification');
 
-    const verificationResult = await this.verificationClient.checkVerificationPayloadAndCode(params.verification, params.email, payload);
+    const verificationResult = await this.verificationClient.checkVerificationPayloadAndCode(params.verification, params.email.toLowerCase(), payload);
 
     user.passwordHash = bcrypt.hashSync(params.password);
     await getConnection().getMongoRepository(Investor).save(user);
@@ -615,7 +615,7 @@ export class UserService implements UserServiceInterface {
     for (let email of params.emails as Array<string>) {
       const user = await getConnection().getMongoRepository(Investor).findOne({ email: email.toLowerCase() });
       if (user) {
-        throw new InviteIsNotAllowed(`${ email } account already exists`);
+        throw new InviteIsNotAllowed(`${ email.toLowerCase() } account already exists`);
       }
     }
 

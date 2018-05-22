@@ -26,7 +26,7 @@ describe('Users', () => {
   describe('POST /user', () => {
     it('should create user', (done) => {
       const params = {
-        email: 'test@test.com',
+        email: 'TesT@test.com',
         firstName: 'ICO',
         lastName: 'investor',
         phone: '+45550000000',
@@ -70,7 +70,7 @@ describe('Users', () => {
 
     it('should not allow to create user if email already exists', (done) => {
       const params = {
-        email: 'existing@test.com',
+        email: 'exiSTing@test.com',
         firstName: 'ICO',
         lastName: 'investor',
         phone: '+45550000000',
@@ -87,7 +87,7 @@ describe('Users', () => {
 
     it('should create user and assign referral', (done) => {
       const params = {
-        email: 'test1@test.com',
+        email: 'tesT1@test.com',
         firstName: 'ICO',
         lastName: 'investor',
         phone: '+45550000000',
@@ -205,7 +205,7 @@ describe('Users', () => {
 
     it('should activate user', (done) => {
       const activateParams = {
-        email: 'existing@test.com',
+        email: 'ExistinG@test.com',
         verificationId: 'activate_user_verification',
         code: '123456'
       };
@@ -406,7 +406,7 @@ describe('Users', () => {
 
   describe('POST /user/login/initiate', () => {
     it('should initiate login', (done) => {
-      const params = { email: 'activated@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
+      const params = { email: 'activatED@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
       postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.equal({
@@ -728,7 +728,7 @@ describe('Users', () => {
 
     it('should reset password on verify', (done) => {
       const params = {
-        email: 'activated@test.com',
+        email: 'actiVAted@test.com',
         password: 'PasswordA1',
         verification: {
           verificationId: 'reset_password_verification',
@@ -759,7 +759,7 @@ describe('Users', () => {
 
     it('should require password on verify', (done) => {
       const params = {
-        email: 'activated@test.com',
+        email: 'activaTED@test.com',
         verification: {
           verificationId: 'activated_user_verification',
           method: 'google_auth',
@@ -782,7 +782,7 @@ describe('Users', () => {
       const token = 'verified_token';
       const params = {
         emails: [
-          'ortgma@gmail.com'
+          'ortgMA@gmail.com'
         ]
       };
 
@@ -808,9 +808,9 @@ describe('Users', () => {
       const token = 'verified_token';
       const params = {
         emails: [
-          'invite1@test.com',
-          'invite2.test.com',
-          'invite3@test.com'
+          'inviTe1@test.com',
+          'inviTe2.test.com',
+          'inviTe3@test.com'
         ]
       };
 
@@ -828,12 +828,12 @@ describe('Users', () => {
       const token = 'verified_token';
       const params = {
         emails: [
-          'invite1@test.com',
-          'invite2@test.com',
-          'invite3@test.com',
-          'invite4@test.com',
-          'invite5@test.com',
-          'invite6@test.com'
+          'inviTe1@test.com',
+          'inviTe2@test.com',
+          'inviTe3@test.com',
+          'inviTe4@test.com',
+          'inviTe5@test.com',
+          'inviTe6@test.com'
         ]
       };
 
@@ -867,8 +867,8 @@ describe('Users', () => {
       const token = 'verified_token';
       const params = {
         emails: [
-          'invited@test.com',
-          'existing@test.com'
+          'inviTed@test.com',
+          'exisTing@test.com'
         ]
       };
 
@@ -1078,7 +1078,7 @@ describe('Users', () => {
 
     it('should respond with 404 error on resend verification if email is wrong', function(done) {
       const params = {
-        email: 'wrong@test.ru'
+        email: 'Wrong@test.ru'
       };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
@@ -1092,7 +1092,7 @@ describe('Users', () => {
 
     it('should respond with error on resend verification if user is activated', function(done) {
       const params = {
-        email: 'activated@test.com'
+        email: 'Activated@test.com'
       };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
@@ -1106,7 +1106,7 @@ describe('Users', () => {
 
     it('should resend verification', function(done) {
       const params = {
-        email: 'existing@test.com'
+        email: 'exisTing@test.com'
       };
 
       postRequest(factory.testAppForResendVerification(), '/user/resendVerification')
