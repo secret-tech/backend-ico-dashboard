@@ -228,7 +228,7 @@ describe('Users', () => {
         email: 'existing@test.com',
         verificationId: 'activate_user_verification',
         code: '123456'
-      }
+      };
 
       postRequest(factory.testAppForSuccessSendTransactionByPrivateKey(), '/user/activate').send(activateParams).end((err, res) => {
         expect(res.status).to.eq(200);
@@ -336,6 +336,17 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.equal('"phone" is required');
+        done();
+      });
+    });
+
+    it('should require valid phone number', (done) => {
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', country: 'ru', phone: '45550000000', password: 'test12A6!@#$%^&*()_-=+|/', agreeTos: true};
+
+      postRequest(app, '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        console.log(res.body.error.details);
+        expect(res.body.error.details[0].message).to.equal('"phone" with value "45550000000" fails to match the required pattern: /^\\+[1-9]\\d{1,14}$/');
         done();
       });
     });
