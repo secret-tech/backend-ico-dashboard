@@ -133,12 +133,16 @@ export class ShuftiproProvider implements KycProviderInterface {
 
     const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
-    const investor = await investorRepo.findOne({ where: {'kycInitResult.reference': kycResult.reference} });
+    const storedKycResult = await shuftiproKycResultRepo.findOne({ where: {'reference': kycResult.reference} });
+
+    const investor = storedKycResult
+      ? await investorRepo.findOneById(storedKycResult.user)
+      : await investorRepo.findOne({ where: {'kycInitResult.reference': kycResult.reference} });
 
     const result = shuftiproKycResultRepo.create({ ...kycResult, user: investor.id });
     await shuftiproKycResultRepo.save(result);
 
-    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED || investor.kycStatus === KYC_STATUS_FAILED) {
+    if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED) {
       // no such user/already verified/max attempts reached
       // respond with 200 as I expect that Jumio may try to resend notification in case of failure
       res.status(200).send();
@@ -154,8 +158,11 @@ export class ShuftiproProvider implements KycProviderInterface {
           break;
         case 'SP0':
           investor.kycStatus = KYC_STATUS_FAILED;
+          investor.kycInitResult = kycResult;
           break;
       }
+    } else {
+      throw new Error('Invalid signature');
     }
 
     await investorRepo.save(investor);
