@@ -21,7 +21,6 @@ const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
 const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
 export const INVEST_SCOPE = 'invest';
-const icoContractAddresses: Array<string> = [];
 
 /**
  * Dashboard controller
@@ -33,6 +32,7 @@ const icoContractAddresses: Array<string> = [];
 )
 export class DashboardController {
   private logger = Logger.getInstance('DASHBOARD_CONTROLLER');
+  private icoContractAddresses: Array<string> = [];
 
   constructor(
     @inject(VerificationClientType) private verificationClient: VerificationClientInterface,
@@ -40,9 +40,9 @@ export class DashboardController {
     @inject(TransactionServiceType) private transactionService: TransactionServiceInterface,
     @inject(EmailTemplateServiceType) private emailTemplateService: EmailTemplateService
   ) {
-    icoContractAddresses.push(config.contracts.ico.address);
+    this.icoContractAddresses.push(config.contracts.ico.address);
     if (config.contracts.ico.oldAddresses.length > 0) {
-      icoContractAddresses.push(...config.contracts.ico.oldAddresses);
+      this.icoContractAddresses.push(...config.contracts.ico.oldAddresses);
     }
   }
 
@@ -55,11 +55,11 @@ export class DashboardController {
   )
   async dashboard(req: AuthorizedRequest, res: Response): Promise<void> {
     const currentTokenEthPrice = await this.web3Client.getTokenEthPrice();
-    const ethCollected = await this.web3Client.getEthCollected(icoContractAddresses);
+    const ethCollected = await this.web3Client.getEthCollected(this.icoContractAddresses);
 
     res.json({
       ethBalance: await this.web3Client.getEthBalance(req.user.ethWallet.address),
-      tokensSold: await this.web3Client.getSoldIcoTokens(icoContractAddresses),
+      tokensSold: await this.web3Client.getSoldIcoTokens(this.icoContractAddresses),
       tokenBalance: await this.web3Client.getTokenBalanceOf(req.user.ethWallet.address),
       tokenPrice: {
         ETH: (config.contracts.token.priceUsd / Number(currentTokenEthPrice)).toString(),
@@ -79,11 +79,11 @@ export class DashboardController {
     '/public'
   )
   async publicData(req: Request, res: Response): Promise<void> {
-    const ethCollected = await this.web3Client.getEthCollected(icoContractAddresses);
+    const ethCollected = await this.web3Client.getEthCollected(this.icoContractAddresses);
     const contributionsCount = await this.web3Client.getContributionsCount();
 
     res.json({
-      tokensSold: await this.web3Client.getSoldIcoTokens(icoContractAddresses),
+      tokensSold: await this.web3Client.getSoldIcoTokens(this.icoContractAddresses),
       ethCollected,
       contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value

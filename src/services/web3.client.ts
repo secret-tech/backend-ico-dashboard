@@ -323,18 +323,14 @@ export class Web3Client implements Web3ClientInterface {
   }
 
   async getSoldIcoTokensFromAddress(address: string): Promise<string> {
-    const ico = new this.web3.eth.Contract(config.contracts.ico.abi, address);
-
     return this.web3.utils.fromWei(
-      await ico.methods.tokensSold().call()
+      await this.ico.methods.tokensSold().call()
     ).toString();
   }
 
   async getEthCollectedFromAddress(address: string): Promise<string> {
-    const ico = new this.web3.eth.Contract(config.contracts.ico.abi, address);
-
     return this.web3.utils.fromWei(
-      await ico.methods.collected().call()
+      await this.ico.methods.collected().call()
     ).toString();
   }
 
