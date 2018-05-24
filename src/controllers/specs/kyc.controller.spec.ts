@@ -4,8 +4,8 @@ import * as bcrypt from 'bcrypt-nodejs';
 require('../../../test/load.fixtures');
 import { base64encode } from '../../helpers/helpers';
 import config from '../../config';
-import { Investor, KYC_STATUS_VERIFIED, KYC_STATUS_NOT_VERIFIED } from '../../entities/investor';
-import { getConnection, ObjectID } from 'typeorm';
+import { Investor, KYC_STATUS_VERIFIED, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_FAILED } from '../../entities/investor';
+import { getConnection, getConnectionManager } from 'typeorm';
 import { ShuftiproKycResult } from '../../entities/shuftipro.kyc.result';
 const mongo = require('mongodb');
 
@@ -289,6 +289,63 @@ describe('Kyc', () => {
                     done();
                   });
                 });
+              });
+            });
+          });
+        });
+      });
+
+      it('should callback kyc process - manual verified', (done) => {
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+
+        const paramsSuccess = {
+          message: 'verified',
+          reference: 'c361c055-2ff2-43d2-8aa2-7942cf40a1b4',
+          signature: '15e7dfc1057ebd2ee29e6dee8af62d4b8f86367f23c20b92ef9f5a994b4395d2',
+          status_code: 'SP1'
+        };
+
+        const customApp = factory.testAppForDashboardWithShuftiproProvider();
+
+        postRequest(customApp, '/kyc/callback').send(paramsSuccess).end((err, res) => {
+          expect(res.status).to.eq(200);
+          getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId('59f07e23b41f6373f64a8dcb')).then(investor => {
+            expect((investor.kycInitResult as ShuftiproKycResult).statusCode).to.eq('SP1');
+            expect(investor.kycStatus).to.eq(KYC_STATUS_VERIFIED);
+            done();
+          });
+        });
+      });
+
+      it('should callback kyc process - SP1 after SP0', (done) => {
+        const paramsFailed = {
+          message: 'not verified',
+          reference: '59f07e23b41f6373f64a8dcb',
+          signature: '4bbf773432d5c39452807cdc5ca11c382f2b781b6171a16c1b5e42c9fbe60132',
+          status_code: 'SP0'
+        };
+
+        const paramsSuccess = {
+          message: 'verified',
+          reference: 'c361c055-2ff2-43d2-8aa2-7942cf40a1b4',
+          signature: '15e7dfc1057ebd2ee29e6dee8af62d4b8f86367f23c20b92ef9f5a994b4395d2',
+          status_code: 'SP1'
+        };
+
+        const customApp = factory.testAppForDashboardWithShuftiproProvider();
+
+        postRequest(customApp, '/kyc/callback').send(paramsFailed).end((err, res) => {
+          expect(res.status).to.eq(200);
+          getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId('59f07e23b41f6373f64a8dcb')).then(investor => {
+            expect((investor.kycInitResult as ShuftiproKycResult).statusCode).to.eq('SP0');
+            expect(investor.kycStatus).to.eq(KYC_STATUS_FAILED);
+            postRequest(customApp, '/kyc/callback').send(paramsSuccess).end((err, res) => {
+              expect(res.status).to.eq(200);
+              getConnection().mongoManager.findOneById(Investor, new mongo.ObjectId('59f07e23b41f6373f64a8dcb')).then(investor => {
+                expect((investor.kycInitResult as ShuftiproKycResult).statusCode).to.eq('SP1');
+                expect(investor.kycStatus).to.eq(KYC_STATUS_VERIFIED);
+                done();
               });
             });
           });
