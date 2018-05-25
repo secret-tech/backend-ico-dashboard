@@ -71,7 +71,7 @@ const {
 export default {
   app: {
     clientIpHeader: CLIENT_IP_FORWARD_HEADER || 'x-forwarded-for',
-    companyName: COMPANY_NAME || 'Jincor',
+    companyName: COMPANY_NAME || 'secret_tech',
     port: parseInt(PORT, 10) || 3000,
     httpsPort: parseInt(HTTPS_PORT, 10) || 4000,
     httpServer: HTTP_SERVER || 'enabled',
@@ -94,7 +94,7 @@ export default {
   },
   redis: {
     url: REDIS_URL || 'redis://redis:6379',
-    prefix: REDIS_PREFIX || 'jincor_ico_dashboard_'
+    prefix: REDIS_PREFIX || 'icodashboard_space_'
   },
   throttler: {
     prefix: 'request_throttler_',
@@ -112,7 +112,7 @@ export default {
     maxAttempts: 3
   },
   email: {
-    domain: MAILGUN_DOMAIN || 'jincor.com',
+    domain: MAILGUN_DOMAIN || 'icodashboard.space',
     mailgun: {
       secret: MAILGUN_API_KEY || 'key-0123456789'
     },
@@ -121,8 +121,8 @@ export default {
       apiSecret: MAILJET_API_SECRET
     },
     from: {
-      general: EMAIL_FROM || 'noreply@jincor.com',
-      referral: EMAIL_REFERRAL || 'partners@jincor.com'
+      general: EMAIL_FROM || 'noreply@icodashboard.space',
+      referral: EMAIL_REFERRAL || 'partners@icodashboard.space'
     },
     template: {
       folder: EMAIL_TEMPLATE_FOLDER || 'default',

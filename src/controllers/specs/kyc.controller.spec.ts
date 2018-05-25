@@ -62,7 +62,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithJumioProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account verification failed. Please contact Jincor team');
+          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
           done();
         });
       });
@@ -74,7 +74,7 @@ describe('Kyc', () => {
 
       it('should update investor status to pending', (done) => {
         getRequest(factory.testAppForDashboardWithJumioProvider(), `/kyc/uploaded/${ id }/${ hash }`).end((err, res) => {
-          expect(res).redirectTo('https://invest.jincor.com/dashboard/verification/success');
+          expect(res).redirectTo('https://demo.icodashboard.space/dashboard/verification/success');
           const investorRepo = getConnection().getMongoRepository(Investor);
 
           investorRepo.createEntityCursor({ _id: new mongo.ObjectId(id) }).toArray().then((investors) => {
@@ -371,7 +371,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account verification failed. Please contact Jincor team');
+          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
           done();
         });
       });
