@@ -60,7 +60,7 @@ describe('Investor Entity', () => {
     it('should not allow to invite more than 50 emails during 24 hours', () => {
       for (let i = 0; i < 50; i++) {
         this.investor.checkAndUpdateInvitees([
-          faker.internet.email('', '', 'jincor.com')
+          faker.internet.email('', '', 'icodashboard.space')
         ]);
       }
 
