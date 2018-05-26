@@ -38,6 +38,7 @@ export class ShuftiproProvider implements KycProviderInterface {
 
   async init(investor: Investor): Promise<ShuftiproInitResult> {
     const logger = this.logger.sub({ email: investor.email }).addPrefix('[init] ');
+    const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
 
     try {
       logger.debug('Prepare investor for identification');
@@ -78,18 +79,20 @@ export class ShuftiproProvider implements KycProviderInterface {
           'body': qs.stringify(postData)
         };
 
-        const result = await request.json<ShuftiproInitResult>(this.baseUrl, options);
+        const kycInitResponse = await request.json<ShuftiproInitResult>(this.baseUrl, options);
 
-        if (!result.error) {
-          const signature = this.signature(result.status_code + result.message + result.reference);
-          if (signature === result.signature) {
-            return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
+        if (!kycInitResponse.error) {
+          const signature = this.signature(kycInitResponse.status_code + kycInitResponse.message + kycInitResponse.reference);
+          if (signature === kycInitResponse.signature) {
+            const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycInitResponse, timestamp: (new Date()).toISOString() });
+            await shuftiproKycResultRepo.save(shuftiproKycResultRepo.create({ ...kycInitResult, user: investor.id }));
+            return { ...kycInitResponse, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
           }
 
           throw new Error('Invalid signature');
         }
 
-        throw new Error(result.message);
+        throw new Error(kycInitResponse.message);
       } else {
         return {
           message: 'KYC disabled',
@@ -125,29 +128,29 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   async callback(req: any, res: any, next: any): Promise<void> {
-    const kycResult = ShuftiproKycResult.createShuftiproKycResult({
-      ...req.body,
-      statusCode: req.body.status_code,
-      timestamp: new Date().toISOString()
-    });
+    await this.processCallback(req.body);
+    res.status(200).send();
+  }
 
-    const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
+  async processCallback(data: ShuftiproInitResult): Promise<void> {
+    const kycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
-    const storedKycResult = await shuftiproKycResultRepo.findOne({ where: {'reference': kycResult.reference} });
+    const storedKycResult = await kycResultRepo.findOne({ where: {'reference': data.reference} });
 
     const investor = storedKycResult
       ? await investorRepo.findOneById(storedKycResult.user)
-      : await investorRepo.findOne({ where: {'kycInitResult.reference': kycResult.reference} });
+      : await investorRepo.findOne({ where: {'kycInitResult.reference': data.reference} });
 
-    const result = shuftiproKycResultRepo.create({ ...kycResult, user: investor.id });
-    await shuftiproKycResultRepo.save(result);
+    const kycResult = ShuftiproKycResult.createShuftiproKycResult({ ...data, timestamp: new Date().toISOString() });
+
+    await kycResultRepo.save(kycResultRepo.create({ ...kycResult, user: investor.id }));
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED) {
       // no such user/already verified/max attempts reached
       // respond with 200 as I expect that Jumio may try to resend notification in case of failure
-      res.status(200).send();
       return;
     }
+
     const signature = this.signature(kycResult.statusCode + kycResult.message + kycResult.reference);
     if (signature === kycResult.signature) {
       switch (kycResult.statusCode) {
@@ -166,7 +169,6 @@ export class ShuftiproProvider implements KycProviderInterface {
     }
 
     await investorRepo.save(investor);
-    res.status(200).send();
   }
 
   async reinit(req: AuthorizedRequest, res: any, next: any): Promise<void> {
