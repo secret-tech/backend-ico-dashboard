@@ -59,7 +59,10 @@ describe('ShuftiPro Provider', () => {
     const result = await kycProvider.init(investor);
     expect(result).to.include.all.keys('timestamp', 'status_code', 'message', 'reference', 'signature');
 
-    const shuftyproKycResult = await getConnection().mongoManager.findOne(ShuftiproKycResult, { user: investor.id });
+    const localKycResult = await getConnection().mongoManager.findOne(ShuftiproKycResult, { user: investor.id, message: 'Local init' });
+    expect(localKycResult).to.include.all.keys('id', 'message', 'reference', 'timestamp', 'user');
+
+    const shuftyproKycResult = await getConnection().mongoManager.findOne(ShuftiproKycResult, { user: investor.id, statusCode: 'SP2' });
     expect(shuftyproKycResult).to.include.all.keys('id', 'statusCode', 'message', 'reference', 'signature', 'timestamp', 'user');
 
     getConnection().mongoManager.remove(investor);

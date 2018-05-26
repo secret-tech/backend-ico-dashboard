@@ -63,6 +63,13 @@ export class ShuftiproProvider implements KycProviderInterface {
           verification_services: JSON.stringify(verificationServices)
         };
 
+        const localInitKyc = new ShuftiproKycResult();
+        localInitKyc.message = 'Local init';
+        localInitKyc.reference = postData.reference;
+        localInitKyc.timestamp = (new Date()).toISOString();
+        localInitKyc.user = investor.id;
+        await shuftiproKycResultRepo.save(localInitKyc);
+
         let rawData: string = '';
         Object.keys(postData).sort().forEach(function(value) {
           rawData += postData[value];
@@ -179,7 +186,11 @@ export class ShuftiproProvider implements KycProviderInterface {
 
   private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
     const currentStatus = await this.getKycStatus(user);
-    if (currentStatus.error || (currentStatus.status_code !== 'SP2' && currentStatus.status_code !== 'SP1')) {
+    if (currentStatus.error
+      || (currentStatus.status_code !== 'SP2'
+      && currentStatus.status_code !== 'SP1'
+      && currentStatus.status_code !== 'SP26'
+    )) {
       return await this.init(user);
     }
     return user.kycInitResult as ShuftiproInitResult;
