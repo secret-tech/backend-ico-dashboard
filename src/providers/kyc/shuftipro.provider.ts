@@ -86,12 +86,15 @@ export class ShuftiproProvider implements KycProviderInterface {
           if (signature === kycInitResponse.signature) {
             const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycInitResponse, timestamp: (new Date()).toISOString() });
             await shuftiproKycResultRepo.save(shuftiproKycResultRepo.create({ ...kycInitResult, user: investor.id }));
+            this.logger.info('Successful init');
             return { ...kycInitResponse, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
           }
 
+          this.logger.exception('Invalid signature');
           throw new Error('Invalid signature');
         }
 
+        this.logger.exception(kycInitResponse.message);
         throw new Error(kycInitResponse.message);
       } else {
         return {
@@ -146,8 +149,6 @@ export class ShuftiproProvider implements KycProviderInterface {
     await kycResultRepo.save(kycResultRepo.create({ ...kycResult, user: investor.id }));
 
     if (!investor || investor.kycStatus === KYC_STATUS_VERIFIED) {
-      // no such user/already verified/max attempts reached
-      // respond with 200 as I expect that Jumio may try to resend notification in case of failure
       return;
     }
 
@@ -165,6 +166,7 @@ export class ShuftiproProvider implements KycProviderInterface {
           break;
       }
     } else {
+      this.logger.exception('Invalid signature');
       throw new Error('Invalid signature');
     }
 
