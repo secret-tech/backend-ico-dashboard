@@ -38,44 +38,14 @@ export class ShuftiproProvider implements KycProviderInterface {
 
   async init(investor: Investor): Promise<ShuftiproInitResult> {
     const logger = this.logger.sub({ email: investor.email }).addPrefix('[init] ');
-    const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
 
     try {
       logger.debug('Prepare investor for identification');
 
       if (this.kycEnabled) {
-        const verificationServices = {
-          first_name: investor.firstName,
-          last_name: investor.lastName,
-          dob: investor.dob,
-          background_check: '0'
-        };
+        const postData = this.preparePostData(investor);
 
-        const postData = {
-          client_id: this.clientId,
-          reference: uuid.v4(),
-          email: investor.email,
-          phone_number: investor.phone,
-          country: investor.country,
-          lang: 'en',
-          callback_url: config.kyc.shuftipro.callbackUrl,
-          redirect_url: config.kyc.shuftipro.redirectUrl,
-          verification_services: JSON.stringify(verificationServices)
-        };
-
-        const localInitKyc = new ShuftiproKycResult();
-        localInitKyc.message = 'Local init';
-        localInitKyc.reference = postData.reference;
-        localInitKyc.timestamp = (new Date()).toISOString();
-        localInitKyc.user = investor.id;
-        await shuftiproKycResultRepo.save(localInitKyc);
-
-        let rawData: string = '';
-        Object.keys(postData).sort().forEach(function(value) {
-          rawData += postData[value];
-        });
-
-        postData['signature'] = this.signature(rawData);
+        await this.localInitKycProcess(investor, postData.reference);
 
         const options = {
           'method': 'POST',
@@ -91,8 +61,7 @@ export class ShuftiproProvider implements KycProviderInterface {
         if (!kycInitResponse.error) {
           const signature = this.signature(kycInitResponse.status_code + kycInitResponse.message + kycInitResponse.reference);
           if (signature === kycInitResponse.signature) {
-            const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycInitResponse, timestamp: (new Date()).toISOString() });
-            await shuftiproKycResultRepo.save(shuftiproKycResultRepo.create({ ...kycInitResult, user: investor.id }));
+            await this.saveKycInitResult(investor, kycInitResponse);
             this.logger.info('Successful init');
             return { ...kycInitResponse, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
           }
@@ -142,16 +111,16 @@ export class ShuftiproProvider implements KycProviderInterface {
     res.status(200).send();
   }
 
-  async processCallback(data: ShuftiproInitResult): Promise<void> {
+  async processCallback(kycResultRequest: ShuftiproInitResult): Promise<void> {
     const kycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
-    const storedKycResult = await kycResultRepo.findOne({ where: {'reference': data.reference} });
+    const storedKycResult = await kycResultRepo.findOne({ where: {'reference': kycResultRequest.reference} });
 
     const investor = storedKycResult
       ? await investorRepo.findOneById(storedKycResult.user)
-      : await investorRepo.findOne({ where: {'kycInitResult.reference': data.reference} });
+      : await investorRepo.findOne({ where: {'kycInitResult.reference': kycResultRequest.reference} });
 
-    const kycResult = ShuftiproKycResult.createShuftiproKycResult({ ...data, timestamp: new Date().toISOString() });
+    const kycResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycResultRequest, timestamp: new Date().toISOString() });
 
     await kycResultRepo.save(kycResultRepo.create({ ...kycResult, user: investor.id }));
 
@@ -185,13 +154,18 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
+    const investorRepo = getConnection().getMongoRepository(Investor);
     const currentStatus = await this.getKycStatus(user);
+
     if (currentStatus.error
       || (currentStatus.status_code !== 'SP2'
       && currentStatus.status_code !== 'SP1'
       && currentStatus.status_code !== 'SP26'
     )) {
-      return await this.init(user);
+      const kycInitResult = await this.init(user);
+      user.kycInitResult = kycInitResult;
+      investorRepo.save(user);
+      return kycInitResult;
     }
     return user.kycInitResult as ShuftiproInitResult;
   }
@@ -232,5 +206,52 @@ export class ShuftiproProvider implements KycProviderInterface {
 
   private signature(data: string): string {
     return crypto.createHash('sha256').update(data + this.secretKey, 'utf8').digest('hex');
+  }
+
+  private async localInitKycProcess(user: Investor, reference: string): Promise<void> {
+    const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
+
+    const localInitKyc = new ShuftiproKycResult();
+    localInitKyc.message = 'Local init';
+    localInitKyc.reference = reference;
+    localInitKyc.timestamp = (new Date()).toISOString();
+    localInitKyc.user = user.id;
+
+    await shuftiproKycResultRepo.save(localInitKyc);
+  }
+
+  private async saveKycInitResult(user: Investor, kycInitResponse: ShuftiproInitResult): Promise<void> {
+    const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
+
+    const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycInitResponse, timestamp: (new Date()).toISOString() });
+    await shuftiproKycResultRepo.save(shuftiproKycResultRepo.create({ ...kycInitResult, user: user.id }));
+  }
+
+  private preparePostData(user: Investor): any {
+    const verificationServices = {
+      first_name: user.firstName,
+      last_name: user.lastName,
+      dob: user.dob,
+      background_check: '0'
+    };
+    const postData = {
+      client_id: this.clientId,
+      reference: uuid.v4(),
+      email: user.email,
+      phone_number: user.phone,
+      country: user.country,
+      lang: 'en',
+      callback_url: config.kyc.shuftipro.callbackUrl,
+      redirect_url: config.kyc.shuftipro.redirectUrl,
+      verification_services: JSON.stringify(verificationServices)
+    };
+
+    let rawData: string = '';
+    Object.keys(postData).sort().forEach(function(value) {
+      rawData += postData[value];
+    });
+    postData['signature'] = this.signature(rawData);
+
+    return postData;
   }
 }
