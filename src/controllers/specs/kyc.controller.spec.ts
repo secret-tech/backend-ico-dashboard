@@ -115,6 +115,26 @@ describe('Kyc', () => {
           done();
         });
       });
+
+      it('should not allow init if investor is verified already', (done) => {
+        const token = 'kyc_verified_token_shuftipro';
+
+        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Your account is verified already');
+          done();
+        });
+      });
+
+      it('should not allow init if investor verification is failed', (done) => {
+        const token = 'kyc_3_failed_token_shuftipro';
+
+        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
+          done();
+        });
+      });
     });
 
     describe('GET /kyc/reinit', () => {
@@ -349,30 +369,6 @@ describe('Kyc', () => {
               });
             });
           });
-        });
-      });
-    });
-
-    describe('GET /kyc/init', () => {
-      it('should not allow init if investor is verified already', (done) => {
-        const token = 'kyc_verified_token_shuftipro';
-
-        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
-          expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account is verified already');
-          done();
-        });
-      });
-    });
-
-    describe('GET /kyc/init', () => {
-      it('should not allow init if investor verification is failed', (done) => {
-        const token = 'kyc_3_failed_token_shuftipro';
-
-        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
-          expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
-          done();
         });
       });
     });

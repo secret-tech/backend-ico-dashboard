@@ -7,7 +7,7 @@ import * as qs from 'querystring';
 import * as uuid from 'node-uuid';
 import { AuthorizedRequest } from '../../requests/authorized.request';
 import { KYC_STATUS_VERIFIED, KYC_STATUS_FAILED, KYC_STATUS_PENDING, Investor, KYC_STATUS_NOT_VERIFIED } from '../../entities/investor';
-import { KycAlreadyVerifiedError, KycFailedError, KycPendingError } from '../../exceptions/exceptions';
+import { KycAlreadyVerifiedError, KycFailedError, KycPendingError, KycShuftiProInvalidSignature } from '../../exceptions/exceptions';
 import { getConnection } from 'typeorm';
 import { ShuftiproKycResult } from '../../entities/shuftipro.kyc.result';
 import { Web3ClientInterface, Web3ClientType } from '../../services/web3.client';
@@ -67,7 +67,7 @@ export class ShuftiproProvider implements KycProviderInterface {
           }
 
           this.logger.exception('Invalid signature');
-          throw new Error('Invalid signature');
+          throw new KycShuftiProInvalidSignature('Invalid signature');
         }
 
         this.logger.exception(kycInitResponse.message);
@@ -86,20 +86,7 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   async getInitStatus(req: AuthorizedRequest, res: any, next: any): Promise<void> {
-    switch (req.user.kycStatus) {
-      case KYC_STATUS_VERIFIED:
-        throw new KycAlreadyVerifiedError('Your account is verified already');
-      case KYC_STATUS_FAILED:
-        throw new KycFailedError(`Your account verification failed. Please contact ${ config.app.companyName } team`);
-      case KYC_STATUS_PENDING:
-        throw new KycPendingError('Your account verification is pending. Please wait for status update');
-    }
-
-    if ((req.user.kycInitResult as ShuftiproKycResult).statusCode === 'SP1') {
-      res.json(req.user.kycInitResult);
-    } else {
-      res.json(await this.updateKycInit(req.user));
-    }
+    res.json(await this.processKycStatus(req.user));
   }
 
   successUpload(req: any, res: any, next: any) {
@@ -143,10 +130,27 @@ export class ShuftiproProvider implements KycProviderInterface {
       }
     } else {
       this.logger.exception('Invalid signature');
-      throw new Error('Invalid signature');
+      throw new KycShuftiProInvalidSignature('Invalid signature');
     }
 
     await investorRepo.save(investor);
+  }
+
+  async processKycStatus(user: Investor): Promise<ShuftiproInitResult> {
+    switch (user.kycStatus) {
+      case KYC_STATUS_VERIFIED:
+        throw new KycAlreadyVerifiedError('Your account is verified already');
+      case KYC_STATUS_FAILED:
+        throw new KycFailedError(`Your account verification failed. Please contact ${ config.app.companyName } team`);
+      case KYC_STATUS_PENDING:
+        throw new KycPendingError('Your account verification is pending. Please wait for status update');
+    }
+
+    if ((user.kycInitResult as ShuftiproKycResult).statusCode === 'SP1') {
+      return user.kycInitResult as ShuftiproInitResult;
+    }
+
+    return await this.updateKycInit(user);
   }
 
   async reinit(req: AuthorizedRequest, res: any, next: any): Promise<void> {
@@ -154,20 +158,22 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
-    const investorRepo = getConnection().getMongoRepository(Investor);
-    const currentStatus = await this.getKycStatus(user);
-
-    if (currentStatus.error
-      || (currentStatus.status_code !== 'SP2'
-      && currentStatus.status_code !== 'SP1'
-      && currentStatus.status_code !== 'SP26'
-    )) {
-      const kycInitResult = await this.init(user);
-      user.kycInitResult = kycInitResult;
-      investorRepo.save(user);
-      return kycInitResult;
+    try {
+      const currentStatus = await this.getKycStatus(user);
+      if (currentStatus.error
+        || (currentStatus.status_code !== 'SP2'
+        && currentStatus.status_code !== 'SP1'
+        && currentStatus.status_code !== 'SP26'
+      )) {
+        return await this.createNewKycProcess(user);
+      }
+      return user.kycInitResult as ShuftiproInitResult;
+    } catch (error) {
+      if (error.constructor === KycShuftiProInvalidSignature) {
+        return await this.createNewKycProcess(user);
+      }
+      throw error;
     }
-    return user.kycInitResult as ShuftiproInitResult;
   }
 
   private async getKycStatus(user: Investor): Promise<ShuftiproInitResult> {
@@ -194,7 +200,7 @@ export class ShuftiproProvider implements KycProviderInterface {
         if (signature === result.signature) {
           return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
         }
-        throw new Error('Invalid signature');
+        throw new KycShuftiProInvalidSignature('Invalid signature');
       }
     }
 
@@ -253,5 +259,13 @@ export class ShuftiproProvider implements KycProviderInterface {
     postData['signature'] = this.signature(rawData);
 
     return postData;
+  }
+
+  private async createNewKycProcess(user: Investor): Promise<ShuftiproInitResult> {
+    const investorRepo = getConnection().getMongoRepository(Investor);
+    const kycInitResult = await this.init(user);
+    user.kycInitResult = kycInitResult;
+    await investorRepo.save(user);
+    return kycInitResult;
   }
 }
