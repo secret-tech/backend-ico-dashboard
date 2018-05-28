@@ -371,6 +371,17 @@ describe('Users', () => {
       });
     });
 
+    it('should require valid password', (done) => {
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', dob: '1960-01-01', password: 'qwerty'};
+
+      postRequest(app, '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+
+        expect(res.body.error.details[0].message).to.equal('"password" must be at least 8 characters, contain at least one number, 1 small and 1 capital letter');
+        done();
+      });
+    });
+
     it('should require agreeTos to be true', (done) => {
       const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', phone: '+45550000000', country: 'ru', dob: '1960-01-01', password: 'test12A6!@#$%^&*()_-=+|/'};
 
