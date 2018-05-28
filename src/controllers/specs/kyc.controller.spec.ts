@@ -7,6 +7,7 @@ import config from '../../config';
 import { Investor, KYC_STATUS_VERIFIED, KYC_STATUS_NOT_VERIFIED, KYC_STATUS_FAILED } from '../../entities/investor';
 import { getConnection, getConnectionManager } from 'typeorm';
 import { ShuftiproKycResult } from '../../entities/shuftipro.kyc.result';
+import * as nock from 'nock';
 const mongo = require('mongodb');
 
 chai.use(require('chai-http'));
@@ -133,6 +134,27 @@ describe('Kyc', () => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
           done();
+        });
+      });
+
+      it('should allow init if investor verification is failed', (done) => {
+        config.kyc.shuftipro.allowRecreateSession = true;
+        const originalToISOString = Date.prototype.toISOString;
+        Date.prototype.toISOString = () => '2017-11-09T06:47:31.467Z';
+        const token = 'kyc_3_failed_token_shuftipro';
+
+        getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.deep.eq({
+            message: 'message',
+            reference: '59f07e23b41f6373f64a8dcb',
+            signature: '149678856aa4b314fb5ff23aa9c746518b1e753932851fe530a0abb79c2f2e0a',
+            status_code: 'SP2',
+            timestamp: '2017-11-09T06:47:31.467Z'
+          });
+          done();
+          config.kyc.shuftipro.allowRecreateSession = false;
+          Date.prototype.toISOString = originalToISOString;
         });
       });
     });
