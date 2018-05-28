@@ -22,7 +22,15 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
-    phone: Joi.string().required().regex(phoneNumberRegex),
+    phone: Joi.string().required().regex(phoneNumberRegex).options({
+      language: {
+        string: {
+          regex: {
+            base: 'must be a valid phone number (+1234567890)'
+          }
+        }
+      }
+    }),
     country: Joi.string().min(2).required(),
     dob: Joi.string().isoDate().required(),
     password: Joi.string().required().regex(passwordRegex),

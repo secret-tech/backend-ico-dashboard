@@ -345,7 +345,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"phone" with value "45550000000" fails to match the required pattern: /^\\+[1-9]\\d{1,14}$/');
+        expect(res.body.error.details[0].message).to.equal('"phone" must be a valid phone number (+1234567890)');
         done();
       });
     });
