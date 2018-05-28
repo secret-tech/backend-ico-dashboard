@@ -18,7 +18,6 @@ import { EmailTemplateServiceType, EmailTemplateService } from '../services/emai
 const TRANSACTION_STATUS_PENDING = 'pending';
 
 const TRANSACTION_TYPE_TOKEN_PURCHASE = 'token_purchase';
-const ICO_END_TIMESTAMP = 1517443200; // Thursday, February 1, 2018 12:00:00 AM
 
 export const INVEST_SCOPE = 'invest';
 
@@ -71,7 +70,7 @@ export class DashboardController {
         BTC: '0'
       },
       // calculate days left and add 1 as Math.floor always rounds to less value
-      daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
+      daysLeft: Math.floor((config.app.icoEndTimestamp - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
     });
   }
 
@@ -87,7 +86,7 @@ export class DashboardController {
       ethCollected,
       contributionsCount,
       // calculate days left and add 1 as Math.floor always rounds to less value
-      daysLeft: Math.floor((ICO_END_TIMESTAMP - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
+      daysLeft: Math.floor((config.app.icoEndTimestamp - Math.floor(Date.now() / 1000)) / (3600 * 24)) + 1
     });
   }
 

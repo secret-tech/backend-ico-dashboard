@@ -65,7 +65,8 @@ const {
   KYC_SHUFTIPRO_REDIRECT_URL,
   TEST_FUND_PK,
   DEFAULT_INVEST_GAS,
-  PURCHASE_GAS_LIMIT
+  PURCHASE_GAS_LIMIT,
+  ICO_END_TIMESTAMP
 } = process.env;
 
 export default {
@@ -79,7 +80,8 @@ export default {
     forceHttps: FORCE_HTTPS || 'disabled',
     apiUrl: API_URL,
     frontendUrl: FRONTEND_URL,
-    accessLog: ACCESS_LOG || true
+    accessLog: ACCESS_LOG || true,
+    icoEndTimestamp: parseInt(ICO_END_TIMESTAMP, 10) || 1517443200
   },
   logging: {
     level: LOGGING_LEVEL || 'warn',
