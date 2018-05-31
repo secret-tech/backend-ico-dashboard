@@ -67,7 +67,8 @@ const {
   DEFAULT_INVEST_GAS,
   PURCHASE_GAS_LIMIT,
   ICO_END_TIMESTAMP,
-  KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION
+  KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION,
+  KYC_SHUFTIPRO_DEFAULT_PHONE
 } = process.env;
 
 export default {
@@ -190,7 +191,8 @@ export default {
       baseUrl: 'https://api.shuftipro.com',
       callbackUrl: KYC_SHUFTIPRO_CALLBACK_URL,
       redirectUrl: KYC_SHUFTIPRO_REDIRECT_URL,
-      allowRecreateSession: (KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION === 'true') || false
+      allowRecreateSession: (KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION === 'true') || false,
+      defaultPhone: KYC_SHUFTIPRO_DEFAULT_PHONE
     },
     provider: KYC_PROVIDER || 'JUMIO'
   },
