@@ -33,7 +33,15 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     }),
     country: Joi.string().min(2).required(),
     dob: Joi.string().isoDate().required(),
-    password: Joi.string().required().regex(passwordRegex),
+    password: Joi.string().required().regex(passwordRegex).options({
+      language: {
+        string: {
+          regex: {
+            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+          }
+        }
+      }
+    }),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
