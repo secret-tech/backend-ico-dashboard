@@ -68,6 +68,97 @@ describe('Users', () => {
       });
     });
 
+    it('should create user - optional phone', (done) => {
+      config.kyc.shuftipro.defaultPhone = '+400000000000';
+      const params = {
+        email: 'TesT@test.com',
+        firstName: 'ICO',
+        lastName: 'investor',
+        country: 'us',
+        dob: '1970-01-01',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        agreeTos: true,
+        source: {
+          utm: 'utm',
+          gtm: 'gtm'
+        }
+      };
+
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('id');
+        expect(res.body.firstName).to.eq('ICO');
+        expect(res.body.lastName).to.eq('investor');
+        expect(res.body.phone).to.eq('+400000000000');
+        expect(res.body.email).to.eq('test@test.com');
+        expect(res.body.agreeTos).to.eq(true);
+        expect(res.body.isVerified).to.eq(false);
+        if (config.kyc.enabled) {
+          expect(res.body.kycStatus).to.eq('not_verified');
+        } else {
+          expect(res.body.kycStatus).to.eq(config.kyc.status.default);
+        }
+
+        expect(res.body.defaultVerificationMethod).to.eq('email');
+        expect(res.body.verification.id).to.equal('123');
+        expect(res.body.verification.method).to.equal('email');
+        expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
+        expect(res.body.source).to.deep.equal({
+          utm: 'utm',
+          gtm: 'gtm'
+        });
+        expect(res.body).to.not.have.property('passwordHash');
+        expect(res.body).to.not.have.property('password');
+        done();
+      });
+    });
+
+    it('should create user whit phone - optional phone', (done) => {
+      config.kyc.shuftipro.defaultPhone = '+400000000000';
+      const params = {
+        email: 'TesT@test.com',
+        firstName: 'ICO',
+        lastName: 'investor',
+        phone: '+45550000000',
+        country: 'us',
+        dob: '1970-01-01',
+        password: 'test12A6!@#$%^&*()_-=+|/',
+        agreeTos: true,
+        source: {
+          utm: 'utm',
+          gtm: 'gtm'
+        }
+      };
+
+      postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('id');
+        expect(res.body.firstName).to.eq('ICO');
+        expect(res.body.lastName).to.eq('investor');
+        expect(res.body.phone).to.eq('+45550000000');
+        expect(res.body.email).to.eq('test@test.com');
+        expect(res.body.agreeTos).to.eq(true);
+        expect(res.body.isVerified).to.eq(false);
+        if (config.kyc.enabled) {
+          expect(res.body.kycStatus).to.eq('not_verified');
+        } else {
+          expect(res.body.kycStatus).to.eq(config.kyc.status.default);
+        }
+
+        expect(res.body.defaultVerificationMethod).to.eq('email');
+        expect(res.body.verification.id).to.equal('123');
+        expect(res.body.verification.method).to.equal('email');
+        expect(res.body.referralCode).to.equal('dGVzdEB0ZXN0LmNvbQ');
+        expect(res.body.source).to.deep.equal({
+          utm: 'utm',
+          gtm: 'gtm'
+        });
+        expect(res.body).to.not.have.property('passwordHash');
+        expect(res.body).to.not.have.property('password');
+        done();
+      });
+    });
+
     it('should not allow to create user if email already exists', (done) => {
       const params = {
         email: 'exiSTing@test.com',
@@ -331,11 +422,23 @@ describe('Users', () => {
     });
 
     it('should require phone', (done) => {
+      config.kyc.shuftipro.defaultPhone = undefined;
       const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', country: 'ru', password: 'test12A6!@#$%^&*()_-=+|/', agreeTos: true};
 
-      postRequest(app, '/user').send(params).end((err, res) => {
+      postRequest(factory.buildApp(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
         expect(res.body.error.details[0].message).to.equal('"phone" is required');
+        done();
+      });
+    });
+
+    it('should optional phone', (done) => {
+      config.kyc.shuftipro.defaultPhone = '+4400000000000';
+      const params = {email: 'test@test.com', firstName: 'ICO', lastName: 'investor', country: 'ru', password: 'test12A6!@#$%^&*()_-=+|/', agreeTos: true};
+
+      postRequest(factory.buildApp(), '/user').send(params).end((err, res) => {
+        expect(res.status).to.equal(422);
+        expect(res.body.error.details[0].message).to.not.equal('"phone" is required');
         done();
       });
     });
