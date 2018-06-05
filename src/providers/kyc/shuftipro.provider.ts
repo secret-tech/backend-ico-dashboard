@@ -119,21 +119,17 @@ export class ShuftiproProvider implements KycProviderInterface {
     if (signature === kycResult.signature) {
       switch (kycResult.statusCode) {
         case 'SP1':
-          investor.kycStatus = KYC_STATUS_VERIFIED;
-          investor.kycInitResult = kycResult;
+          await this.updateKycStatus(investor, KYC_STATUS_VERIFIED, kycResultRequest);
           await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
           break;
         case 'SP0':
-          investor.kycStatus = KYC_STATUS_FAILED;
-          investor.kycInitResult = kycResult;
+          await this.updateKycStatus(investor, KYC_STATUS_FAILED, kycResultRequest);
           break;
       }
     } else {
       this.logger.exception('Invalid signature');
       throw new KycShuftiProInvalidSignature('Invalid signature');
     }
-
-    await investorRepo.save(investor);
   }
 
   async processKycStatus(user: Investor): Promise<ShuftiproInitResult> {
@@ -163,6 +159,12 @@ export class ShuftiproProvider implements KycProviderInterface {
   private async updateKycInit(user: Investor): Promise<ShuftiproInitResult> {
     try {
       const currentStatus = await this.getKycStatus(user);
+
+      if (currentStatus.status_code === 'SP1' && user.kycStatus !== KYC_STATUS_VERIFIED) {
+        this.updateKycStatus(user, KYC_STATUS_VERIFIED, currentStatus);
+        await this.web3Client.addAddressToWhiteList(user.ethWallet.address);
+      }
+
       if (currentStatus.error
         || (currentStatus.status_code !== 'SP2'
         && currentStatus.status_code !== 'SP1'
@@ -270,5 +272,13 @@ export class ShuftiproProvider implements KycProviderInterface {
     user.kycInitResult = kycInitResult;
     await investorRepo.save(user);
     return kycInitResult;
+  }
+
+  private async updateKycStatus(user: Investor, kycStatus: string, kycResult: ShuftiproInitResult): Promise<Investor> {
+    const investorRepo = getConnection().getMongoRepository(Investor);
+
+    user.kycStatus = kycStatus;
+    user.kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycResult, timestamp: new Date().toISOString() });
+    return investorRepo.save(user);
   }
 }
