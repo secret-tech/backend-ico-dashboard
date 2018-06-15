@@ -1,10 +1,20 @@
 FROM mhart/alpine-node:8.9.1
 
-RUN apk update && apk upgrade && apk add git && apk add python && apk add make && apk add g++ && npm i -g yarn
+WORKDIR /usr/src/app
+COPY . .
+COPY custom-entrypoint.sh /usr/local/bin/custom-entrypoint.sh
 
-VOLUME /usr/src/app
+RUN chmod 755 /usr/local/bin/custom-entrypoint.sh && \
+    addgroup ico && \
+    adduser -D -H -G ico ico && \
+    apk add --update --no-cache git python make g++ && \
+    npm i -g yarn && \
+    yarn install
+
 EXPOSE 3000
 EXPOSE 4000
-WORKDIR /usr/src/app
 
+USER ico
 
+ENTRYPOINT ["/usr/local/bin/custom-entrypoint.sh"]
+CMD ["npm", "start"]

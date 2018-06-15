@@ -9,13 +9,13 @@ services:
       - 80:3000
       - 3000:3000
       - 443:4000
-    volumes:
-      - ./:/usr/src/app
     links:
       - auth
       - redis
       - verify
       - rpc
+    volumes:
+      - ./:/usr/src/app
     depends_on:
       - rpc
       - mongo
