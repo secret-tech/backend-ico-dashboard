@@ -3,9 +3,13 @@ import config from '../config';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { base64decode } from '../helpers/helpers';
+import {ObjectSchema} from 'joi';
+import * as fs from 'fs';
+import {existsSync} from 'fs';
 
 const options = {
-  allowUnknown: true
+  allowUnknown: true,
+  language: {}
 };
 
 const verificationSchema = Joi.object().keys({
@@ -49,13 +53,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     req.body.referral = base64decode(req.body.referral);
   }
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function activateUser(req: Request, res: Response, next: NextFunction) {
@@ -65,13 +63,7 @@ export function activateUser(req: Request, res: Response, next: NextFunction) {
     code: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function initiateLogin(req: Request, res: Response, next: NextFunction) {
@@ -80,13 +72,7 @@ export function initiateLogin(req: Request, res: Response, next: NextFunction) {
     password: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function verifyLogin(req: Request, res: Response, next: NextFunction) {
@@ -99,13 +85,7 @@ export function verifyLogin(req: Request, res: Response, next: NextFunction) {
     })
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function changePassword(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -114,13 +94,7 @@ export function changePassword(req: AuthorizedRequest, res: Response, next: Next
     newPassword: Joi.string().required().regex(passwordRegex)
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function inviteUser(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -128,13 +102,7 @@ export function inviteUser(req: AuthorizedRequest, res: Response, next: NextFunc
     emails: Joi.array().required().max(5).min(1).items(Joi.string().email())
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function resetPasswordInitiate(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -142,13 +110,7 @@ export function resetPasswordInitiate(req: AuthorizedRequest, res: Response, nex
     email: Joi.string().required().email()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -158,13 +120,7 @@ export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next:
     verification: verificationSchema
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function verificationRequired(req: Request, res: Response, next: NextFunction) {
@@ -172,13 +128,7 @@ export function verificationRequired(req: Request, res: Response, next: NextFunc
     verification: verificationSchema
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function invest(req: Request, res: Response, next: NextFunction) {
@@ -187,13 +137,7 @@ export function invest(req: Request, res: Response, next: NextFunction) {
     mnemonic: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function onlyJumioIp(req: Request, res: Response, next: NextFunction) {
@@ -242,13 +186,7 @@ export function resendVerification(req: Request, res: Response, next: NextFuncti
     email: Joi.string().email().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function onlyAcceptApplicationJson(req: Request, res: Response, next: NextFunction) {
@@ -256,6 +194,23 @@ export function onlyAcceptApplicationJson(req: Request, res: Response, next: Nex
     return res.status(406).json({
       error: 'Unsupported "Accept" header'
     });
+  } else {
+    return next();
+  }
+}
+
+export function commonValidate(code: number, schema: Joi.Schema, req: Request, res: Response, next: NextFunction) {
+  const lang = req.acceptsLanguages() || 'en';
+  const langPath = __dirname + `/../resources/locales/${lang}/validation.json`;
+
+  if (fs.existsSync(langPath)) {
+    options.language = require(langPath);
+  }
+
+  const result = Joi.validate(req.body, schema, options);
+
+  if (result.error) {
+    return res.status(code).json(result);
   } else {
     return next();
   }

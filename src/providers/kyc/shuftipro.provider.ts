@@ -142,7 +142,9 @@ export class ShuftiproProvider implements KycProviderInterface {
         throw new KycAlreadyVerifiedError('Your account is verified already');
       case KYC_STATUS_FAILED:
         if (!config.kyc.shuftipro.allowRecreateSession) {
-          throw new KycFailedError(`Your account verification failed. Please contact ${ config.app.companyName } team`);
+          throw new KycFailedError('Your account verification failed. Please contact {{companyName}} team', {
+            companyName: config.app.companyName
+          });
         }
         break;
       case KYC_STATUS_PENDING:

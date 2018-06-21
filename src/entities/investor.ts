@@ -103,7 +103,7 @@ export class Investor {
 
   checkAndUpdateInvitees(emails: string[]) {
     if (emails.indexOf(this.email.toLowerCase()) !== -1) {
-      throw new InviteIsNotAllowed('You are not able to invite yourself.');
+      throw new InviteIsNotAllowed('You are not able to invite yourself');
     }
 
     if (emails.length > 5) {
@@ -118,7 +118,7 @@ export class Investor {
       if (invitedDuring24) {
         totalInvitesDuringLast24Hours += 1;
         if (totalInvitesDuringLast24Hours >= 50) {
-          throw new InviteIsNotAllowed(`You have already sent 50 invites during last 24 hours.`);
+          throw new InviteIsNotAllowed(`You have already sent 50 invites during last 24 hours`);
         }
       }
 
@@ -128,11 +128,15 @@ export class Investor {
         emails.splice(index, 1);
 
         if (invitedDuring24) {
-          throw new InviteIsNotAllowed(`You have already invited ${ invitee.email } during last 24 hours`);
+          throw new InviteIsNotAllowed(`You have already invited {{email}} during last 24 hours`, {
+            email: invitee.email
+          });
         }
 
         if (invitee.reachedMaxAttemptsCount()) {
-          throw new InviteIsNotAllowed(`You have already invited ${ invitee.email } at least 5 times.`);
+          throw new InviteIsNotAllowed(`You have already invited {{email}} at least 5 times`, {
+            email: invitee.email
+          });
         }
 
         invitee.invitedAgain();

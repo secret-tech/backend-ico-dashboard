@@ -910,7 +910,7 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${ token }`)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is enabled already.');
+          expect(res.body.error).to.eq('Authenticator is enabled already');
           done();
         });
     });
@@ -930,7 +930,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is enabled already.');
+          expect(res.body.error).to.eq('Authenticator is enabled already');
           done();
         });
     });
@@ -1000,7 +1000,7 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${ token }`)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is disabled already.');
+          expect(res.body.error).to.eq('Authenticator is disabled already');
           done();
         });
     });
@@ -1020,7 +1020,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is disabled already.');
+          expect(res.body.error).to.eq('Authenticator is disabled already');
           done();
         });
     });
