@@ -22,7 +22,7 @@ const passwordRegex = /^[a-zA-Z0\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
 const phoneNumberRegex = /^\+[1-9]\d{1,14}$/;
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
-  const schema = Joi.object().keys({
+  const schemaWithRequiredPhone = Joi.object().keys({
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
@@ -37,7 +37,15 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     }),
     country: Joi.string().min(2).required(),
     dob: Joi.string().isoDate().required(),
-    password: Joi.string().required().regex(passwordRegex),
+    password: Joi.string().required().regex(passwordRegex).options({
+      language: {
+        string: {
+          regex: {
+            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+          }
+        }
+      }
+    }),
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
@@ -48,6 +56,43 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       }
     }).label(' ') // Joi does not allow empty label but space is working
   });
+
+  const schemaWithOptionalPhone = Joi.object().keys({
+    firstName: Joi.string().min(3).required(),
+    lastName: Joi.string().min(3).required(),
+    email: Joi.string().email().required(),
+    phone: Joi.string().optional().regex(phoneNumberRegex).options({
+      language: {
+        string: {
+          regex: {
+            base: 'must be a valid phone number (+1234567890)'
+          }
+        }
+      }
+    }),
+    country: Joi.string().min(2).required(),
+    dob: Joi.string().isoDate().required(),
+    password: Joi.string().required().regex(passwordRegex).options({
+      language: {
+        string: {
+          regex: {
+            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+          }
+        }
+      }
+    }),
+    agreeTos: Joi.boolean().only(true).required(),
+    referral: Joi.string().email().options({
+      language: {
+        key: '{{!label}}',
+        string: {
+          email: 'Not valid referral code'
+        }
+      }
+    }).label(' ') // Joi does not allow empty label but space is working
+  });
+
+  const schema = config.kyc.shuftipro.defaultPhone ? schemaWithOptionalPhone : schemaWithRequiredPhone;
 
   if (req.body.referral) {
     req.body.referral = base64decode(req.body.referral);
