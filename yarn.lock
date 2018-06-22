@@ -57,6 +57,10 @@
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@types/faker/-/faker-4.1.1.tgz#989666efde54c07b7f960a552b5fceb5d5e570e0"
 
+"@types/i18next@8.4.3":
+  version "8.4.3"
+  resolved "https://registry.yarnpkg.com/@types/i18next/-/i18next-8.4.3.tgz#9136a9551bf5bf7169aa9f3125c1743f1f8dd6de"
+
 "@types/ioredis@*":
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/@types/ioredis/-/ioredis-3.2.7.tgz#1a1b4248ef0f86dacfb67c4108acf590bcb170b3"

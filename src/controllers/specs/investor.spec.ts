@@ -3,6 +3,7 @@ const { expect } = chai;
 import { Investor } from '../../entities/investor';
 import * as faker from 'faker';
 import { Invitee } from '../../entities/invitee';
+import { InviteIsNotAllowed } from '../../exceptions/exceptions';
 
 describe('Investor Entity', () => {
   beforeEach(() => {
@@ -46,15 +47,15 @@ describe('Investor Entity', () => {
 
       expect(
         () => this.investor.checkAndUpdateInvitees(['test1@test.com'])
-      ).to.throw('You have already invited test1@test.com during last 24 hours');
+      ).to.throw(InviteIsNotAllowed, 'You have already invited {{email}} during last 24 hours');
 
       expect(
         () => this.investor.checkAndUpdateInvitees(['test2@test.com'])
-      ).to.throw('You have already invited test2@test.com during last 24 hours');
+      ).to.throw(InviteIsNotAllowed, 'You have already invited {{email}} during last 24 hours');
 
       expect(
         () => this.investor.checkAndUpdateInvitees(['test3@test.com'])
-      ).to.throw('You have already invited test3@test.com during last 24 hours');
+      ).to.throw(InviteIsNotAllowed, 'You have already invited {{email}} during last 24 hours');
     });
 
     it('should not allow to invite more than 50 emails during 24 hours', () => {
@@ -66,7 +67,7 @@ describe('Investor Entity', () => {
 
       expect(
         () => this.investor.checkAndUpdateInvitees(['test2@test.com'])
-      ).to.throw('You have already sent 50 invites during last 24 hours.');
+      ).to.throw('You have already sent 50 invites during last 24 hours');
     });
 
     it('should not allow to invite more than 5 emails at once', () => {
@@ -84,7 +85,7 @@ describe('Investor Entity', () => {
     it('should not allow to invite myself', () => {
       expect(
         () => this.investor.checkAndUpdateInvitees(['invitor@test.com'])
-      ).to.throw('You are not able to invite yourself.');
+      ).to.throw('You are not able to invite yourself');
     });
 
     it('should increase attempts count and lastSentAt', () => {
@@ -114,7 +115,7 @@ describe('Investor Entity', () => {
 
       expect(
         () => this.investor.checkAndUpdateInvitees(['test@test.com'])
-      ).to.throw('You have already invited test@test.com at least 5 times.');
+      ).to.throw(InviteIsNotAllowed, 'You have already invited {{email}} at least 5 times');
     });
   });
 });

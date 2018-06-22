@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as Err from '../exceptions/exceptions';
 import { ErrorWithFields } from '../exceptions/exceptions';
-import * as fs from "fs";
+import * as fs from 'fs';
 import * as i18next from 'i18next';
 
 export default function handle(err: ErrorWithFields, req: Request, res: Response, next: NextFunction): void {
@@ -30,7 +30,7 @@ export default function handle(err: ErrorWithFields, req: Request, res: Response
     case Err.InvalidPassword:
       // no break
     case Err.UserNotActivated:
-      //no break
+      // no break
     case Err.UserActivated:
       status = 403;
       break;

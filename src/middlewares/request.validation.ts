@@ -3,9 +3,8 @@ import config from '../config';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { base64decode } from '../helpers/helpers';
-import {ObjectSchema} from 'joi';
 import * as fs from 'fs';
-import {existsSync} from 'fs';
+import * as i18next from 'i18next';
 
 const options = {
   allowUnknown: true,
@@ -30,7 +29,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be a valid phone number (+1234567890)'
+            base: translateCustomMessage('must be a valid phone number (+1234567890)', req)
           }
         }
       }
@@ -41,7 +40,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+            base: translateCustomMessage('must be at least 8 characters, contain at least one number, 1 small and 1 capital letter', req)
           }
         }
       }
@@ -49,12 +48,12 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
-        key: '{{!label}}',
+        key: '',
         string: {
-          email: 'Not valid referral code'
+          email: translateCustomMessage('Not valid referral code', req)
         }
       }
-    }).label(' ') // Joi does not allow empty label but space is working
+    })
   });
 
   const schemaWithOptionalPhone = Joi.object().keys({
@@ -65,7 +64,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be a valid phone number (+1234567890)'
+            base: translateCustomMessage('must be a valid phone number (+1234567890)', req)
           }
         }
       }
@@ -76,7 +75,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+            base: translateCustomMessage('must be at least 8 characters, contain at least one number, 1 small and 1 capital letter', req)
           }
         }
       }
@@ -84,12 +83,12 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
-        key: '{{!label}}',
+        key: '',
         string: {
-          email: 'Not valid referral code'
+          email: translateCustomMessage('Not valid referral code', req)
         }
       }
-    }).label(' ') // Joi does not allow empty label but space is working
+    })
   });
 
   const schema = config.kyc.shuftipro.defaultPhone ? schemaWithOptionalPhone : schemaWithRequiredPhone;
@@ -253,10 +252,22 @@ export function commonValidate(code: number, schema: Joi.Schema, req: Request, r
   }
 
   const result = Joi.validate(req.body, schema, options);
-
   if (result.error) {
     return res.status(code).json(result);
   } else {
     return next();
   }
+}
+
+export function translateCustomMessage(message: string, req: Request) {
+  const lang = req.acceptsLanguages() || 'en';
+  const langPath = __dirname + `/../resources/locales/${lang}/errors.json`;
+  const translations = fs.existsSync(langPath) ? require(langPath) : null;
+
+  i18next.init({
+    lng: lang.toString(),
+    resources: translations
+  });
+
+  return i18next.t(message);
 }

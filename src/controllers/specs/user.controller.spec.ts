@@ -113,7 +113,7 @@ describe('Users', () => {
       });
     });
 
-    it('should create user whit phone - optional phone', (done) => {
+    it('should create user with phone - optional phone', (done) => {
       config.kyc.shuftipro.defaultPhone = '+400000000000';
       const params = {
         email: 'TesT@test.com',
@@ -374,7 +374,6 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-
         expect(res.body.error.details[0].message).to.equal('Not valid referral code');
         done();
       });
@@ -549,7 +548,7 @@ describe('Users', () => {
       const params = { email: 'existing@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
       postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(403);
-        expect(res.body.error).to.equal('Account is not activated! Please check your email.');
+        expect(res.body.error).to.equal('Account is not activated! Please check your email');
         done();
       });
     });

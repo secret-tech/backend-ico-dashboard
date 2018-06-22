@@ -22,7 +22,9 @@
       "You have already invited {{email}} at least 5 times": "Вы уже пригласили {{email}} не менее 5 раз",
       "{{email}} account already exists": "Аккаунт {{email}} уже существует",
       "You have used all attempts to enter code": "Вы использовали все попытки ввода кода",
-      "Not correct mnemonic phrase": "Неправильная мнемоническая фраза"
+      "Not correct mnemonic phrase": "Неправильная мнемоническая фраза",
+      "must be at least 8 characters, contain at least one number, 1 small and 1 capital letter": "должен содержать не менее 8 символов, содержать хотя бы одно число, 1 маленькую и 1 заглавную букву",
+      "must be a valid phone number (+1234567890)": "должен быть действительным номером телефона (+1234567890)"
     }
   }
 }
