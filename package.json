@@ -6,7 +6,7 @@
     "start": "nodemon -w ./src -e ts ./src/bin/www --exec ts-node",
     "lint": "tslint './src/**/*.ts'",
     "lintFix": "tslint --fix './src/**/*.ts'",
-    "test": "nyc mocha ./src/**/*.spec.ts --require test/prepare.ts",
+    "test": "nyc mocha ./src/**/*.spec.ts --require test/prepare.ts --timeout 10000",
     "build": "tsc -p tsconfig.build.json --outDir dist",
     "serve": "node ./dist/bin/www.js"
   },
@@ -26,6 +26,7 @@
     "dotenv": "4.0.0",
     "ethereumjs-wallet": "0.6.0",
     "express": "~4.14.0",
+    "http-status": "1.2.0",
     "i18next": "11.3.3",
     "inversify": "4.2.0",
     "inversify-express-utils": "4.0.0",

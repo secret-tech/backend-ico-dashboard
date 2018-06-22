@@ -5,6 +5,7 @@ import { AuthorizedRequest } from '../requests/authorized.request';
 import { base64decode } from '../helpers/helpers';
 import * as fs from 'fs';
 import * as i18next from 'i18next';
+import { responseErrorWithObject } from '../helpers/responses';
 
 const options = {
   allowUnknown: true,
@@ -253,7 +254,9 @@ export function commonValidate(code: number, schema: Joi.Schema, req: Request, r
 
   const result = Joi.validate(req.body, schema, options);
   if (result.error) {
-    return res.status(code).json(result);
+    responseErrorWithObject(res,{
+      message: result.error.details[0].message
+    }, code);
   } else {
     return next();
   }

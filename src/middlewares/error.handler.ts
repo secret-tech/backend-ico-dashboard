@@ -3,6 +3,7 @@ import * as Err from '../exceptions/exceptions';
 import { ErrorWithFields } from '../exceptions/exceptions';
 import * as fs from 'fs';
 import * as i18next from 'i18next';
+import { responseErrorWithObject } from '../helpers/responses';
 
 export default function handle(err: ErrorWithFields, req: Request, res: Response, next: NextFunction): void {
   let status;
@@ -60,8 +61,7 @@ export default function handle(err: ErrorWithFields, req: Request, res: Response
       console.error(err.stack);
   }
 
-  res.status(status).send({
-    statusCode: status,
-    error: i18next.t(err.message, err.fields)
-  });
+  responseErrorWithObject(res, {
+    'message': i18next.t(err.message, err.fields)
+  }, status);
 }
