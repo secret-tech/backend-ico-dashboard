@@ -51,7 +51,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithJumioProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account is verified already');
+          expect(res.body.message).to.eq('Your account is verified already');
           done();
         });
       });
@@ -63,7 +63,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithJumioProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
+          expect(res.body.message).to.eq('Your account verification failed. Please contact secret_tech team');
           done();
         });
       });
@@ -122,7 +122,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account is verified already');
+          expect(res.body.message).to.eq('Your account is verified already');
           done();
         });
       });
@@ -132,7 +132,7 @@ describe('Kyc', () => {
 
         getRequest(factory.testAppForDashboardWithShuftiproProvider(), '/kyc/init').set('Authorization', `Bearer ${ token }`).end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Your account verification failed. Please contact secret_tech team');
+          expect(res.body.message).to.eq('Your account verification failed. Please contact secret_tech team');
           done();
         });
       });

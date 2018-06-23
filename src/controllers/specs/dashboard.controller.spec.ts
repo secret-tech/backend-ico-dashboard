@@ -110,7 +110,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" is required');
+        expect(res.body.message).to.eq('"ethAmount" is required');
         done();
       });
     });
@@ -123,7 +123,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
+        expect(res.body.message).to.eq('"mnemonic" is required');
         done();
       });
     });
@@ -137,7 +137,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/initiate').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
+        expect(res.body.message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
       });
     });
@@ -170,7 +170,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" is required');
+        expect(res.body.message).to.eq('"ethAmount" is required');
         done();
       });
     });
@@ -184,7 +184,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"verification" is required');
+        expect(res.body.message).to.eq('"verification" is required');
         done();
       });
     });
@@ -202,7 +202,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"ethAmount" must be larger than or equal to 0.1');
+        expect(res.body.message).to.eq('"ethAmount" must be larger than or equal to 0.1');
         done();
       });
     });
@@ -220,7 +220,7 @@ describe('Dashboard', () => {
 
       postRequest(factory.testAppForDashboardWithJumioProvider(), '/dashboard/invest/verify').set('Authorization', `Bearer ${ token }`).send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('"mnemonic" is required');
+        expect(res.body.message).to.eq('"mnemonic" is required');
         done();
       });
     });

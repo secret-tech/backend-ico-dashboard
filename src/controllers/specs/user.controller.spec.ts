@@ -213,7 +213,7 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error).to.eq('Not valid referral code');
+        expect(res.body.message).to.eq('Not valid referral code');
         done();
       });
     });
@@ -233,7 +233,7 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error).to.eq('Not valid referral code');
+        expect(res.body.message).to.eq('Not valid referral code');
         done();
       });
     });
@@ -253,7 +253,7 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.eq('Not valid referral code');
+        expect(res.body.message).to.eq('Not valid referral code');
         done();
       });
     });
@@ -335,7 +335,7 @@ describe('Users', () => {
 
       postRequest(factory.testAppForSuccessRegistrationWithJumioProvider(), '/user/activate').send(activateParams).end((err, res) => {
         expect(res.status).to.eq(422);
-        expect(res.body.error.details[0].message).to.equal('"email" is required');
+        expect(res.body.message).to.equal('"email" is required');
         done();
       });
     });
@@ -354,7 +354,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"email" must be a valid email');
+        expect(res.body.message).to.equal('"email" must be a valid email');
         done();
       });
     });
@@ -374,7 +374,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('Not valid referral code');
+        expect(res.body.message).to.equal('Not valid referral code');
         done();
       });
     });
@@ -385,7 +385,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"email" is required');
+        expect(res.body.message).to.equal('"email" is required');
         done();
       });
     });
@@ -395,7 +395,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"firstName" is required');
+        expect(res.body.message).to.equal('"firstName" is required');
         done();
       });
     });
@@ -405,7 +405,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"lastName" is required');
+        expect(res.body.message).to.equal('"lastName" is required');
         done();
       });
     });
@@ -415,7 +415,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"country" is required');
+        expect(res.body.message).to.equal('"country" is required');
         done();
       });
     });
@@ -426,7 +426,7 @@ describe('Users', () => {
 
       postRequest(factory.buildApp(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"phone" is required');
+        expect(res.body.message).to.equal('"phone" is required');
         done();
       });
     });
@@ -437,7 +437,7 @@ describe('Users', () => {
 
       postRequest(factory.buildApp(), '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.not.equal('"phone" is required');
+        expect(res.body.message).to.not.equal('"phone" is required');
         done();
       });
     });
@@ -447,7 +447,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"phone" must be a valid phone number (+1234567890)');
+        expect(res.body.message).to.equal('"phone" must be a valid phone number (+1234567890)');
         done();
       });
     });
@@ -457,7 +457,7 @@ describe('Users', () => {
 
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
-        expect(res.body.error.details[0].message).to.equal('"dob" is required');
+        expect(res.body.message).to.equal('"dob" is required');
         done();
       });
     });
@@ -468,7 +468,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"password" is required');
+        expect(res.body.message).to.equal('"password" is required');
         done();
       });
     });
@@ -479,7 +479,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"password" must be at least 8 characters, contain at least one number, 1 small and 1 capital letter');
+        expect(res.body.message).to.equal('"password" must be at least 8 characters, contain at least one number, 1 small and 1 capital letter');
         done();
       });
     });
@@ -490,7 +490,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"agreeTos" is required');
+        expect(res.body.message).to.equal('"agreeTos" is required');
         done();
       });
     });
@@ -510,7 +510,7 @@ describe('Users', () => {
       postRequest(app, '/user').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"agreeTos" must be one of [true]');
+        expect(res.body.message).to.equal('"agreeTos" must be one of [true]');
         done();
       });
     });
@@ -548,7 +548,7 @@ describe('Users', () => {
       const params = { email: 'existing@test.com', password: 'test12A6!@#$%^&*()_-=+|/' };
       postRequest(factory.testAppForInitiateLogin(), '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(403);
-        expect(res.body.error).to.equal('Account is not activated! Please check your email');
+        expect(res.body.message).to.equal('Account is not activated! Please check your email');
         done();
       });
     });
@@ -566,7 +566,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"email" is required');
+        expect(res.body.message).to.equal('"email" is required');
         done();
       });
     });
@@ -576,7 +576,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"email" must be a valid email');
+        expect(res.body.message).to.equal('"email" must be a valid email');
         done();
       });
     });
@@ -586,7 +586,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/initiate').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"password" is required');
+        expect(res.body.message).to.equal('"password" is required');
         done();
       });
     });
@@ -632,7 +632,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/verify').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"accessToken" is required');
+        expect(res.body.message).to.equal('"accessToken" is required');
         done();
       });
     });
@@ -649,7 +649,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/verify').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"id" is required');
+        expect(res.body.message).to.equal('"id" is required');
         done();
       });
     });
@@ -666,7 +666,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/verify').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"code" is required');
+        expect(res.body.message).to.equal('"code" is required');
         done();
       });
     });
@@ -683,7 +683,7 @@ describe('Users', () => {
       postRequest(app, '/user/login/verify').send(params).end((err, res) => {
         expect(res.status).to.equal(422);
 
-        expect(res.body.error.details[0].message).to.equal('"method" is required');
+        expect(res.body.message).to.equal('"method" is required');
         done();
       });
     });
@@ -775,7 +775,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(403);
-          expect(res.body.error).to.equal('Invalid password');
+          expect(res.body.message).to.equal('Invalid password');
           done();
         });
     });
@@ -792,7 +792,7 @@ describe('Users', () => {
         .end((err, res) => {
           expect(res.status).to.equal(422);
 
-          expect(res.body.error.details[0].message).to.equal('"newPassword" is required');
+          expect(res.body.message).to.equal('"newPassword" is required');
           done();
         });
     });
@@ -820,7 +820,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.equal('"email" is required');
+          expect(res.body.message).to.equal('"email" is required');
           done();
         });
     });
@@ -883,7 +883,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.equal('"password" is required');
+          expect(res.body.message).to.equal('"password" is required');
           done();
         });
     });
@@ -931,7 +931,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.equal('"1" must be a valid email');
+          expect(res.body.message).to.equal('"1" must be a valid email');
           done();
         });
     });
@@ -954,7 +954,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.equal('"emails" must contain less than or equal to 5 items');
+          expect(res.body.message).to.equal('"emails" must contain less than or equal to 5 items');
           done();
         });
     });
@@ -970,7 +970,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.equal('"emails" must contain at least 1 items');
+          expect(res.body.message).to.equal('"emails" must contain at least 1 items');
           done();
         });
     });
@@ -989,7 +989,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error).to.equal('existing@test.com account already exists');
+          expect(res.body.message).to.equal('existing@test.com account already exists');
           done();
         });
     });
@@ -1023,7 +1023,7 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${ token }`)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is enabled already');
+          expect(res.body.message).to.eq('Authenticator is enabled already');
           done();
         });
     });
@@ -1043,7 +1043,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is enabled already');
+          expect(res.body.message).to.eq('Authenticator is enabled already');
           done();
         });
     });
@@ -1079,7 +1079,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.eq('"verification" is required');
+          expect(res.body.message).to.eq('"verification" is required');
           done();
         });
     });
@@ -1113,7 +1113,7 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${ token }`)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is disabled already');
+          expect(res.body.message).to.eq('Authenticator is disabled already');
           done();
         });
     });
@@ -1133,7 +1133,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.eq('Authenticator is disabled already');
+          expect(res.body.message).to.eq('Authenticator is disabled already');
           done();
         });
     });
@@ -1147,7 +1147,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.eq('"verification" is required');
+          expect(res.body.message).to.eq('"verification" is required');
           done();
         });
     });
@@ -1183,7 +1183,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(422);
-          expect(res.body.error.details[0].message).to.eq('"email" is required');
+          expect(res.body.message).to.eq('"email" is required');
           done();
         });
     });
@@ -1197,7 +1197,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(404);
-          expect(res.body.error).to.eq('User is not found');
+          expect(res.body.message).to.eq('User is not found');
           done();
         });
     });
@@ -1211,7 +1211,7 @@ describe('Users', () => {
         .send(params)
         .end((err, res) => {
           expect(res.status).to.equal(403);
-          expect(res.body.error).to.eq('User is activated already');
+          expect(res.body.message).to.eq('User is activated already');
           done();
         });
     });
