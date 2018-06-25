@@ -21,7 +21,7 @@ describe('Application', () => {
   it('should return 406 for unsupported Accept header', (done) => {
     request(app).get('/dashboard/public').set('Content-Type', 'application/json').end((err, res) => {
       expect(res.status).to.equal(406);
-      expect(res.body.error).to.equal('Unsupported "Accept" header');
+      expect(res.body.message).to.equal('Unsupported "Accept" header');
       done();
     });
   });
@@ -29,7 +29,7 @@ describe('Application', () => {
   it('should return 406 for unsupported Content-Type header', (done) => {
     request(app).post('/random').set('Accept', 'application/json').end((err, res) => {
       expect(res.status).to.equal(406);
-      expect(res.body.error).to.equal('Unsupported "Content-Type"');
+      expect(res.body.message).to.equal('Unsupported "Content-Type"');
       done();
     });
   });

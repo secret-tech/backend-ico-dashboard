@@ -17,7 +17,10 @@ if (config.app.accessLog === 'true') {
 if (process.env.ENVIRONMENT === 'production') {
   app.use((req: any, res: Response, next: NextFunction) => {
     if (!req.client.authorized && req.path !== '/dashboard/public') {
-      return res.status(401).send({error: 'Invalid client certificate'});
+      return res.status(401).send({
+        status: 401,
+        message: 'Invalid client certificate'
+      });
     }
     next();
   });
@@ -48,7 +51,8 @@ app.post('*', (req: Request, res: Response, next: NextFunction) => {
     (req.header('Content-Type') !== 'application/json' && !req.header('Content-Type').includes('application/x-www-form-urlencoded'))
   ) {
     return res.status(406).json({
-      error: 'Unsupported "Content-Type"'
+      status: 406,
+      message: 'Unsupported "Content-Type"'
     });
   }
 
@@ -63,8 +67,8 @@ server.setErrorConfig((app) => {
   // 404 handler
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.status(404).send({
-      statusCode: 404,
-      error: 'Route is not found'
+      status: 404,
+      message: 'Route is not found'
     });
   });
 

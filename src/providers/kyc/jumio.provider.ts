@@ -91,7 +91,9 @@ export class JumioProvider implements KycProviderInterface {
       case KYC_STATUS_VERIFIED:
         throw new KycAlreadyVerifiedError('Your account is verified already');
       case KYC_STATUS_FAILED:
-        throw new KycFailedError(`Your account verification failed. Please contact ${config.app.companyName} team`);
+        throw new KycFailedError('Your account verification failed. Please contact {{companyName}} team', {
+          companyName: config.app.companyName
+        });
       case KYC_STATUS_PENDING:
         throw new KycPendingError('Your account verification is pending. Please wait for status update');
     }

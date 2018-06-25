@@ -3,9 +3,13 @@ import config from '../config';
 import { Response, Request, NextFunction } from 'express';
 import { AuthorizedRequest } from '../requests/authorized.request';
 import { base64decode } from '../helpers/helpers';
+import * as fs from 'fs';
+import * as i18next from 'i18next';
+import { responseErrorWithObject } from '../helpers/responses';
 
 const options = {
-  allowUnknown: true
+  allowUnknown: true,
+  language: {}
 };
 
 const verificationSchema = Joi.object().keys({
@@ -26,7 +30,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be a valid phone number (+1234567890)'
+            base: translateCustomMessage('must be a valid phone number (+1234567890)', req)
           }
         }
       }
@@ -37,7 +41,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+            base: translateCustomMessage('must be at least 8 characters, contain at least one number, 1 small and 1 capital letter', req)
           }
         }
       }
@@ -45,12 +49,12 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
-        key: '{{!label}}',
+        key: '',
         string: {
-          email: 'Not valid referral code'
+          email: translateCustomMessage('Not valid referral code', req)
         }
       }
-    }).label(' ') // Joi does not allow empty label but space is working
+    })
   });
 
   const schemaWithOptionalPhone = Joi.object().keys({
@@ -61,7 +65,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be a valid phone number (+1234567890)'
+            base: translateCustomMessage('must be a valid phone number (+1234567890)', req)
           }
         }
       }
@@ -72,7 +76,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       language: {
         string: {
           regex: {
-            base: 'must be at least 8 characters, contain at least one number, 1 small and 1 capital letter'
+            base: translateCustomMessage('must be at least 8 characters, contain at least one number, 1 small and 1 capital letter', req)
           }
         }
       }
@@ -80,12 +84,12 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     agreeTos: Joi.boolean().only(true).required(),
     referral: Joi.string().email().options({
       language: {
-        key: '{{!label}}',
+        key: '',
         string: {
-          email: 'Not valid referral code'
+          email: translateCustomMessage('Not valid referral code', req)
         }
       }
-    }).label(' ') // Joi does not allow empty label but space is working
+    })
   });
 
   const schema = config.kyc.shuftipro.defaultPhone ? schemaWithOptionalPhone : schemaWithRequiredPhone;
@@ -94,13 +98,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     req.body.referral = base64decode(req.body.referral);
   }
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function activateUser(req: Request, res: Response, next: NextFunction) {
@@ -110,13 +108,7 @@ export function activateUser(req: Request, res: Response, next: NextFunction) {
     code: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function initiateLogin(req: Request, res: Response, next: NextFunction) {
@@ -125,13 +117,7 @@ export function initiateLogin(req: Request, res: Response, next: NextFunction) {
     password: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function verifyLogin(req: Request, res: Response, next: NextFunction) {
@@ -144,13 +130,7 @@ export function verifyLogin(req: Request, res: Response, next: NextFunction) {
     })
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function changePassword(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -159,13 +139,7 @@ export function changePassword(req: AuthorizedRequest, res: Response, next: Next
     newPassword: Joi.string().required().regex(passwordRegex)
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function inviteUser(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -173,13 +147,7 @@ export function inviteUser(req: AuthorizedRequest, res: Response, next: NextFunc
     emails: Joi.array().required().max(5).min(1).items(Joi.string().email())
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function resetPasswordInitiate(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -187,13 +155,7 @@ export function resetPasswordInitiate(req: AuthorizedRequest, res: Response, nex
     email: Joi.string().required().email()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next: NextFunction) {
@@ -203,13 +165,7 @@ export function resetPasswordVerify(req: AuthorizedRequest, res: Response, next:
     verification: verificationSchema
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function verificationRequired(req: Request, res: Response, next: NextFunction) {
@@ -217,13 +173,7 @@ export function verificationRequired(req: Request, res: Response, next: NextFunc
     verification: verificationSchema
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function invest(req: Request, res: Response, next: NextFunction) {
@@ -232,13 +182,7 @@ export function invest(req: Request, res: Response, next: NextFunction) {
     mnemonic: Joi.string().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
-
-  if (result.error) {
-    return res.status(422).json(result);
-  } else {
-    return next();
-  }
+  commonValidate(422, schema, req, res, next);
 }
 
 export function onlyJumioIp(req: Request, res: Response, next: NextFunction) {
@@ -287,21 +231,46 @@ export function resendVerification(req: Request, res: Response, next: NextFuncti
     email: Joi.string().email().required()
   });
 
-  const result = Joi.validate(req.body, schema, options);
+  commonValidate(422, schema, req, res, next);
+}
 
-  if (result.error) {
-    return res.status(422).json(result);
+export function onlyAcceptApplicationJson(req: Request, res: Response, next: NextFunction) {
+  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json' && req.header('Content-Type') === 'application/json') {
+    responseErrorWithObject(res, {
+      message: 'Unsupported "Accept" header'
+    }, 406);
   } else {
     return next();
   }
 }
 
-export function onlyAcceptApplicationJson(req: Request, res: Response, next: NextFunction) {
-  if (req.method !== 'OPTIONS' && req.header('Accept') !== 'application/json' && req.header('Content-Type') === 'application/json') {
-    return res.status(406).json({
-      error: 'Unsupported "Accept" header'
-    });
+export function commonValidate(code: number, schema: Joi.Schema, req: Request, res: Response, next: NextFunction) {
+  const lang = req.acceptsLanguages() || 'en';
+  const langPath = __dirname + `/../resources/locales/${lang}/validation.json`;
+
+  if (fs.existsSync(langPath)) {
+    options.language = require(langPath);
+  }
+
+  const result = Joi.validate(req.body, schema, options);
+  if (result.error) {
+    responseErrorWithObject(res,{
+      message: result.error.details[0].message
+    }, code);
   } else {
     return next();
   }
+}
+
+export function translateCustomMessage(message: string, req: Request) {
+  const lang = req.acceptsLanguages() || 'en';
+  const langPath = __dirname + `/../resources/locales/${lang}/errors.json`;
+  const translations = fs.existsSync(langPath) ? require(langPath) : null;
+
+  i18next.init({
+    lng: lang.toString(),
+    resources: translations
+  });
+
+  return i18next.t(message);
 }

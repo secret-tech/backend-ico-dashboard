@@ -192,13 +192,13 @@ export class UserService implements UserServiceInterface {
     }
 
     if (!user.isVerified) {
-      throw new UserNotActivated('Account is not activated! Please check your email.');
+      throw new UserNotActivated('Account is not activated! Please check your email');
     }
 
     const passwordMatch = bcrypt.compareSync(loginData.password, user.passwordHash);
 
     if (!passwordMatch) {
-      throw new InvalidPassword('Incorrect password');
+      throw new InvalidPassword('Invalid password');
     }
 
     const logger = this.logger.sub({ email: loginData.email }, '[initiateLogin] ');
@@ -615,7 +615,9 @@ export class UserService implements UserServiceInterface {
     for (let email of params.emails as Array<string>) {
       const user = await getConnection().getMongoRepository(Investor).findOne({ email: email.toLowerCase() });
       if (user) {
-        throw new InviteIsNotAllowed(`${ email.toLowerCase() } account already exists`);
+        throw new InviteIsNotAllowed(`{{email}} account already exists`, {
+          email: email.toLowerCase()
+        });
       }
     }
 
@@ -670,7 +672,7 @@ export class UserService implements UserServiceInterface {
 
   async initiateEnable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
-      throw new AuthenticatorError('Authenticator is enabled already.');
+      throw new AuthenticatorError('Authenticator is enabled already');
     }
 
     return {
@@ -680,7 +682,7 @@ export class UserService implements UserServiceInterface {
 
   async verifyEnable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod === AUTHENTICATOR_VERIFICATION) {
-      throw new AuthenticatorError('Authenticator is enabled already.');
+      throw new AuthenticatorError('Authenticator is enabled already');
     }
 
     const logger = this.logger.sub({ email: user.email }, '[verifyEnable2fa] ');
@@ -704,7 +706,7 @@ export class UserService implements UserServiceInterface {
 
   async initiateDisable2fa(user: Investor): Promise<BaseInitiateResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
-      throw new AuthenticatorError('Authenticator is disabled already.');
+      throw new AuthenticatorError('Authenticator is disabled already');
     }
 
     return {
@@ -714,7 +716,7 @@ export class UserService implements UserServiceInterface {
 
   async verifyDisable2fa(user: Investor, params: VerificationInput): Promise<Enable2faResult> {
     if (user.defaultVerificationMethod !== AUTHENTICATOR_VERIFICATION) {
-      throw new AuthenticatorError('Authenticator is disabled already.');
+      throw new AuthenticatorError('Authenticator is disabled already');
     }
 
     const logger = this.logger.sub({ email: user.email }, '[verifyEnable2fa] ');

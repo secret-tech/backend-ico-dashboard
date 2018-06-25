@@ -41,7 +41,7 @@ export class Auth {
 
       if (!req.user) {
         return res.status(404).json({
-          error: 'User is not found'
+          message: 'User is not found'
         });
       }
 
@@ -53,8 +53,8 @@ export class Auth {
 
   notAuthorized(res: Response) {
     return res.status(401).json({
-      statusCode: 401,
-      error: 'Not Authorized'
+      status: 401,
+      message: 'Not Authorized'
     });
   }
 }

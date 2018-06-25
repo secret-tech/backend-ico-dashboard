@@ -1,0 +1,30 @@
+{
+  "ru": {
+    "translation": {
+      "Your account verification failed. Please contact {{companyName}} team": "Не удалось выполнить проверку аккаунта. Пожалуйста, свяжитесь с командой {{companyName}}",
+      "Your account is verified already": "Ваш аккаунт уже проверен",
+      "Your account verification is pending. Please wait for status update": "Проверка вашего аккаунта ещё не завершена. Пожалуйста, дождитесь обновления статуса",
+      "Insufficient funds to perform this operation and pay tx fee": "Недостаточно средств для выполнения этой операции и оплаты tx fee",
+      "Authenticator is disabled already": "Аутентификатор уже отключен",
+      "Authenticator is enabled already": "Аутентификатор уже включен",
+      "Invalid password": "Неверный пароль",
+      "Account is not activated! Please check your email": "Аккаунт не активирован! Пожалуйста, проверьте свою электронную почту",
+      "User is activated already": "Пользователь уже активирован",
+      "Code was expired or not found. Please retry": "Код истек или не найден. Пожалуйста, повторите попытку",
+      "User is not found": "Пользователь не найден",
+      "User already exists": "Пользователь уже существует",
+      "Not correct code": "Неверный код",
+      "Not valid referral code": "Недопустимый реферальный код",
+      "You are not able to invite yourself": "Вы не можете пригласить себя",
+      "It is not possible to invite more than 5 emails at once": "Невозможно пригласить более 5 писем одновременно",
+      "You have already sent 50 invites during last 24 hours": "Вы уже отправили 50 приглашений в течение последних 24 часов",
+      "You have already invited {{email}} during last 24 hours": "Вы уже пригласили {{email}} в течение последних 24 часов",
+      "You have already invited {{email}} at least 5 times": "Вы уже пригласили {{email}} не менее 5 раз",
+      "{{email}} account already exists": "Аккаунт {{email}} уже существует",
+      "You have used all attempts to enter code": "Вы использовали все попытки ввода кода",
+      "Not correct mnemonic phrase": "Неправильная мнемоническая фраза",
+      "must be at least 8 characters, contain at least one number, 1 small and 1 capital letter": "должен содержать не менее 8 символов, содержать хотя бы одно число, 1 маленькую и 1 заглавную букву",
+      "must be a valid phone number (+1234567890)": "должен быть действительным номером телефона (+1234567890)"
+    }
+  }
+}

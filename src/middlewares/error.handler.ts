@@ -1,8 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import * as Err from '../exceptions/exceptions';
+import { ErrorWithFields } from '../exceptions/exceptions';
+import * as fs from 'fs';
+import * as i18next from 'i18next';
+import { responseErrorWithObject } from '../helpers/responses';
 
-export default function handle(err: Error, req: Request, res: Response, next: NextFunction): void {
+export default function handle(err: ErrorWithFields, req: Request, res: Response, next: NextFunction): void {
   let status;
+  const lang = req.acceptsLanguages() || 'en';
+  const langPath = __dirname + `/../resources/locales/${lang}/errors.json`;
+  const translations = fs.existsSync(langPath) ? require(langPath) : null;
+
+  i18next.init({
+    lng: lang.toString(),
+    resources: translations
+  });
 
   switch (err.constructor) {
     case Err.KycFailedError:
@@ -19,7 +31,7 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
     case Err.InvalidPassword:
       // no break
     case Err.UserNotActivated:
-      //no break
+      // no break
     case Err.UserActivated:
       status = 403;
       break;
@@ -49,8 +61,7 @@ export default function handle(err: Error, req: Request, res: Response, next: Ne
       console.error(err.stack);
   }
 
-  res.status(status).send({
-    statusCode: status,
-    error: err.message
-  });
+  responseErrorWithObject(res, {
+    'message': i18next.t(err.message, err.fields)
+  }, status);
 }
