@@ -27,6 +27,8 @@ const {
   AUTH_BASE_URL,
   VERIFY_BASE_URL,
   MONGO_URL,
+  MONGO_AUTH_SOURCE,
+  MONGO_REPLICA_SET,
   SC_ABI_FOLDER,
   ICO_SC_ADDRESS,
   ICO_OLD_SC_ADDRESSES,
@@ -164,6 +166,8 @@ export default {
     synchronize: true,
     logging: false,
     url: MONGO_URL,
+    authSource: MONGO_AUTH_SOURCE,
+    replicaSet: MONGO_REPLICA_SET,
     entities: [
       ORM_ENTITIES_DIR
     ],
