@@ -3,12 +3,12 @@ services:
 - docker
 before_install:
 - chmod ugo+x ./scripts/build.sh
-script:
 - cp -r .env.test .env
 - docker-compose build
+- docker-compose run -u 0 --no-deps --rm ico sh -c "yarn install"
+script:
 - docker-compose up -d
-- docker-compose exec ico yarn
-- docker-compose exec ico yarn test
+- docker-compose exec -u 0 ico sh -c "yarn test"
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ];  then echo "production"; elif [
   "$TRAVIS_BRANCH" == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse
   --short HEAD)" ; fi`
