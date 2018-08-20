@@ -61,6 +61,9 @@ export class Investor {
   @Column()
   source: any;
 
+  @Column()
+  scope: string;
+
   @Column(type => Verification)
   verification: Verification;
 
@@ -98,6 +101,7 @@ export class Investor {
     });
     user.invitees = [];
     user.source = data.source;
+    user.scope = data.scope;
     return user;
   }
 
