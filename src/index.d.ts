@@ -140,6 +140,7 @@ declare interface UserData {
   referral?: string;
   passwordHash?: string;
   source?: any;
+  scope?: string;
 }
 
 declare interface InputUserData extends UserData {

@@ -503,12 +503,18 @@ export class UserService implements UserServiceInterface {
 
     logger.debug('Recreate user in auth');
 
-    await this.authClient.createUser({
+    const createUserInput = {
       email: user.email.toLowerCase(),
       login: user.email.toLowerCase(),
       password: user.passwordHash,
-      sub: params.verification.verificationId
-    });
+      sub: params.verification.verificationId,
+    };
+
+    if (user.scope) {
+      createUserInput['scope'] = user.scope;
+    }
+
+    await this.authClient.createUser(createUserInput);
 
     logger.debug('Login user in auth');
 
