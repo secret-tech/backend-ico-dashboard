@@ -78,7 +78,7 @@ services:
   mongo:
     image: jincort/backend-mongodb:production
     volumes:
-        - ./storage/mongodb:/data/db
+        - mongodata:/data/db
     networks:
       default:
         ipv4_address: 10.100.0.7
@@ -93,3 +93,6 @@ networks:
       config:
         - subnet: 10.100.0.0/16
           gateway: 10.100.0.1
+
+volumes:
+  mongodata:
