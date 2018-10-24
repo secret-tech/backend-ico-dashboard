@@ -7,7 +7,7 @@ COPY custom-entrypoint.sh /usr/local/bin/custom-entrypoint.sh
 RUN chmod 755 /usr/local/bin/custom-entrypoint.sh && \
     addgroup ico && \
     adduser -D -G ico ico && \
-    apk add --update --no-cache git python make g++ && \
+    apk add --update --no-cache git python make g++ curl grep bash && \
     npm i -g yarn && \
     yarn install
 
