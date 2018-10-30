@@ -48,9 +48,13 @@ export class ShuftiproProvider implements KycProviderInterface {
         await this.localInitKycProcess(investor, postData.reference);
 
         const options = {
+          'auth': {
+            'user': config.kyc.shuftipro.clientId,
+            'pass': config.kyc.shuftipro.secretKey,
+          },
           'method': 'POST',
           'headers': {
-            'content-type': 'application/x-www-form-urlencoded'
+            'content-type': 'application/json'
           },
           'path': '/',
           'body': qs.stringify(postData)
@@ -237,29 +241,22 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   private preparePostData(user: Investor): any {
-    const verificationServices = {
-      first_name: user.firstName,
-      last_name: user.lastName,
-      dob: user.dob,
-      background_check: '0'
-    };
     const postData = {
-      client_id: this.clientId,
       reference: uuid.v4(),
       email: user.email,
-      phone_number: user.phone,
       country: user.country,
-      lang: 'en',
+      language: 'EN',
+      verification_mode: 'any',
       callback_url: config.kyc.shuftipro.callbackUrl,
       redirect_url: config.kyc.shuftipro.redirectUrl,
-      verification_services: JSON.stringify(verificationServices)
+      background_checks: {
+        name: {
+        	first_name: user.firstName,
+    	    last_name: user.lastName
+        },
+        dob: user.dob
+      }
     };
-
-    let rawData: string = '';
-    Object.keys(postData).sort().forEach(function(value) {
-      rawData += postData[value];
-    });
-    postData['signature'] = this.signature(rawData);
 
     return postData;
   }
