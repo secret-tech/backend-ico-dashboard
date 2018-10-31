@@ -53,6 +53,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       if (!verificationResponse.error) {
         await this.saveKycInitResult(investor, verificationResponse);
         this.logger.info('Successful init');
+        verificationResponse.message = verificationResponse.verification_url;
         return verificationResponse;
       }
       logger.exception(verificationResponse.error);

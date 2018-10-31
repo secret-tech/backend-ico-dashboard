@@ -292,6 +292,7 @@ declare interface ShuftiProVerificationData {
 }
 
 declare interface ShuftiProVerificationResponse {
+  message?: string;
   reference: string;
   event: string;
   error: any;
