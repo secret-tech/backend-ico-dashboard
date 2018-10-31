@@ -43,6 +43,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.post('*', (req: Request, res: Response, next: NextFunction) => {
+  if (
+    !req.header('Content-Type') ||
+    (req.header('Content-Type') !== 'application/json' && !req.header('Content-Type').includes('application/x-www-form-urlencoded'))
+  ) {
+    return res.status(406).json({
+      error: 'Unsupported "Content-Type"'
+    });
+  }
+
   return next();
 });
 
