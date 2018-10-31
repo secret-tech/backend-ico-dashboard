@@ -99,7 +99,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       return;
     }
 
-    const signature = this.spSignature(kycResultRequest);
+    const signature = this.spSignature(JSON.stringify(kycResultRequest));
     if (signature === spSignature) {
       switch (kycResult.event) {
         case VERIFICATION_ACCEPTED:
