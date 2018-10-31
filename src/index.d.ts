@@ -257,7 +257,6 @@ declare interface JumioInitResult extends KycInitResult {
 }
 
 declare interface ShuftiproInitResult extends KycInitResult {
-  message?: string;
   event?: string;
   reference?: string;
   error?: boolean;
@@ -293,7 +292,6 @@ declare interface ShuftiProVerificationData {
 }
 
 declare interface ShuftiProVerificationResponse {
-  message?: string;
   reference: string;
   event: string;
   error: any;
