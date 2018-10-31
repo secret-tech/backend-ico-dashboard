@@ -257,11 +257,14 @@ declare interface JumioInitResult extends KycInitResult {
 }
 
 declare interface ShuftiproInitResult extends KycInitResult {
-  status_code?: string;
-  message: string;
+  event?: string;
   reference?: string;
-  signature?: string;
   error?: boolean;
+  token?: string;
+  verification_url?: string;
+  verification_result?: string | null;
+  verification_data?: any;
+  declined_reason?: any;
 }
 
 declare interface KycScanStatus {

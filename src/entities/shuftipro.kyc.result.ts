@@ -6,16 +6,25 @@ export class ShuftiproKycResult {
   id: ObjectID;
 
   @Column()
-  statusCode?: string;
-
-  @Column()
-  message: string;
+  event?: string;
 
   @Column()
   reference?: string;
 
   @Column()
-  signature?: string;
+  token?: string;
+
+  @Column()
+  verificationUrl?: string;
+
+  @Column()
+  verificationResult?: string | null;
+
+  @Column()
+  verificationData?: any;
+
+  @Column()
+  declinedReason?: any;
 
   @Column()
   error?: boolean;
@@ -28,11 +37,14 @@ export class ShuftiproKycResult {
 
   static createShuftiproKycResult(data: ShuftiproInitResult): ShuftiproKycResult {
     const kycResult = new ShuftiproKycResult();
-    kycResult.statusCode = data.status_code;
-    kycResult.message = data.message;
+    kycResult.event = data.event;
+    kycResult.token = data.token;
     kycResult.reference = data.reference;
-    kycResult.signature = data.signature;
+    kycResult.verificationData = data.verification_data;
+    kycResult.verificationResult = data.verification_result;
+    kycResult.verificationUrl = data.verification_url;
     kycResult.timestamp = data.timestamp;
+    kycResult.declinedReason = data.declined_reason;
 
     if (data.error) {
       kycResult.error = data.error;
