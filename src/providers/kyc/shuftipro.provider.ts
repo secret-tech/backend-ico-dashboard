@@ -151,10 +151,7 @@ export class ShuftiproProvider implements KycProviderInterface {
       }
       return user.kycInitResult as ShuftiproInitResult;
     } catch (error) {
-      if (error.constructor === KycShuftiProInvalidSignature) {
-        return await this.createNewKycProcess(user);
-      }
-      throw error;
+      return await this.createNewKycProcess(user);
     }
   }
 
