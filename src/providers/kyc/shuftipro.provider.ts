@@ -79,6 +79,10 @@ export class ShuftiproProvider implements KycProviderInterface {
   }
 
   async processCallback(kycResultRequest: ShuftiproInitResult, spSignature: string): Promise<void> {
+    const logger = this.logger.sub({ reference: kycResultRequest.reference }).addPrefix('[callback]');
+
+    logger.debug('process callback request');
+
     const kycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
     const investorRepo = getConnection().getMongoRepository(Investor);
     const storedKycResult = await kycResultRepo.findOne({ where: {'reference': kycResultRequest.reference} });
@@ -101,9 +105,12 @@ export class ShuftiproProvider implements KycProviderInterface {
         case VERIFICATION_ACCEPTED:
           investor.kycStatus = KYC_STATUS_VERIFIED;
           investor.kycInitResult = kycResult;
+
+          logger.debug('add investor into whitelist', investor.email);
           await this.web3Client.addAddressToWhiteList(investor.ethWallet.address);
           break;
         case VERIFICATION_DECLINED:
+          logger.debug('verification declined', investor.email, kycResult);
           investor.kycStatus = KYC_STATUS_FAILED;
           investor.kycInitResult = kycResult;
           break;
