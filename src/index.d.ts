@@ -262,9 +262,48 @@ declare interface ShuftiproInitResult extends KycInitResult {
   error?: boolean;
   token?: string;
   verification_url?: string;
-  verification_result?: string | null;
+  verification_result?: any;
   verification_data?: any;
   declined_reason?: any;
+}
+
+declare interface ShuftiProName {
+  first_name: string;
+  last_name: string;
+}
+
+declare interface ShuftiProDocument {
+  supported_types: string[];
+  name: ShuftiProName;
+  dob: string;
+}
+
+declare interface ShuftiProBackgroundChecks {
+  name: ShuftiProName;
+  dob: string;
+}
+
+declare interface ShuftiProVerificationData {
+  reference: string;
+  country: string;
+  callback_url: string;
+  document: ShuftiProDocument;
+  background_checks: ShuftiProBackgroundChecks;
+}
+
+declare interface ShuftiProVerificationResponse {
+  reference: string;
+  event: string;
+  error: any;
+  token: string;
+  verification_url: string;
+  verification_result: number | null;
+  verification_data: any;
+}
+
+declare interface ShuftiProStatusResponse {
+  reference: string;
+  event: string;
 }
 
 declare interface KycScanStatus {

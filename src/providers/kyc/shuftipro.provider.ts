@@ -11,6 +11,7 @@ import { KycAlreadyVerifiedError, KycFailedError, KycPendingError, KycShuftiProI
 import { getConnection } from 'typeorm';
 import { ShuftiproKycResult } from '../../entities/shuftipro.kyc.result';
 import { Web3ClientInterface, Web3ClientType } from '../../services/web3.client';
+import { ShuftiProClientType, ShuftiProClientInterface } from '../../services/shuftipro.client';
 
 const mongo = require('mongodb');
 
@@ -27,17 +28,12 @@ const VERIFICATION_DECLINED = 'verification.declined';
 export class ShuftiproProvider implements KycProviderInterface {
 
   private logger = Logger.getInstance('SHUFTIPRO_KYC_CLIENT');
-  clientId: string;
-  secretKey: string;
-  baseUrl: string;
   kycEnabled: boolean;
 
   constructor(
-    @inject(Web3ClientType) private web3Client: Web3ClientInterface
+    @inject(Web3ClientType) private web3Client: Web3ClientInterface,
+    @inject(ShuftiProClientType) private shuftiClient: ShuftiProClientInterface
   ) {
-    this.clientId = config.kyc.shuftipro.clientId;
-    this.secretKey = config.kyc.shuftipro.secretKey;
-    this.baseUrl = config.kyc.shuftipro.baseUrl;
     this.kycEnabled = config.kyc.enabled;
 
     request.defaults({
@@ -49,34 +45,18 @@ export class ShuftiproProvider implements KycProviderInterface {
     const logger = this.logger.sub({ email: investor.email }).addPrefix('[init]');
 
     if (this.kycEnabled) {
-      const postData = this.preparePostData(investor);
-      await this.localInitKycProcess(investor, postData.reference);
+      const verificationData = this.preparePostData(investor);
+      await this.localInitKycProcess(investor, verificationData.reference);
 
-      const options = {
-        headers: {
-          'content-type': 'application/json',
-          'autorization': this.authOption()
-        }
-      };
+      const verificationResponse = await this.shuftiClient.init(verificationData);
 
-      const response = await request.post(this.baseUrl + '/api', options, JSON.stringify(postData));
-      const kycInitResponse = JSON.parse(response.content);
-
-      if (!kycInitResponse.error) {
-        const signature = this.signature(kycInitResponse + config.kyc.shuftipro.secretKey);
-        if (signature === response.headers['sp_signature']) {
-          await this.saveKycInitResult(investor, kycInitResponse);
-          this.logger.info('Successful init');
-          return {
-            event: kycInitResponse.event,
-            error: kycInitResponse.error,
-            verification_url: kycInitResponse.verification_url,
-            reference: postData.reference,
-            timestamp: (new Date()).toISOString()
-          } as ShuftiproInitResult;
-        }
+      if (!verificationResponse.error) {
+        await this.saveKycInitResult(investor, verificationResponse);
+        this.logger.info('Successful init');
+        return verificationResponse;
       }
-      throw new Error(kycInitResponse.error);
+      logger.exception(verificationResponse.error);
+      throw new Error(verificationResponse.error);
     }
 
     return {
@@ -181,40 +161,9 @@ export class ShuftiproProvider implements KycProviderInterface {
   private async getKycStatus(investor: Investor): Promise<ShuftiproInitResult> {
     this.logger.debug('get kyc status');
     const kycInitResult = investor.kycInitResult as ShuftiproInitResult;
-    const postData = {
-      reference: kycInitResult.reference
-    };
 
-    const options = {
-      'headers': {
-        'content-type': 'application/json',
-        'Authorization': this.authOption()
-      }
-    };
-
-    const response = await request.post(this.baseUrl + '/api/status', options, JSON.stringify(postData));
-    if (response.content.length > 0) {
-      const result = JSON.parse(response.content);
-      if (!result.error) {
-        const signature = this.signature(result.status_code + result.message + result.reference);
-        if (signature === result.signature) {
-          return { ...result, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
-        }
-        throw new KycShuftiProInvalidSignature('Invalid signature');
-      }
-    }
-
-    return {
-      error: true
-    } as ShuftiproInitResult;
-  }
-
-  private authOption() {
-    return 'Basic ' + Buffer.from(`${config.kyc.shuftipro.clientId}:${config.kyc.shuftipro.secretKey}`).toString('base64');
-  }
-
-  private signature(data: string): string {
-    return crypto.createHash('sha256').update(data + this.secretKey, 'utf8').digest('hex');
+    const statusResponse = await this.shuftiClient.status(kycInitResult.reference);
+    return { ...statusResponse, timestamp: (new Date()).toISOString() } as ShuftiproInitResult;
   }
 
   private async localInitKycProcess(user: Investor, reference: string): Promise<void> {
@@ -229,32 +178,43 @@ export class ShuftiproProvider implements KycProviderInterface {
     await shuftiproKycResultRepo.save(localInitKyc);
   }
 
-  private async saveKycInitResult(user: Investor, kycInitResponse: ShuftiproInitResult): Promise<void> {
+  private async saveKycInitResult(user: Investor, kycInitResponse: ShuftiProVerificationResponse): Promise<void> {
     const shuftiproKycResultRepo = getConnection().getMongoRepository(ShuftiproKycResult);
 
-    const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({ ...kycInitResponse, timestamp: (new Date()).toISOString() });
+    const kycInitResult = ShuftiproKycResult.createShuftiproKycResult({
+      error: kycInitResponse.error,
+      event: kycInitResponse.event,
+      reference: kycInitResponse.reference,
+      verification_url: kycInitResponse.verification_url,
+      verification_result: kycInitResponse.verification_result,
+      timestamp: (new Date()).toISOString()
+    });
     await shuftiproKycResultRepo.save(shuftiproKycResultRepo.create({ ...kycInitResult, user: user.id }));
   }
 
-  private preparePostData(user: Investor): any {
-    const postData = {
-      reference: uuid.v4(),
-      email: user.email,
-      country: user.country,
-      language: 'EN',
-      verification_mode: 'any',
+  private preparePostData(user: Investor): ShuftiProVerificationData {
+    const verificationData = {
       callback_url: config.kyc.shuftipro.callbackUrl,
-      redirect_url: config.kyc.shuftipro.redirectUrl,
+      reference: uuid.v4(),
+      country: user.country,
+      document: {
+        supported_types: ['passport', 'id_card', 'driving_license'],
+        name: {
+          first_name: user.firstName,
+          last_name: user.lastName
+        },
+        dob: user.dob
+      },
       background_checks: {
         name: {
-        	first_name: user.firstName,
-    	    last_name: user.lastName
+          first_name: user.firstName,
+          last_name: user.lastName
         },
         dob: user.dob
       }
-    };
+    } as ShuftiProVerificationData;
 
-    return postData;
+    return verificationData;
   }
 
   private async createNewKycProcess(user: Investor): Promise<ShuftiproInitResult> {

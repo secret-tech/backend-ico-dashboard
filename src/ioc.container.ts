@@ -25,6 +25,7 @@ import { GatewayController } from './controllers/gateway.controller';
 import { EmailTemplateService, EmailTemplateServiceType } from './services/email.template.service';
 import { JumioProvider } from './providers/kyc/jumio.provider';
 import { ShuftiproProvider } from './providers/kyc/shuftipro.provider';
+import { ShuftiProClientInterface, ShuftiProClientType, ShuftiProClient } from './services/shuftipro.client';
 
 let container = new Container();
 
@@ -60,6 +61,10 @@ container.bind<CoinpaymentsClientInterface>(CoinpaymentsClientType).to(Coinpayme
 container.bind<PaymentsServiceInterface>(PaymentsServiceType).to(PaymentsService).inSingletonScope();
 container.bind<IPNServiceInterface>(IPNServiceType).to(IPNService).inSingletonScope();
 container.bind<EmailTemplateServiceInterface>(EmailTemplateServiceType).to(EmailTemplateService).inSingletonScope();
+container.bind<ShuftiProClientInterface>(ShuftiProClientType).toConstantValue(new ShuftiProClient(
+  config.kyc.shuftipro.clientId,
+  config.kyc.shuftipro.secretKey
+));
 
 const auth = new Auth(container.get<AuthClientInterface>(AuthClientType));
 // middlewares
