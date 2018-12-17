@@ -192,7 +192,7 @@ export default {
     shuftipro: {
       clientId: KYC_SHUFTIPRO_CLIENT_ID,
       secretKey: KYC_SHUFTIPRO_SECRET_KEY,
-      baseUrl: 'https://api.shuftipro.com',
+      baseUrl: 'https://shuftipro.com',
       callbackUrl: KYC_SHUFTIPRO_CALLBACK_URL,
       redirectUrl: KYC_SHUFTIPRO_REDIRECT_URL,
       allowRecreateSession: (KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION === 'true') || false,
